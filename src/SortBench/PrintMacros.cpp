@@ -251,7 +251,7 @@ static const CompilerMarco compiler_arch[] = {
     COMPILER_MARCO_ENTRY(__LITTLE_ENDIAN__),
 #endif
 
-    { "default_compiler_arch", "true" }
+    { "DEFAULT_COMPILER_ARCH", "True" }
 };
 
 static const CompilerMarco compiler_others[] = {
@@ -330,7 +330,5 @@ void print_marcos()
     for (i = 0; i < __count_of(compiler_others); i++) {
         printf("#define %s %s\n", compiler_others[i].name, compiler_others[i].value);
     }
-    printf("\n");
-
     printf("\n");
 }
