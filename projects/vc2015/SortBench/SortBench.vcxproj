@@ -27,6 +27,7 @@
     <ClInclude Include="..\..\..\src\jstd\algorithms\InsertSort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\pdqsort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\SelectSort.h" />
+    <ClInclude Include="..\..\..\src\jstd\SortAlgorithms.h" />
     <ClInclude Include="..\..\..\src\SortBench\CPUWarmUp.h" />
     <ClInclude Include="..\..\..\src\SortBench\StopWatch.h" />
   </ItemGroup>

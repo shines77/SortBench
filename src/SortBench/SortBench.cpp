@@ -17,7 +17,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "jstd/Algorithms.h"
+#include "jstd/SortAlgorithms.h"
 
 #include "SortBench/CPUWarmUp.h"
 #include "SortBench/StopWatch.h"

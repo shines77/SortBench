@@ -39,5 +39,8 @@
     <ClInclude Include="..\..\..\src\jstd\algorithms\SelectSort.h">
       <Filter>src\jstd\algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\SortAlgorithms.h">
+      <Filter>src\jstd</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
