@@ -110,6 +110,21 @@ inline uint64_t rand64()
 #endif
 }
 
+template <typename ForwardIter, typename Comparer>
+void heap_sort(ForwardIter begin, ForwardIter end, Comparer comp)
+{
+    std::make_heap(begin, end, comp);
+    std::sort_heap(begin, end, comp);
+}
+
+template <typename ForwardIter>
+void heap_sort(ForwardIter begin, ForwardIter end)
+{
+    typedef typename std::iterator_traits<ForwardIter>::value_type T;
+    std::make_heap(begin, end, std::less<T>());
+    std::sort_heap(begin, end, std::less<T>());
+}
+
 template <size_t ArrayCount, size_t N>
 inline size_t getArrayCount()
 {
@@ -179,6 +194,10 @@ void run_sort_benchmark(std::unique_ptr<std::vector<T>[]> & src_array_list, size
         std::vector<T> & test_array = test_array_list[i];
         if (0) {
             // Do nothing!!
+        } else if (AlgorithmId == Algorithm::StdHeapSort) {
+            heap_sort(test_array.begin(), test_array.end());
+        } else if (AlgorithmId == Algorithm::StdStableSort) {
+            std::stable_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::StdSort) {
             std::sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::PdQSort) {
@@ -220,6 +239,8 @@ void sort_benchmark_impl()
         }
     }
 
+    run_sort_benchmark<Algorithm::StdHeapSort, T>(test_array_list, array_count);
+    run_sort_benchmark<Algorithm::StdStableSort, T>(test_array_list, array_count);
     run_sort_benchmark<Algorithm::StdSort, T>(test_array_list, array_count);
     run_sort_benchmark<Algorithm::PdQSort, T>(test_array_list, array_count);
 }
