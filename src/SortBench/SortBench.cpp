@@ -186,7 +186,7 @@ void run_sort_benchmark(std::unique_ptr<std::vector<T>[]> & src_array_list, size
     }
     sw.stop();
 
-    printf("Copy time: %2.3f ms, ", sw.getElapsedMillisec());
+    printf("Copy time: %6.3f ms, ", sw.getElapsedMillisec());
 
     // Sort all test array
     sw.start();
@@ -208,7 +208,7 @@ void run_sort_benchmark(std::unique_ptr<std::vector<T>[]> & src_array_list, size
     }
     sw.stop();
 
-    printf("Sort time: %0.3f ms\n", sw.getElapsedMillisec());
+    printf("Sort time: %7.3f ms\n", sw.getElapsedMillisec());
 }
 
 template <typename T, size_t ArrayType, size_t MinN, size_t MaxN>
