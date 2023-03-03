@@ -203,7 +203,7 @@ void sort_benchmark_impl()
     size_t array_count = getArrayCount<kTotalArrayCount, (MinN > MaxN) ? MinN : MaxN>();
     std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
 
-    printf("sort_benchmark<%d, %7u, %7u>, maxLength = %5u, array_count = %u\n\n",
+    printf("sort_benchmark<%d, %u, %u>, maxLength = %u, array_count = %u\n\n",
            (int)ArrayType, (uint32_t)minN, (uint32_t)maxN,
            (uint32_t)maxLength, (uint32_t)array_count);
     
