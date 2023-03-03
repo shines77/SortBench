@@ -12,6 +12,7 @@
 + 冒泡排序
 + 堆排序
 + 归并排序
++ Timsort
 + 快速排序
 + [Pattern-defeating QuickSort](https://github.com/orlp/pdqsort)
 
