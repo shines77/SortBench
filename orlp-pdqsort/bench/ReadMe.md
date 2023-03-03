@@ -1,4 +1,4 @@
-# bench
+# Sort Benchmark
 
 ## Depend library
 
@@ -39,5 +39,6 @@ g++ -std=c++11 -O2 -m64 -march=native bench.cpp -o ./bench
 mkdir ./profiles
 ./bench > profiles/pdqsort.txt
 
+mkdir ./plots
 python3 bench-graph.py "i5-4670k @ 3.4GHz"
 ```
