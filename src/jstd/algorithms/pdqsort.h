@@ -258,35 +258,35 @@ namespace pdqsort_detail {
                 // Fill the offset blocks.
                 if (left_split >= kBlockSize) {
                     for (size_t i = 0; i < kBlockSize;) {
-                        offsets_l[num_l] = i++; num_l += !comp(*first, pivot); ++first;
-                        offsets_l[num_l] = i++; num_l += !comp(*first, pivot); ++first;
-                        offsets_l[num_l] = i++; num_l += !comp(*first, pivot); ++first;
-                        offsets_l[num_l] = i++; num_l += !comp(*first, pivot); ++first;
-                        offsets_l[num_l] = i++; num_l += !comp(*first, pivot); ++first;
-                        offsets_l[num_l] = i++; num_l += !comp(*first, pivot); ++first;
-                        offsets_l[num_l] = i++; num_l += !comp(*first, pivot); ++first;
-                        offsets_l[num_l] = i++; num_l += !comp(*first, pivot); ++first;
+                        offsets_l[num_l] = (uint8_t)i++; num_l += !comp(*first, pivot); ++first;
+                        offsets_l[num_l] = (uint8_t)i++; num_l += !comp(*first, pivot); ++first;
+                        offsets_l[num_l] = (uint8_t)i++; num_l += !comp(*first, pivot); ++first;
+                        offsets_l[num_l] = (uint8_t)i++; num_l += !comp(*first, pivot); ++first;
+                        offsets_l[num_l] = (uint8_t)i++; num_l += !comp(*first, pivot); ++first;
+                        offsets_l[num_l] = (uint8_t)i++; num_l += !comp(*first, pivot); ++first;
+                        offsets_l[num_l] = (uint8_t)i++; num_l += !comp(*first, pivot); ++first;
+                        offsets_l[num_l] = (uint8_t)i++; num_l += !comp(*first, pivot); ++first;
                     }
                 } else {
                     for (size_t i = 0; i < left_split;) {
-                        offsets_l[num_l] = i++; num_l += !comp(*first, pivot); ++first;
+                        offsets_l[num_l] = (uint8_t)i++; num_l += !comp(*first, pivot); ++first;
                     }
                 }
 
                 if (right_split >= kBlockSize) {
                     for (size_t i = 0; i < kBlockSize;) {
-                        offsets_r[num_r] = ++i; num_r += comp(*--last, pivot);
-                        offsets_r[num_r] = ++i; num_r += comp(*--last, pivot);
-                        offsets_r[num_r] = ++i; num_r += comp(*--last, pivot);
-                        offsets_r[num_r] = ++i; num_r += comp(*--last, pivot);
-                        offsets_r[num_r] = ++i; num_r += comp(*--last, pivot);
-                        offsets_r[num_r] = ++i; num_r += comp(*--last, pivot);
-                        offsets_r[num_r] = ++i; num_r += comp(*--last, pivot);
-                        offsets_r[num_r] = ++i; num_r += comp(*--last, pivot);
+                        offsets_r[num_r] = (uint8_t)++i; num_r += comp(*--last, pivot);
+                        offsets_r[num_r] = (uint8_t)++i; num_r += comp(*--last, pivot);
+                        offsets_r[num_r] = (uint8_t)++i; num_r += comp(*--last, pivot);
+                        offsets_r[num_r] = (uint8_t)++i; num_r += comp(*--last, pivot);
+                        offsets_r[num_r] = (uint8_t)++i; num_r += comp(*--last, pivot);
+                        offsets_r[num_r] = (uint8_t)++i; num_r += comp(*--last, pivot);
+                        offsets_r[num_r] = (uint8_t)++i; num_r += comp(*--last, pivot);
+                        offsets_r[num_r] = (uint8_t)++i; num_r += comp(*--last, pivot);
                     }
                 } else {
                     for (size_t i = 0; i < right_split;) {
-                        offsets_r[num_r] = ++i; num_r += comp(*--last, pivot);
+                        offsets_r[num_r] = (uint8_t)++i; num_r += comp(*--last, pivot);
                     }
                 }
 

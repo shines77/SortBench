@@ -36,6 +36,21 @@ static const size_t kTotalArrayCount = 1024 * 1024 * 4;
 static const size_t kTotalArrayCount = 1024 * 256;
 #endif
 
+struct Algorithm {
+    enum {
+        SelectSort,
+        InsertSort,
+        BubbleSort,
+        QuickSort,
+        TimSort,
+        StdHeapSort,
+        StdStableSort,
+        StdSort,
+        PdQSort,
+        Last
+    };
+};
+
 struct ArrayKind {
     enum {
         ShuffledNoRepeat,
@@ -98,22 +113,84 @@ inline uint64_t rand64()
 template <size_t ArrayCount, size_t N>
 inline size_t getArrayCount()
 {
-    size_t arrayCount;
+    size_t array_count;
     if (N <= 8)
-        arrayCount = ((ArrayCount / 32) + (N - 1)) / N;
+        array_count = ((ArrayCount / 32) + (N - 1)) / N;
     else if (N <= 16)
-        arrayCount = ((ArrayCount / 16) + (N - 1)) / N;
+        array_count = ((ArrayCount / 16) + (N - 1)) / N;
     else if (N <= 64)
-        arrayCount = ((ArrayCount / 8) + (N - 1)) / N;
+        array_count = ((ArrayCount / 8) + (N - 1)) / N;
     else if (N <= 512)
-        arrayCount = ((ArrayCount / 4) + (N - 1)) / N;
+        array_count = ((ArrayCount / 4) + (N - 1)) / N;
     else if (N <= 4096)
-        arrayCount = ((ArrayCount / 2) + (N - 1)) / N;
+        array_count = ((ArrayCount / 2) + (N - 1)) / N;
     else if (N <= 32768)
-        arrayCount = (ArrayCount + (N - 1)) / N;
+        array_count = (ArrayCount + (N - 1)) / N;
     else
-        arrayCount = (ArrayCount + (N - 1)) / N / 2;
-    return (arrayCount == 0) ? 1 : arrayCount;
+        array_count = (ArrayCount + (N - 1)) / N / 2;
+    return (array_count == 0) ? 1 : array_count;
+}
+
+template <size_t AlgorithmId>
+const char * getSortAlgorithmName()
+{
+    if (0)
+        return "Unreachable";
+    else if (AlgorithmId == Algorithm::SelectSort)
+        return "SelectSort";
+    else if (AlgorithmId == Algorithm::InsertSort)
+        return "InsertSort";
+    else if (AlgorithmId == Algorithm::BubbleSort)
+        return "BubbleSort";
+    else if (AlgorithmId == Algorithm::StdHeapSort)
+        return "std::heap_sort";
+    else if (AlgorithmId == Algorithm::StdStableSort)
+        return "std::stable_sort";
+    else if (AlgorithmId == Algorithm::StdSort)
+        return "std::sort";
+    else if (AlgorithmId == Algorithm::PdQSort)
+        return "PdQSort";
+    else
+        return "Unknown";
+}
+
+template <size_t AlgorithmId, typename T>
+void run_sort_benchmark(std::unique_ptr<std::vector<T>[]> & src_array_list, size_t array_count)
+{
+    test::StopWatch sw;
+    std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
+
+    printf("Algorithm: %s\n", getSortAlgorithmName<AlgorithmId>());
+
+    // Copy test array from src_array_list
+    sw.start();
+    for (size_t i = 0; i < array_count; i++) {
+        std::vector<T> & src_test_array = src_array_list[i];
+        std::vector<T> & test_array = test_array_list[i];
+        test_array.insert(test_array.cbegin(), src_test_array.begin(), src_test_array.end());
+    }
+    sw.stop();
+
+    printf("Copy time: %0.3f ms\n", sw.getElapsedMillisec());
+
+    // Sort all test array
+    sw.start();
+    for (size_t i = 0; i < array_count; i++) {
+        std::vector<T> & test_array = test_array_list[i];
+        if (0) {
+            // Do nothing!!
+        } else if (AlgorithmId == Algorithm::StdSort) {
+            std::sort(test_array.begin(), test_array.end());
+        } else if (AlgorithmId == Algorithm::PdQSort) {
+            pdqsort(test_array.begin(), test_array.end());
+        } else {
+            // Unknown algorithm
+        }
+    }
+    sw.stop();
+
+    printf("Sort time: %0.3f ms\n", sw.getElapsedMillisec());
+    printf("\n");
 }
 
 template <typename T, size_t ArrayType, size_t MinN, size_t MaxN>
@@ -123,15 +200,15 @@ void sort_benchmark_impl()
     static const size_t maxN = (MinN > MaxN) ? MinN : MaxN;
     static const size_t maxLength = (maxN + 1 - minN);
 
-    size_t arrayCount = getArrayCount<kTotalArrayCount, (MinN > MaxN) ? MinN : MaxN>();
-    std::unique_ptr<std::vector<T>[]> test_list(new std::vector<T>[arrayCount]());
+    size_t array_count = getArrayCount<kTotalArrayCount, (MinN > MaxN) ? MinN : MaxN>();
+    std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
 
-    printf("sort_benchmark<%d, %7u, %7u>, maxLength = %5u, arrayCount = %u\n",
+    printf("sort_benchmark<%d, %7u, %7u>, maxLength = %5u, array_count = %u\n\n",
            (int)ArrayType, (uint32_t)minN, (uint32_t)maxN,
-           (uint32_t)maxLength, (uint32_t)arrayCount);
+           (uint32_t)maxLength, (uint32_t)array_count);
     
-    for (size_t i = 0; i < arrayCount; i++) {
-        std::vector<T> & test_array = test_list[i];
+    for (size_t i = 0; i < array_count; i++) {
+        std::vector<T> & test_array = test_array_list[i];
         size_t length;
         if (maxLength <= 0x00008000u)
             length = minN + (size_t)rand16() % maxLength;
@@ -142,6 +219,9 @@ void sort_benchmark_impl()
             test_array.push_back(rndNum);
         }
     }
+
+    run_sort_benchmark<Algorithm::StdSort, T>(test_array_list, array_count);
+    run_sort_benchmark<Algorithm::PdQSort, T>(test_array_list, array_count);
 }
 
 template <typename T, size_t ArrayType, size_t N>
