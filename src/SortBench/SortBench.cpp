@@ -175,7 +175,7 @@ void run_sort_benchmark(std::unique_ptr<std::vector<T>[]> & src_array_list, size
     test::StopWatch sw;
     std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
 
-    printf("Algorithm: %s\n", getSortAlgorithmName<AlgorithmId>());
+    printf("Algorithm: %-20s ", getSortAlgorithmName<AlgorithmId>());
 
     // Copy test array from src_array_list
     sw.start();
@@ -186,7 +186,7 @@ void run_sort_benchmark(std::unique_ptr<std::vector<T>[]> & src_array_list, size
     }
     sw.stop();
 
-    printf("Copy time: %0.3f ms\n", sw.getElapsedMillisec());
+    printf("Copy time: %2.3f ms, ", sw.getElapsedMillisec());
 
     // Sort all test array
     sw.start();
@@ -209,7 +209,6 @@ void run_sort_benchmark(std::unique_ptr<std::vector<T>[]> & src_array_list, size
     sw.stop();
 
     printf("Sort time: %0.3f ms\n", sw.getElapsedMillisec());
-    printf("\n");
 }
 
 template <typename T, size_t ArrayType, size_t MinN, size_t MaxN>
@@ -243,6 +242,8 @@ void sort_benchmark_impl()
     run_sort_benchmark<Algorithm::StdStableSort, T>(test_array_list, array_count);
     run_sort_benchmark<Algorithm::StdSort, T>(test_array_list, array_count);
     run_sort_benchmark<Algorithm::PdQSort, T>(test_array_list, array_count);
+
+    printf("\n");
 }
 
 template <typename T, size_t ArrayType, size_t N>
@@ -297,8 +298,8 @@ int main(int argc, char * argv[])
 
     if (1)
     {
-        sort_benchmark<uint32_t, ArrayKind::ShuffledNoRepeat>();
-        //sort_benchmark<uint32_t, ArrayKind::Shuffled>();
+        //sort_benchmark<uint32_t, ArrayKind::ShuffledNoRepeat>();
+        sort_benchmark<uint32_t, ArrayKind::Shuffled>();
         //sort_benchmark<uint32_t, ArrayKind::ShuffledHeavyRepeat>();
 
         //sort_benchmark<uint32_t, ArrayKind::AllEqual>();
