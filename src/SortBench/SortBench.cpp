@@ -17,6 +17,7 @@
 #include <string.h>
 #include <cstdlib>
 #include <cstdio>
+#include <ctime>        // For std::time()
 #include <string>
 #include <cstring>
 #include <memory>
@@ -221,17 +222,13 @@ void sort_benchmark_impl()
     size_t array_count = getArrayCount<kTotalArrayCount, (MinN > MaxN) ? MinN : MaxN>();
     std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
 
-    printf("sort_benchmark<%d, %u, %u>, maxLength = %u, array_count = %u\n\n",
-           (int)ArrayType, (uint32_t)minN, (uint32_t)maxN,
+    printf("sort_benchmark<%u, %u, %u>, max_length = %u, array_count = %u\n\n",
+           (uint32_t)ArrayType, (uint32_t)minN, (uint32_t)maxN,
            (uint32_t)maxLength, (uint32_t)array_count);
     
     for (size_t i = 0; i < array_count; i++) {
         std::vector<T> & test_array = test_array_list[i];
-        size_t length;
-        if (maxLength <= 0x00008000u)
-            length = minN + (size_t)rand16() % maxLength;
-        else
-            length = minN + (size_t)rand30() % maxLength;
+        size_t length = minN + static_cast<size_t>(rand30()) % maxLength;
         for (size_t n = 0; n < length; n++) {
             T rndNum = static_cast<T>(rand30());
             test_array.push_back(rndNum);
@@ -293,8 +290,8 @@ int main(int argc, char * argv[])
 
     printf("Sort Algorithms Benchmark.\n\n");
 
-    //::srand((unsigned int)::time(NULL));
-    ::srand((unsigned int)20230304L);
+    //std::srand((unsigned int)std::time(0));
+    std::srand((unsigned int)20230304L);
 
     if (1)
     {
