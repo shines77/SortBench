@@ -35,7 +35,7 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
     typedef typename std::iterator_traits<RandomAccessIter>::difference_type difference_type;
 
     difference_type length = end - begin;
-    if (likely(length <= 64)) {
+    if (likely(length <= 256)) {
         RandomAccessIter cur = begin;
         do {
             RandomAccessIter key = cur + 1;
