@@ -18,9 +18,6 @@ namespace detail {
 template <typename RandomAccessIter, typename Comparer>
 inline void bubble_sort(RandomAccessIter begin, RandomAccessIter end, Comparer comp,
                         std::random_access_iterator_tag) {
-    typedef typename std::iterator_traits<RandomAccessIter>::value_type T;
-    typedef typename std::iterator_traits<RandomAccessIter>::difference_type difference_type;
-
     RandomAccessIter limit = end - 1;
     RandomAccessIter last_pos = limit;
     for (RandomAccessIter iter = begin; iter < limit; ++iter) {
@@ -41,9 +38,6 @@ inline void bubble_sort(RandomAccessIter begin, RandomAccessIter end, Comparer c
 template <typename BiDirectionalIter, typename Comparer>
 inline void bubble_sort(BiDirectionalIter begin, BiDirectionalIter end, Comparer comp,
                         std::bidirectional_iterator_tag) {
-    typedef typename std::iterator_traits<BiDirectionalIter>::value_type T;
-    typedef typename std::iterator_traits<BiDirectionalIter>::difference_type difference_type;
-
     BiDirectionalIter limit = end - 1;
     BiDirectionalIter last_pos = limit;
     for (BiDirectionalIter iter = 0; iter < limit; ++iter) {

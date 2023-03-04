@@ -18,8 +18,6 @@ namespace detail {
 template <typename RandomAccessIter, typename Comparer>
 inline void select_sort(RandomAccessIter begin, RandomAccessIter end, Comparer comp,
                         std::random_access_iterator_tag) {
-    typedef typename std::iterator_traits<RandomAccessIter>::value_type T;
-
     RandomAccessIter limit = end - 1;
     for (RandomAccessIter iter = begin; iter < limit; ++iter) {
         RandomAccessIter min_pos = iter;
@@ -37,8 +35,6 @@ inline void select_sort(RandomAccessIter begin, RandomAccessIter end, Comparer c
 template <typename BiDirectionalIter, typename Comparer>
 inline void select_sort(BiDirectionalIter begin, BiDirectionalIter end, Comparer comp,
                         std::bidirectional_iterator_tag) {
-    typedef typename std::iterator_traits<BiDirectionalIter>::value_type T;
-
     BiDirectionalIter limit = end - 1;
     for (BiDirectionalIter iter = begin; iter != limit; ++iter) {
         BiDirectionalIter min_pos = iter;
@@ -56,8 +52,6 @@ inline void select_sort(BiDirectionalIter begin, BiDirectionalIter end, Comparer
 template <typename ForwardIter, typename Comparer>
 inline void select_sort(ForwardIter begin, ForwardIter end, Comparer comp,
                         std::forward_iterator_tag) {
-    typedef typename std::iterator_traits<forward_iterator_tag>::value_type T;
-
     for (forward_iterator_tag iter = begin; iter != end; ++iter) {
         forward_iterator_tag min_pos = iter;
         for (forward_iterator_tag cur = iter + 1; cur != end; ++cur) {
