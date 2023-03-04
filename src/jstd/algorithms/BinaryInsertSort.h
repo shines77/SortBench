@@ -36,24 +36,25 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
 
     difference_type length = end - begin;
     if (likely(length <= 256)) {
-        RandomAccessIter cur = begin;
-        do {
-            cur++;
-            RandomAccessIter key = cur;
-            if (key >= end)
-                break;
-            RandomAccessIter target = cur - 1;
+        if (length != 0) {
+            RandomAccessIter cur = begin + 1;
+            do {
+                RandomAccessIter key = cur;
+                RandomAccessIter target = cur - 1;
 
-            if (comp(*key, *target)) {
-                T tmp = std::move(*key);
+                if (comp(*key, *target)) {
+                    T tmp = std::move(*key);
 
-                do {
-                    *key-- = std::move(*target);
-                } while (key != begin && comp(tmp, *--target));
+                    do {
+                        *key = std::move(*target);
+                        --key;
+                    } while (key != begin && comp(tmp, *--target));
 
-                *key = std::move(tmp);
-            }
-        } while (1);
+                    *key = std::move(tmp);
+                }
+                cur++;
+            } while (cur != end);
+        }
     } else {
         for (RandomAccessIter cur = begin + 1; cur != end; ++cur) {
             RandomAccessIter left = begin;
