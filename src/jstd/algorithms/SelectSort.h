@@ -22,14 +22,14 @@ inline void select_sort(RandomAccessIter begin, RandomAccessIter end, Comparer c
 
     RandomAccessIter limit = end - 1;
     for (RandomAccessIter iter = begin; iter < limit; ++iter) {
-        RandomAccessIter min = iter;
+        RandomAccessIter min_pos = iter;
         for (RandomAccessIter cur = iter + 1; cur < end; ++cur) {
-            if (comp(*cur, *min)) {
-                min = cur;
+            if (comp(*cur, *min_pos)) {
+                min_pos = cur;
             }
         }
-        if (min != iter) {
-            std::iter_swap(iter, min);
+        if (min_pos != iter) {
+            std::iter_swap(iter, min_pos);
         }
     }
 }
@@ -41,14 +41,14 @@ inline void select_sort(BiDirectionalIter begin, BiDirectionalIter end, Comparer
 
     BiDirectionalIter limit = end - 1;
     for (BiDirectionalIter iter = begin; iter != limit; ++iter) {
-        BiDirectionalIter min = iter;
+        BiDirectionalIter min_pos = iter;
         for (BiDirectionalIter cur = iter + 1; cur != end; ++cur) {
-            if (comp(*cur, *min)) {
-                min = cur;
+            if (comp(*cur, *min_pos)) {
+                min_pos = cur;
             }
         }
-        if (min != iter) {
-            std::iter_swap(iter, min);
+        if (min_pos != iter) {
+            std::iter_swap(iter, min_pos);
         }
     }
 }
@@ -59,14 +59,14 @@ inline void select_sort(ForwardIter begin, ForwardIter end, Comparer comp,
     typedef typename std::iterator_traits<forward_iterator_tag>::value_type T;
 
     for (forward_iterator_tag iter = begin; iter != end; ++iter) {
-        forward_iterator_tag min = iter;
+        forward_iterator_tag min_pos = iter;
         for (forward_iterator_tag cur = iter + 1; cur != end; ++cur) {
-            if (comp(*cur, *min)) {
-                min = cur;
+            if (comp(*cur, *min_pos)) {
+                min_pos = cur;
             }
         }
-        if (min != iter) {
-            std::iter_swap(iter, min);
+        if (min_pos != iter) {
+            std::iter_swap(iter, min_pos);
         }
     }
 }
