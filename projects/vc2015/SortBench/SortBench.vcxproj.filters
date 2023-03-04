@@ -69,5 +69,8 @@
     <ClInclude Include="..\..\..\src\jstd\support\x86_intrin.h">
       <Filter>src\jstd\support</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\algorithms\BinaryInsertSort.h">
+      <Filter>src\jstd\algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

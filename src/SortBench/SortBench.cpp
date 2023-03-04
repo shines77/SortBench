@@ -39,7 +39,7 @@ struct Algorithm {
     enum {
         SelectSort,
         InsertSort,
-        HalfDivisionInsertSort,
+        BinaryInsertSort,
         BubbleSort,
         QuickSort,
         TimSort,
@@ -153,8 +153,8 @@ const char * getSortAlgorithmName()
         return "Unreachable";
     else if (AlgorithmId == Algorithm::SelectSort)
         return "SelectSort";
-    else if (AlgorithmId == Algorithm::HalfDivisionInsertSort)
-        return "HalfDivisionInsertSort";
+    else if (AlgorithmId == Algorithm::BinaryInsertSort)
+        return "BinaryInsertSort";
     else if (AlgorithmId == Algorithm::InsertSort)
         return "InsertSort";
     else if (AlgorithmId == Algorithm::BubbleSort)
@@ -219,8 +219,8 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
             // Do nothing!!
         } else if (AlgorithmId == Algorithm::InsertSort) {
             jstd::InsertSort(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::HalfDivisionInsertSort) {
-            jstd::HalfDivisionInsertSort(test_array.begin(), test_array.end());
+        } else if (AlgorithmId == Algorithm::BinaryInsertSort) {
+            jstd::BinaryInsertSort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::StdHeapSort) {
             heap_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::StdStableSort) {
@@ -291,7 +291,7 @@ void sort_benchmark_impl()
 
     if (maxN <= 1024) {
         run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count);
-        run_sort_benchmark<Algorithm::HalfDivisionInsertSort, T>(test_array_list, standard_answers, array_count);
+        run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count);
     }
     run_sort_benchmark<Algorithm::StdHeapSort, T>(test_array_list, standard_answers, array_count);
     run_sort_benchmark<Algorithm::StdStableSort, T>(test_array_list, standard_answers, array_count);

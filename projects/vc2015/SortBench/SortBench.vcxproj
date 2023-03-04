@@ -23,6 +23,7 @@
     <ClCompile Include="..\..\..\src\SortBench\SortBench.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\jstd\algorithms\BinaryInsertSort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\BubbleSort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\InsertSort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\pdqsort.h" />
