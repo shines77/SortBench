@@ -38,9 +38,9 @@ static const size_t kTotalArrayCount = 1024 * 256;
 struct Algorithm {
     enum {
         SelectSort,
+        BubbleSort,
         InsertSort,
         BinaryInsertSort,
-        BubbleSort,
         QuickSort,
         TimSort,
         StdHeapSort,
@@ -153,12 +153,14 @@ const char * getSortAlgorithmName()
         return "Unreachable";
     else if (AlgorithmId == Algorithm::SelectSort)
         return "SelectSort";
-    else if (AlgorithmId == Algorithm::BinaryInsertSort)
-        return "BinaryInsertSort";
-    else if (AlgorithmId == Algorithm::InsertSort)
-        return "InsertSort";
     else if (AlgorithmId == Algorithm::BubbleSort)
         return "BubbleSort";
+    else if (AlgorithmId == Algorithm::InsertSort)
+        return "InsertSort";
+    else if (AlgorithmId == Algorithm::BinaryInsertSort)
+        return "BinaryInsertSort";
+    else if (AlgorithmId == Algorithm::QuickSort)
+        return "QuickSort";
     else if (AlgorithmId == Algorithm::StdHeapSort)
         return "std::heap_sort";
     else if (AlgorithmId == Algorithm::StdStableSort)
@@ -217,6 +219,10 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
         std::vector<T> & test_array = test_array_list[i];
         if (0) {
             // Do nothing!!
+        } else if (AlgorithmId == Algorithm::BubbleSort) {
+            jstd::BubbleSort(test_array.begin(), test_array.end());
+        } else if (AlgorithmId == Algorithm::SelectSort) {
+            jstd::SelectSort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::InsertSort) {
             jstd::InsertSort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::BinaryInsertSort) {
@@ -289,6 +295,10 @@ void sort_benchmark_impl()
     std::unique_ptr<std::vector<T>[]> standard_answers(new std::vector<T>[array_count]());
     generate_standard_answers<T>(standard_answers, test_array_list, array_count);
 
+    if (maxN <= 512) {        
+        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count);
+        run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count);
+    }
     if (maxN <= 5120) {
         run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count);
         run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count);

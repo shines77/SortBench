@@ -36,7 +36,7 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
 
     difference_type length = end - begin;
     if (likely(length <= 256)) {
-        if (length > 0) {
+        if (likely(length > 0)) {
             RandomAccessIter cur = begin + 1;
             while (cur != end) {
                 RandomAccessIter key = cur;
@@ -71,7 +71,7 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
                     left = mid + 1;
             }
 
-            if (left < key) {
+            if (likely(left < key)) {
                 T tmp = std::move(*key);
 
                 RandomAccessIter target = cur - 1;
@@ -84,29 +84,6 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
 
                 *key = std::move(tmp);
             }
-        }
-    }
-}
-
-template <typename RandomAccessIter, typename Comparer>
-inline void binary_insert_sort2(RandomAccessIter begin, RandomAccessIter end, Comparer comp,
-                                std::random_access_iterator_tag) {
-    typedef typename std::iterator_traits<RandomAccessIter>::value_type T;
-    if (unlikely(begin == end)) return;
-
-    for (RandomAccessIter cur = begin + 1; cur != end; ++cur) {
-        RandomAccessIter key = cur;
-        RandomAccessIter target = cur - 1;
-
-        if (comp(*key, *target)) {
-            T tmp = std::move(*key);
-
-            do {
-                *key = std::move(*target);
-                --key;
-            } while (key != begin && comp(tmp, *--target));
-
-            *key = std::move(tmp);
         }
     }
 }
