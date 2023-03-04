@@ -52,9 +52,9 @@ inline void select_sort(BiDirectionalIter begin, BiDirectionalIter end, Comparer
 template <typename ForwardIter, typename Comparer>
 inline void select_sort(ForwardIter begin, ForwardIter end, Comparer comp,
                         std::forward_iterator_tag) {
-    for (forward_iterator_tag iter = begin; iter != end; ++iter) {
-        forward_iterator_tag min_pos = iter;
-        for (forward_iterator_tag cur = iter + 1; cur != end; ++cur) {
+    for (ForwardIter iter = begin; iter != end; ++iter) {
+        ForwardIter min_pos = iter;
+        for (ForwardIter cur = iter + 1; cur != end; ++cur) {
             if (comp(*cur, *min_pos)) {
                 min_pos = cur;
             }
