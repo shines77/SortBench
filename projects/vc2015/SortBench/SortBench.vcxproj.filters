@@ -11,6 +11,12 @@
     <Filter Include="src\jstd\algorithms">
       <UniqueIdentifier>{012efcd0-c1ab-4d6d-87cf-002f808a41ce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\jstd\basic">
+      <UniqueIdentifier>{8b91c69f-f255-4edb-8106-313e1e477e6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\jstd\support">
+      <UniqueIdentifier>{56790afa-58b1-4359-abe0-0280b9330c5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\SortBench\SortBench.cpp">
@@ -41,6 +47,27 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\jstd\SortAlgorithms.h">
       <Filter>src\jstd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\basic\config.h">
+      <Filter>src\jstd\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\basic\stddef.h">
+      <Filter>src\jstd\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\basic\vld.h">
+      <Filter>src\jstd\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\basic\vld_def.h">
+      <Filter>src\jstd\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\support\BitUtils.h">
+      <Filter>src\jstd\support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\support\Power2.h">
+      <Filter>src\jstd\support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\support\x86_intrin.h">
+      <Filter>src\jstd\support</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

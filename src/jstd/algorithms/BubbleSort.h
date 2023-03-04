@@ -18,14 +18,14 @@ namespace detail {
 
 } // namespace jstd::detail
 
-template <typename ForwardIter, typename Comparer>
-inline void BubbleSort(ForwardIter begin, ForwardIter end, Comparer comp) {
+template <typename RandomIter, typename Comparer>
+inline void BubbleSort(RandomIter begin, RandomIter end, Comparer comp) {
     //
 }
 
-template <typename ForwardIter>
-inline void BubbleSort(ForwardIter begin, ForwardIter end) {
-    typedef typename std::iterator_traits<ForwardIter>::value_type T;
+template <typename RandomIter>
+inline void BubbleSort(RandomIter begin, RandomIter end) {
+    typedef typename std::iterator_traits<RandomIter>::value_type T;
     BubbleSort(begin, end, std::less<T>());
 }
 

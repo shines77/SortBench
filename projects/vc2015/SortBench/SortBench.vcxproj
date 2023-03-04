@@ -27,7 +27,14 @@
     <ClInclude Include="..\..\..\src\jstd\algorithms\InsertSort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\pdqsort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\SelectSort.h" />
+    <ClInclude Include="..\..\..\src\jstd\basic\config.h" />
+    <ClInclude Include="..\..\..\src\jstd\basic\stddef.h" />
+    <ClInclude Include="..\..\..\src\jstd\basic\vld.h" />
+    <ClInclude Include="..\..\..\src\jstd\basic\vld_def.h" />
     <ClInclude Include="..\..\..\src\jstd\SortAlgorithms.h" />
+    <ClInclude Include="..\..\..\src\jstd\support\BitUtils.h" />
+    <ClInclude Include="..\..\..\src\jstd\support\Power2.h" />
+    <ClInclude Include="..\..\..\src\jstd\support\x86_intrin.h" />
     <ClInclude Include="..\..\..\src\SortBench\CPUWarmUp.h" />
     <ClInclude Include="..\..\..\src\SortBench\StopWatch.h" />
   </ItemGroup>

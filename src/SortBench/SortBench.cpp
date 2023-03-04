@@ -3,9 +3,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#ifdef _MSC_VER
-#include <vld.h>
-#endif
+#include "jstd/basic/vld.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,6 +39,7 @@ struct Algorithm {
     enum {
         SelectSort,
         InsertSort,
+        HalfDivisionInsertSort,
         BubbleSort,
         QuickSort,
         TimSort,
@@ -154,6 +153,8 @@ const char * getSortAlgorithmName()
         return "Unreachable";
     else if (AlgorithmId == Algorithm::SelectSort)
         return "SelectSort";
+    else if (AlgorithmId == Algorithm::HalfDivisionInsertSort)
+        return "HalfDivisionInsertSort";
     else if (AlgorithmId == Algorithm::InsertSort)
         return "InsertSort";
     else if (AlgorithmId == Algorithm::BubbleSort)
@@ -170,13 +171,34 @@ const char * getSortAlgorithmName()
         return "Unknown";
 }
 
+template <typename T>
+bool verify_sort_answers(const std::unique_ptr<std::vector<T>[]> & test_array_list,
+                         const std::unique_ptr<std::vector<T>[]> & standard_answers,
+                         size_t array_count)
+{
+    for (size_t i = 0; i < array_count; i++) {
+        std::vector<T> & test_array = test_array_list[i];
+        std::vector<T> & answer_array = standard_answers[i];
+        if (test_array.size() != answer_array.size())
+            return false;
+        for (size_t n = 0; n < test_array.size(); n++) {
+            if (test_array[n] != answer_array[n])
+                return false;
+        }
+    }
+
+    return true;
+}
+
 template <size_t AlgorithmId, typename T>
-void run_sort_benchmark(std::unique_ptr<std::vector<T>[]> & src_array_list, size_t array_count)
+void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list,
+                        const std::unique_ptr<std::vector<T>[]> & standard_answers,
+                        size_t array_count)
 {
     test::StopWatch sw;
     std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
 
-    printf("Algorithm: %-20s ", getSortAlgorithmName<AlgorithmId>());
+    printf("Algorithm: %-23s ", getSortAlgorithmName<AlgorithmId>());
 
     // Copy test array from src_array_list
     sw.start();
@@ -195,6 +217,10 @@ void run_sort_benchmark(std::unique_ptr<std::vector<T>[]> & src_array_list, size
         std::vector<T> & test_array = test_array_list[i];
         if (0) {
             // Do nothing!!
+        } else if (AlgorithmId == Algorithm::InsertSort) {
+            jstd::InsertSort(test_array.begin(), test_array.end());
+        } else if (AlgorithmId == Algorithm::HalfDivisionInsertSort) {
+            jstd::HalfDivisionInsertSort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::StdHeapSort) {
             heap_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::StdStableSort) {
@@ -209,7 +235,32 @@ void run_sort_benchmark(std::unique_ptr<std::vector<T>[]> & src_array_list, size
     }
     sw.stop();
 
-    printf("Sort time: %7.3f ms\n", sw.getElapsedMillisec());
+    if (0) {
+        printf("Sort time: %7.3f ms\n", sw.getElapsedMillisec());
+    } else {
+        bool verifyRsult = verify_sort_answers(test_array_list, standard_answers, array_count);
+        printf("Sort time: %7.3f ms, ", sw.getElapsedMillisec());
+        printf("verify = %s\n", verifyRsult ? "Passed" : "Failed");
+    }
+}
+
+template <typename T>
+void generate_standard_answers(std::unique_ptr<std::vector<T>[]> & standard_answers,
+                               const std::unique_ptr<std::vector<T>[]> & src_array_list,
+                               size_t array_count)
+{
+    // Copy test array from src_array_list
+    for (size_t i = 0; i < array_count; i++) {
+        std::vector<T> & src_test_array = src_array_list[i];
+        std::vector<T> & test_array = standard_answers[i];
+        test_array.insert(test_array.cbegin(), src_test_array.begin(), src_test_array.end());
+    }
+
+    // Generate all standard sort answers
+    for (size_t i = 0; i < array_count; i++) {
+        std::vector<T> & test_array = standard_answers[i];
+        std::sort(test_array.begin(), test_array.end());
+    }
 }
 
 template <typename T, size_t ArrayType, size_t MinN, size_t MaxN>
@@ -235,10 +286,17 @@ void sort_benchmark_impl()
         }
     }
 
-    run_sort_benchmark<Algorithm::StdHeapSort, T>(test_array_list, array_count);
-    run_sort_benchmark<Algorithm::StdStableSort, T>(test_array_list, array_count);
-    run_sort_benchmark<Algorithm::StdSort, T>(test_array_list, array_count);
-    run_sort_benchmark<Algorithm::PdQSort, T>(test_array_list, array_count);
+    std::unique_ptr<std::vector<T>[]> standard_answers(new std::vector<T>[array_count]());
+    generate_standard_answers<T>(standard_answers, test_array_list, array_count);
+
+    if (maxN <= 1024) {
+        run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count);
+        run_sort_benchmark<Algorithm::HalfDivisionInsertSort, T>(test_array_list, standard_answers, array_count);
+    }
+    run_sort_benchmark<Algorithm::StdHeapSort, T>(test_array_list, standard_answers, array_count);
+    run_sort_benchmark<Algorithm::StdStableSort, T>(test_array_list, standard_answers, array_count);
+    run_sort_benchmark<Algorithm::StdSort, T>(test_array_list, standard_answers, array_count);
+    run_sort_benchmark<Algorithm::PdQSort, T>(test_array_list, standard_answers, array_count);
 
     printf("\n");
 }
@@ -292,6 +350,8 @@ int main(int argc, char * argv[])
 
     //std::srand((unsigned int)std::time(0));
     std::srand((unsigned int)20230304L);
+
+    test::CPU::WarmUp warmUper(1000);
 
     if (1)
     {

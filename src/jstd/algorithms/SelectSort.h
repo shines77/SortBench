@@ -18,14 +18,14 @@ namespace detail {
 
 } // namespace jstd::detail
 
-template <typename ForwardIter, typename Comparer>
-inline void SelectSort(ForwardIter begin, ForwardIter end, Comparer comp) {
+template <typename RandomIter, typename Comparer>
+inline void SelectSort(RandomIter begin, RandomIter end, Comparer comp) {
     //
 }
 
-template <typename ForwardIter>
-inline void SelectSort(ForwardIter begin, ForwardIter end) {
-    typedef typename std::iterator_traits<ForwardIter>::value_type T;
+template <typename RandomIter>
+inline void SelectSort(RandomIter begin, RandomIter end) {
+    typedef typename std::iterator_traits<RandomIter>::value_type T;
     SelectSort(begin, end, std::less<T>());
 }
 
