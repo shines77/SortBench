@@ -64,10 +64,10 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
             while (left < right) {
                 mid = left + (right - left) / 2;
                 bool comp_result = comp(*key, *mid);
-                if (!comp_result)
-                    left = mid + 1;
-                else
+                if (comp_result)
                     right = mid;
+                else
+                    left = mid + 1;
             }
 
             //if (left < key) {
