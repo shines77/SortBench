@@ -289,7 +289,7 @@ void sort_benchmark_impl()
     std::unique_ptr<std::vector<T>[]> standard_answers(new std::vector<T>[array_count]());
     generate_standard_answers<T>(standard_answers, test_array_list, array_count);
 
-    if (maxN <= 1024) {
+    if (maxN <= 2048) {
         run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count);
         run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count);
     }

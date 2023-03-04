@@ -35,7 +35,7 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
     typedef typename std::iterator_traits<RandomAccessIter>::difference_type difference_type;
 
     difference_type length = end - begin;
-    if (likely(length <= 64)) {
+    if (likely(length <= 64 || true)) {
         RandomAccessIter cur = begin;
         do {
             RandomAccessIter key = cur + 1;
@@ -60,19 +60,7 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
             RandomAccessIter right = cur;
             RandomAccessIter key = cur;
             RandomAccessIter mid;;
-#if 0
-            difference_type distance = (right - left);
-            
-            do {                
-                mid = left + distance / 2;
-                bool comp_result = comp(*key, *mid);
-                if (!comp_result)
-                    left = mid + 1;
-                else
-                    right = mid;
-                distance = (right - left);
-            } while (distance > 0);
-#else           
+         
             while (left < right) {
                 mid = left + (right - left) / 2;
                 bool comp_result = comp(*key, *mid);
@@ -81,7 +69,7 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
                 else
                     right = mid;
             }
-#endif
+
             if (left < key) {
                 T tmp = std::move(*key);
 
