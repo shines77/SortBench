@@ -60,7 +60,7 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
             RandomAccessIter right = cur;
             RandomAccessIter key = cur;
             RandomAccessIter mid;;
-#if 1
+#if 0
             difference_type distance = (right - left);
             
             do {                
