@@ -59,8 +59,8 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
             RandomAccessIter left = begin;
             RandomAccessIter right = cur;
             RandomAccessIter key = cur;
+            RandomAccessIter mid;;
 #if 1
-            RandomAccessIter mid;
             difference_type distance = (right - left);
             
             do {                
@@ -71,17 +71,15 @@ inline void binary_insert_sort(RandomAccessIter begin, RandomAccessIter end,
                 else
                     right = mid;
                 distance = (right - left);
-            } while (distance > 1);
-#else
-            RandomAccessIter mid;
-            
+            } while (distance > 0);
+#else           
             while (left < right) {
                 mid = left + (right - left) / 2;
                 bool comp_result = comp(*key, *mid);
-                if (comp_result)
-                    right = mid;
-                else
+                if (!comp_result)
                     left = mid + 1;
+                else
+                    right = mid;
             }
 #endif
             if (left < key) {
