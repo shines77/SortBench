@@ -241,7 +241,7 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
     }
     sw.stop();
 
-    printf("Sort time: %7.3f ms, ", sw.getElapsedMillisec());
+    printf("Sort time: %8.3f ms, ", sw.getElapsedMillisec());
     if (total_items != 0)
         printf("Per item time: %8.3f ns", sw.getElapsedNanosec() / total_items);
     else
