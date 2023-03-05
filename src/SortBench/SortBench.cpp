@@ -195,7 +195,7 @@ bool verify_sort_answers(const std::unique_ptr<std::vector<T>[]> & test_array_li
 template <size_t AlgorithmId, typename T>
 void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list,
                         const std::unique_ptr<std::vector<T>[]> & standard_answers,
-                        size_t array_count)
+                        size_t array_count, size_t total_items)
 {
     test::StopWatch sw;
     std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
@@ -211,7 +211,7 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
     }
     sw.stop();
 
-    printf("Copy time: %6.3f ms, ", sw.getElapsedMillisec());
+    //printf("Copy time: %6.3f ms, ", sw.getElapsedMillisec());
 
     // Sort all test array
     sw.start();
@@ -241,12 +241,17 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
     }
     sw.stop();
 
+    printf("Sort time: %7.3f ms, ", sw.getElapsedMillisec());
+    if (total_items != 0)
+        printf("Per item time: %8.3f ns", sw.getElapsedNanosec() / total_items);
+    else
+        printf("Per item time: N/A ns");
+
     if (0) {
-        printf("Sort time: %7.3f ms\n", sw.getElapsedMillisec());
-    } else {
         bool verifyRsult = verify_sort_answers(test_array_list, standard_answers, array_count);
-        printf("Sort time: %7.3f ms, ", sw.getElapsedMillisec());
         printf("verify = %s\n", verifyRsult ? "Passed" : "Failed");
+    } else {
+        printf("\n");
     }
 }
 
@@ -269,23 +274,25 @@ void generate_standard_answers(std::unique_ptr<std::vector<T>[]> & standard_answ
     }
 }
 
-template <typename T, size_t ArrayType, size_t MinN, size_t MaxN>
+template <typename T, size_t ArrayType, size_t MinLen, size_t MaxLen>
 void sort_benchmark_impl()
 {
-    static const size_t minN = (MinN < MaxN) ? MinN : MaxN;
-    static const size_t maxN = (MinN > MaxN) ? MinN : MaxN;
-    static const size_t maxLength = (maxN + 1 - minN);
+    static const size_t minLen = (MinLen < MaxLen) ? MinLen : MaxLen;
+    static const size_t maxLen = (MinLen > MaxLen) ? MinLen : MaxLen;
+    static const size_t rndRange = (maxLen + 1 - minLen);
 
-    size_t array_count = getArrayCount<kTotalArrayCount, (MinN > MaxN) ? MinN : MaxN>();
+    size_t array_count = getArrayCount<kTotalArrayCount, (MinLen > MaxLen) ? MinLen : MaxLen>();
     std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
 
-    printf("sort_benchmark<%u, %u, %u>, max_length = %u, array_count = %u\n\n",
-           (uint32_t)ArrayType, (uint32_t)minN, (uint32_t)maxN,
-           (uint32_t)maxLength, (uint32_t)array_count);
+    printf("sort_benchmark<%u, %u, %u>, rnd_range = %u, array_count = %u\n\n",
+           (uint32_t)ArrayType, (uint32_t)minLen, (uint32_t)maxLen,
+           (uint32_t)rndRange, (uint32_t)array_count);
     
+    size_t total_items = 0;
     for (size_t i = 0; i < array_count; i++) {
         std::vector<T> & test_array = test_array_list[i];
-        size_t length = minN + static_cast<size_t>(rand30()) % maxLength;
+        size_t length = minLen + static_cast<size_t>(rand30()) % rndRange;
+        total_items += length;
         for (size_t n = 0; n < length; n++) {
             T rndNum = static_cast<T>(rand30());
             test_array.push_back(rndNum);
@@ -296,29 +303,29 @@ void sort_benchmark_impl()
     generate_standard_answers<T>(standard_answers, test_array_list, array_count);
 
 #ifdef NDEBUG
-    if (maxN <= 512) {
-        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count);
-        run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count);
+    if (maxLen <= 512) {
+        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count, total_items);
+        run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
-    if (maxN <= 5120) {
-        run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count);
-        run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count);
+    if (maxLen <= 5120) {
+        run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+        run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
 #else
-    if (maxN <= 256) {
-        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count);
-        run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count);
+    if (maxLen <= 256) {
+        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count, total_items);
+        run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
-    if (maxN <= 1024) {
-        run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count);
-        run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count);
+    if (maxLen <= 1024) {
+        run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+        run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
 #endif // NDEBUG
 
-    run_sort_benchmark<Algorithm::StdHeapSort, T>(test_array_list, standard_answers, array_count);
-    run_sort_benchmark<Algorithm::StdStableSort, T>(test_array_list, standard_answers, array_count);
-    run_sort_benchmark<Algorithm::StdSort, T>(test_array_list, standard_answers, array_count);
-    run_sort_benchmark<Algorithm::PdQSort, T>(test_array_list, standard_answers, array_count);
+    run_sort_benchmark<Algorithm::StdHeapSort, T>(test_array_list, standard_answers, array_count, total_items);
+    run_sort_benchmark<Algorithm::StdStableSort, T>(test_array_list, standard_answers, array_count, total_items);
+    run_sort_benchmark<Algorithm::StdSort, T>(test_array_list, standard_answers, array_count, total_items);
+    run_sort_benchmark<Algorithm::PdQSort, T>(test_array_list, standard_answers, array_count, total_items);
 
     printf("\n");
 }
