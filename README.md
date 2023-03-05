@@ -6,10 +6,10 @@
 
 比较类排序：
 
-+ 插入排序
-+ 希尔排序
 + 选择排序
 + 冒泡排序
++ 插入排序
++ 希尔排序
 + 堆排序
 + 归并排序
 + Timsort
@@ -22,12 +22,6 @@
 + 基数排序
 + 桶排序
 + [RoaringBitmap Sort](https://gitee.com/shines77/rbsort)
-
-## 安装教程
-
-1. xxxx
-2. xxxx
-3. xxxx
 
 ## 使用说明
 

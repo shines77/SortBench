@@ -6,10 +6,10 @@ Benchmarking of common sorting algorithms.
 
 Sort of comparison type:
 
-+ Insert sort
-+ Hill sort
-+ Select sort
++ Selection sort
 + Bubble sort
++ Insertion sort
++ Hill sort
 + Heap sort
 + Merge sort
 + Timsort
@@ -24,12 +24,6 @@ Sort of non-comparison type:
 + [RoaringBitmap Sort](https://gitee.com/shines77/rbsort)
 
 ## Installation
-
-1. xxxx
-2. xxxx
-3. xxxx
-
-## Instructions
 
 1. xxxx
 2. xxxx
