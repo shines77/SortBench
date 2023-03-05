@@ -15,64 +15,66 @@
 namespace jstd {
 namespace detail {
 
-template <typename RandomAccessIter, typename Comparer>
-inline void bubble_sort(RandomAccessIter begin, RandomAccessIter end, Comparer comp,
-                        std::random_access_iterator_tag) {
-    RandomAccessIter limit = end - 1;
-    RandomAccessIter last_pos = limit;
-    for (RandomAccessIter iter = begin; iter < limit; ++iter) {
-        RandomAccessIter swapped_pos = end;
-        for (RandomAccessIter cur = begin; cur < last_pos; ++cur) {
-            RandomAccessIter next = cur + 1;
-            if (!comp(*cur, *next)) {
+template <typename RandomAccessIterator, typename Comparer>
+inline void bubble_sort(RandomAccessIterator first, RandomAccessIterator last,
+                        Comparer compare, std::random_access_iterator_tag) {
+    typedef RandomAccessIterator iterator;
+    iterator limit = std::prev(last);   // last - 1
+    iterator last_pos = limit;
+    for (iterator iter = first; iter < limit; ++iter) {
+        iterator swapped_pos = last;
+        for (iterator cur = first; cur < last_pos; ++cur) {
+            iterator next = std::next(cur);
+            if (!compare(*cur, *next)) {
                 std::iter_swap(cur, next);
                 swapped_pos = cur;
             }
         }
         last_pos = swapped_pos;
-        if (swapped_pos == end)
+        if (swapped_pos == last)
             break;
     }
 }
 
-template <typename BiDirectionalIter, typename Comparer>
-inline void bubble_sort(BiDirectionalIter begin, BiDirectionalIter end, Comparer comp,
-                        std::bidirectional_iterator_tag) {
-    BiDirectionalIter limit = end - 1;
-    BiDirectionalIter last_pos = limit;
-    for (BiDirectionalIter iter = 0; iter < limit; ++iter) {
-        BiDirectionalIter swapped_pos = end;
-        for (BiDirectionalIter cur = begin; cur < last_pos; ++cur) {
-            BiDirectionalIter next = cur + 1;
-            if (!comp(*cur, *next)) {
+template <typename BiDirectionalIterator, typename Comparer>
+inline void bubble_sort(BiDirectionalIterator first, BiDirectionalIterator last,
+                        Comparer compare, std::bidirectional_iterator_tag) {
+    typedef BiDirectionalIterator iterator;
+    iterator limit = std::prev(last);   // last - 1
+    iterator last_pos = limit;
+    for (iterator iter = 0; iter < limit; ++iter) {
+        iterator swapped_pos = last;
+        for (iterator cur = first; cur < last_pos; ++cur) {
+            iterator next = std::next(cur);
+            if (!compare(*cur, *next)) {
                 std::iter_swap(cur, next);
                 swapped_pos = cur;
             }
         }
         last_pos = swapped_pos;
-        if (swapped_pos == end)
+        if (swapped_pos == last)
             break;
     }
 }
 
-template <typename ForwardIter, typename Comparer>
-inline void bubble_sort(ForwardIter begin, ForwardIter end, Comparer comp,
+template <typename ForwardIterator, typename Comparer>
+inline void bubble_sort(ForwardIterator first, ForwardIterator last, Comparer compare,
                         std::forward_iterator_tag) {
     throw std::invalid_argument("detail::bubble_sort() is not supported std::forward_iterator.");
 }
 
 } // namespace detail
 
-template <typename Iter, typename Comparer>
-inline void BubbleSort(Iter begin, Iter end, Comparer comp) {
-    typedef typename std::iterator_traits<Iter>::iterator_category iterator_category;
-    detail::bubble_sort(begin, end, comp, iterator_category());
+template <typename Iterator, typename Comparer>
+inline void BubbleSort(Iterator first, Iterator last, Comparer compare) {
+    typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
+    detail::bubble_sort(first, last, compare, iterator_category());
 }
 
-template <typename Iter>
-inline void BubbleSort(Iter begin, Iter end) {
-    typedef typename std::iterator_traits<Iter>::value_type T;
-    BubbleSort(begin, end, std::less<T>());
+template <typename Iterator>
+inline void BubbleSort(Iterator first, Iterator last) {
+    typedef typename std::iterator_traits<Iterator>::value_type T;
+    BubbleSort(first, last, std::less<T>());
 }
 
 } // namespace jstd

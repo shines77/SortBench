@@ -110,17 +110,17 @@ inline uint64_t rand64()
 #endif
 }
 
-template <typename ForwardIter, typename Comparer>
-void heap_sort(ForwardIter begin, ForwardIter end, Comparer comp)
+template <typename ForwardIterator, typename Comparer>
+void heap_sort(ForwardIterator begin, ForwardIterator end, Comparer comp)
 {
     std::make_heap(begin, end, comp);
     std::sort_heap(begin, end, comp);
 }
 
-template <typename ForwardIter>
-void heap_sort(ForwardIter begin, ForwardIter end)
+template <typename ForwardIterator>
+void heap_sort(ForwardIterator begin, ForwardIterator end)
 {
-    typedef typename std::iterator_traits<ForwardIter>::value_type T;
+    typedef typename std::iterator_traits<ForwardIterator>::value_type T;
     std::make_heap(begin, end, std::less<T>());
     std::sort_heap(begin, end, std::less<T>());
 }
@@ -295,7 +295,8 @@ void sort_benchmark_impl()
     std::unique_ptr<std::vector<T>[]> standard_answers(new std::vector<T>[array_count]());
     generate_standard_answers<T>(standard_answers, test_array_list, array_count);
 
-    if (maxN <= 512) {        
+#ifdef NDEBUG
+    if (maxN <= 512) {
         run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count);
         run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count);
     }
@@ -303,6 +304,17 @@ void sort_benchmark_impl()
         run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count);
         run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count);
     }
+#else
+    if (maxN <= 256) {
+        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count);
+        run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count);
+    }
+    if (maxN <= 1024) {
+        run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count);
+        run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count);
+    }
+#endif // NDEBUG
+
     run_sort_benchmark<Algorithm::StdHeapSort, T>(test_array_list, standard_answers, array_count);
     run_sort_benchmark<Algorithm::StdStableSort, T>(test_array_list, standard_answers, array_count);
     run_sort_benchmark<Algorithm::StdSort, T>(test_array_list, standard_answers, array_count);

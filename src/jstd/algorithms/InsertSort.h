@@ -13,76 +13,78 @@
 #include <cstddef>
 #include <iterator>
 #include <type_traits>
-#include <utility>
 #include <algorithm>
+#include <utility>
 
 namespace jstd {
 namespace detail {
 
-template <typename RandomAccessIter, typename Comparer>
-inline void insert_sort(RandomAccessIter begin, RandomAccessIter end, Comparer comp,
+template <typename RandomAccessIterator, typename Comparer>
+inline void insert_sort(RandomAccessIterator first, RandomAccessIterator last, Comparer compare,
                         std::random_access_iterator_tag) {
-    typedef typename std::iterator_traits<RandomAccessIter>::value_type T;
-    if (unlikely(begin == end)) return;
+    typedef RandomAccessIterator iterator;
+    typedef typename std::iterator_traits<iterator>::value_type T;
+    if (unlikely(first == last)) return;
 
-    for (RandomAccessIter cur = begin + 1; cur != end; ++cur) {
-        RandomAccessIter key = cur;
-        RandomAccessIter target = cur - 1;
+    for (iterator cur = std::next(first); cur != last; ++cur) {
+        iterator key = cur;
+        iterator target = std::prev(cur);
 
-        if (comp(*key, *target)) {
+        if (compare(*key, *target)) {
             T tmp = std::move(*key);
 
             do {
                 *key = std::move(*target);
                 --key;
-            } while (key != begin && comp(tmp, *--target));
+            } while (key != first && compare(tmp, *--target));
 
             *key = std::move(tmp);
         }
     }
 }
 
-template <typename BiDirectionalIter, typename Comparer>
-inline void insert_sort(BiDirectionalIter begin, BiDirectionalIter end, Comparer comp,
+template <typename BiDirectionalIterator, typename Comparer>
+inline void insert_sort(BiDirectionalIterator first, BiDirectionalIterator last, Comparer compare,
                         std::bidirectional_iterator_tag) {
-    typedef typename std::iterator_traits<BiDirectionalIter>::value_type T;
-    if (unlikely(begin == end)) return;
+    typedef BiDirectionalIterator iterator;
+    typedef typename std::iterator_traits<iterator>::value_type T;
+    if (unlikely(first == last)) return;
 
-    for (BiDirectionalIter cur = begin + 1; cur != end; ++cur) {
-        BiDirectionalIter key = cur;
-        BiDirectionalIter target = cur - 1;
+    for (iterator cur = std::next(first); cur != last; ++cur) {
+        iterator key = cur;
+        iterator target = std::prev(cur);
 
-        if (comp(*key, *target)) {
+        if (compare(*key, *target)) {
             T tmp = std::move(*key);
 
             do {
                 *key = std::move(*target);
                 --key;
-            } while (key != begin && comp(tmp, *--target));
+            } while (key != first && compare(tmp, *--target));
 
             *key = std::move(tmp);
         }
     }
 }
 
-template <typename ForwardIter, typename Comparer>
-inline void insert_sort(ForwardIter begin, ForwardIter end, Comparer comp,
+template <typename ForwardIterator, typename Comparer>
+inline void insert_sort(ForwardIterator first, ForwardIterator last, Comparer compare,
                         std::forward_iterator_tag) {
     throw std::invalid_argument("detail::insert_sort() is not supported std::forward_iterator.");
 }
 
 } // namespace detail
 
-template <typename Iter, typename Comparer>
-inline void InsertSort(Iter begin, Iter end, Comparer comp) {
-    typedef typename std::iterator_traits<Iter>::iterator_category iterator_category;
-    detail::insert_sort(begin, end, comp, iterator_category());
+template <typename Iterator, typename Comparer>
+inline void InsertSort(Iterator first, Iterator last, Comparer compare) {
+    typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
+    detail::insert_sort(first, last, compare, iterator_category());
 }
 
-template <typename Iter>
-inline void InsertSort(Iter begin, Iter end) {
-    typedef typename std::iterator_traits<Iter>::value_type T;
-    InsertSort(begin, end, std::less<T>());
+template <typename Iterator>
+inline void InsertSort(Iterator first, Iterator last) {
+    typedef typename std::iterator_traits<Iterator>::value_type T;
+    InsertSort(first, last, std::less<T>());
 }
 
 } // namespace jstd

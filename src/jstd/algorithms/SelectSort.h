@@ -15,14 +15,15 @@
 namespace jstd {
 namespace detail {
 
-template <typename RandomAccessIter, typename Comparer>
-inline void select_sort(RandomAccessIter begin, RandomAccessIter end, Comparer comp,
-                        std::random_access_iterator_tag) {
-    RandomAccessIter limit = end - 1;
-    for (RandomAccessIter iter = begin; iter < limit; ++iter) {
-        RandomAccessIter min_pos = iter;
-        for (RandomAccessIter cur = iter + 1; cur < end; ++cur) {
-            if (comp(*cur, *min_pos)) {
+template <typename RandomAccessIterator, typename Comparer>
+inline void select_sort(RandomAccessIterator first, RandomAccessIterator last,
+                        Comparer compare, std::random_access_iterator_tag) {
+    typedef RandomAccessIterator iterator;
+    iterator limit = std::prev(last);   // last - 1
+    for (iterator iter = first; iter < limit; ++iter) {
+        iterator min_pos = iter;
+        for (iterator cur = std::next(iter); cur < last; ++cur) {
+            if (compare(*cur, *min_pos)) {
                 min_pos = cur;
             }
         }
@@ -32,14 +33,15 @@ inline void select_sort(RandomAccessIter begin, RandomAccessIter end, Comparer c
     }
 }
 
-template <typename BiDirectionalIter, typename Comparer>
-inline void select_sort(BiDirectionalIter begin, BiDirectionalIter end, Comparer comp,
-                        std::bidirectional_iterator_tag) {
-    BiDirectionalIter limit = end - 1;
-    for (BiDirectionalIter iter = begin; iter != limit; ++iter) {
-        BiDirectionalIter min_pos = iter;
-        for (BiDirectionalIter cur = iter + 1; cur != end; ++cur) {
-            if (comp(*cur, *min_pos)) {
+template <typename BiDirectionalIterator, typename Comparer>
+inline void select_sort(BiDirectionalIterator first, BiDirectionalIterator last,
+                        Comparer compare, std::bidirectional_iterator_tag) {
+    typedef BiDirectionalIterator iterator;
+    iterator limit = std::prev(last);   // last - 1
+    for (iterator iter = first; iter != limit; ++iter) {
+        iterator min_pos = iter;
+        for (iterator cur = std::next(iter); cur != last; ++cur) {
+            if (compare(*cur, *min_pos)) {
                 min_pos = cur;
             }
         }
@@ -49,13 +51,14 @@ inline void select_sort(BiDirectionalIter begin, BiDirectionalIter end, Comparer
     }
 }
 
-template <typename ForwardIter, typename Comparer>
-inline void select_sort(ForwardIter begin, ForwardIter end, Comparer comp,
-                        std::forward_iterator_tag) {
-    for (ForwardIter iter = begin; iter != end; ++iter) {
-        ForwardIter min_pos = iter;
-        for (ForwardIter cur = iter + 1; cur != end; ++cur) {
-            if (comp(*cur, *min_pos)) {
+template <typename ForwardIterator, typename Comparer>
+inline void select_sort(ForwardIterator first, ForwardIterator last,
+                        Comparer compare, std::forward_iterator_tag) {
+    typedef ForwardIterator iterator;
+    for (iterator iter = first; iter != last; ++iter) {
+        iterator min_pos = iter;
+        for (iterator cur = std::next(iter); cur != last; ++cur) {
+            if (compare(*cur, *min_pos)) {
                 min_pos = cur;
             }
         }
@@ -67,16 +70,16 @@ inline void select_sort(ForwardIter begin, ForwardIter end, Comparer comp,
 
 } // namespace jstd::detail
 
-template <typename Iter, typename Comparer>
-inline void SelectSort(Iter begin, Iter end, Comparer comp) {
-    typedef typename std::iterator_traits<Iter>::iterator_category iterator_category;
-    detail::select_sort(begin, end, comp, iterator_category());
+template <typename Iterator, typename Comparer>
+inline void SelectSort(Iterator first, Iterator last, Comparer compare) {
+    typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
+    detail::select_sort(first, last, compare, iterator_category());
 }
 
-template <typename Iter>
-inline void SelectSort(Iter begin, Iter end) {
-    typedef typename std::iterator_traits<Iter>::value_type T;
-    SelectSort(begin, end, std::less<T>());
+template <typename Iterator>
+inline void SelectSort(Iterator first, Iterator last) {
+    typedef typename std::iterator_traits<Iterator>::value_type T;
+    SelectSort(first, last, std::less<T>());
 }
 
 } // namespace jstd
