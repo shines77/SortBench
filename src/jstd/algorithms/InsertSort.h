@@ -20,8 +20,8 @@ namespace jstd {
 namespace detail {
 
 template <typename RandomAccessIterator, typename Comparer>
-inline void insert_sort(RandomAccessIterator first, RandomAccessIterator last, Comparer compare,
-                        std::random_access_iterator_tag) {
+inline void insert_sort(RandomAccessIterator first, RandomAccessIterator last,
+                        Comparer compare, std::random_access_iterator_tag) {
     typedef RandomAccessIterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type T;
     if (unlikely(first == last)) return;
@@ -44,8 +44,8 @@ inline void insert_sort(RandomAccessIterator first, RandomAccessIterator last, C
 }
 
 template <typename BiDirectionalIterator, typename Comparer>
-inline void insert_sort(BiDirectionalIterator first, BiDirectionalIterator last, Comparer compare,
-                        std::bidirectional_iterator_tag) {
+inline void insert_sort(BiDirectionalIterator first, BiDirectionalIterator last,
+                        Comparer compare, std::bidirectional_iterator_tag) {
     typedef BiDirectionalIterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type T;
     if (unlikely(first == last)) return;
@@ -68,8 +68,8 @@ inline void insert_sort(BiDirectionalIterator first, BiDirectionalIterator last,
 }
 
 template <typename ForwardIterator, typename Comparer>
-inline void insert_sort(ForwardIterator first, ForwardIterator last, Comparer compare,
-                        std::forward_iterator_tag) {
+inline void insert_sort(ForwardIterator first, ForwardIterator last,
+                        Comparer compare, std::forward_iterator_tag) {
     throw std::invalid_argument("detail::insert_sort() is not supported std::forward_iterator.");
 }
 

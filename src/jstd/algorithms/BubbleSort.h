@@ -58,8 +58,8 @@ inline void bubble_sort(BiDirectionalIterator first, BiDirectionalIterator last,
 }
 
 template <typename ForwardIterator, typename Comparer>
-inline void bubble_sort(ForwardIterator first, ForwardIterator last, Comparer compare,
-                        std::forward_iterator_tag) {
+inline void bubble_sort(ForwardIterator first, ForwardIterator last,
+                        Comparer compare, std::forward_iterator_tag) {
     throw std::invalid_argument("detail::bubble_sort() is not supported std::forward_iterator.");
 }
 

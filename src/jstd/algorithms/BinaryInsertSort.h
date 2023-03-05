@@ -71,7 +71,7 @@ inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator 
                 left  = (comp_result ? left : (mid + 1));
                 right = (comp_result ?  mid : right    );
 #else
-                // branch version
+                // branched version
                 bool comp_result = compare(*key, *mid);
                 if (comp_result)
                     right = mid;            // mid - 0
@@ -130,8 +130,8 @@ inline void binary_insert_sort(BiDirectionalIterator first, BiDirectionalIterato
 }
 
 template <typename ForwardIterator, typename Comparer>
-inline void binary_insert_sort(ForwardIterator first, ForwardIterator last, Comparer comp,
-                               std::forward_iterator_tag) {
+inline void binary_insert_sort(ForwardIterator first, ForwardIterator last,
+                               Comparer compare, std::forward_iterator_tag) {
     throw std::invalid_argument("detail::binary_insert_sort() is not supported std::forward_iterator.");
 }
 
