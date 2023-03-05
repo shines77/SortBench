@@ -32,7 +32,7 @@ extern void print_marcos();
 #ifdef NDEBUG
 static const size_t kTotalArrayCount = 1024 * 1024 * 4;
 #else
-static const size_t kTotalArrayCount = 1024 * 256;
+static const size_t kTotalArrayCount = 1024 * 128;
 #endif
 
 struct Algorithm {
@@ -110,19 +110,19 @@ inline uint64_t rand64()
 #endif
 }
 
-template <typename ForwardIterator, typename Comparer>
-void heap_sort(ForwardIterator begin, ForwardIterator end, Comparer comp)
+template <typename Iterator, typename Comparer>
+void heap_sort(Iterator first, Iterator last, Comparer compare)
 {
-    std::make_heap(begin, end, comp);
-    std::sort_heap(begin, end, comp);
+    std::make_heap(first, last, compare);
+    std::sort_heap(first, last, compare);
 }
 
-template <typename ForwardIterator>
-void heap_sort(ForwardIterator begin, ForwardIterator end)
+template <typename Iterator>
+void heap_sort(Iterator first, Iterator last)
 {
-    typedef typename std::iterator_traits<ForwardIterator>::value_type T;
-    std::make_heap(begin, end, std::less<T>());
-    std::sort_heap(begin, end, std::less<T>());
+    typedef typename std::iterator_traits<Iterator>::value_type T;
+    std::make_heap(first, last, std::less<T>());
+    std::sort_heap(first, last, std::less<T>());
 }
 
 template <size_t ArrayCount, size_t N>
