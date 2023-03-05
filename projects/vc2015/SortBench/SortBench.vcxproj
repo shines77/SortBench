@@ -26,7 +26,7 @@
     <ClInclude Include="..\..\..\src\jstd\algorithms\BinaryInsertSort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\BubbleSort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\InsertSort.h" />
-    <ClInclude Include="..\..\..\src\jstd\algorithms\pdqsort.h" />
+    <ClInclude Include="..\..\..\src\jstd\algorithms\orlp-pdqsort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\SelectSort.h" />
     <ClInclude Include="..\..\..\src\jstd\basic\config.h" />
     <ClInclude Include="..\..\..\src\jstd\basic\stddef.h" />

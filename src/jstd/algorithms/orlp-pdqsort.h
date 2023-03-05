@@ -51,6 +51,8 @@
     #define PDQSORT_PREFER_MOVE(x) (x)
 #endif
 
+namespace orlp {
+
 namespace pdqsort_detail {
     enum {
         // Partitions below this size are sorted using insertion sort.
@@ -534,6 +536,8 @@ inline void pdqsort_branchless(Iter begin, Iter end) {
     typedef typename std::iterator_traits<Iter>::value_type T;
     pdqsort_branchless(begin, end, std::less<T>());
 }
+
+} // namespace orlp
 
 #undef PDQSORT_PREFER_MOVE
 

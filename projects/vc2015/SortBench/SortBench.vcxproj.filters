@@ -39,9 +39,6 @@
     <ClInclude Include="..\..\..\src\jstd\algorithms\InsertSort.h">
       <Filter>src\jstd\algorithms</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\jstd\algorithms\pdqsort.h">
-      <Filter>src\jstd\algorithms</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\jstd\algorithms\SelectSort.h">
       <Filter>src\jstd\algorithms</Filter>
     </ClInclude>
@@ -70,6 +67,9 @@
       <Filter>src\jstd\support</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\jstd\algorithms\BinaryInsertSort.h">
+      <Filter>src\jstd\algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\algorithms\orlp-pdqsort.h">
       <Filter>src\jstd\algorithms</Filter>
     </ClInclude>
   </ItemGroup>

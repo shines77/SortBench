@@ -12,6 +12,6 @@
 
 #include "jstd/algorithms/BinaryInsertSort.h"
 
-#include "jstd/algorithms/pdqsort.h"
+#include "jstd/algorithms/orlp-pdqsort.h"
 
 #endif // !JSTD_ALGORITHMS_H

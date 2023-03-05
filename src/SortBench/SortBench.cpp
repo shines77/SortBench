@@ -46,7 +46,7 @@ struct Algorithm {
         StdHeapSort,
         StdStableSort,
         StdSort,
-        PdQSort,
+        ORLP_PdQSort,
         Last
     };
 };
@@ -167,8 +167,8 @@ const char * getSortAlgorithmName()
         return "std::stable_sort";
     else if (AlgorithmId == Algorithm::StdSort)
         return "std::sort";
-    else if (AlgorithmId == Algorithm::PdQSort)
-        return "PdQSort";
+    else if (AlgorithmId == Algorithm::ORLP_PdQSort)
+        return "orlp::pdqsort";
     else
         return "Unknown";
 }
@@ -233,8 +233,8 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
             std::stable_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::StdSort) {
             std::sort(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::PdQSort) {
-            pdqsort(test_array.begin(), test_array.end());
+        } else if (AlgorithmId == Algorithm::ORLP_PdQSort) {
+            orlp::pdqsort(test_array.begin(), test_array.end());
         } else {
             // Unknown algorithm
         }
@@ -325,7 +325,7 @@ void sort_benchmark_impl()
     run_sort_benchmark<Algorithm::StdHeapSort, T>(test_array_list, standard_answers, array_count, total_items);
     run_sort_benchmark<Algorithm::StdStableSort, T>(test_array_list, standard_answers, array_count, total_items);
     run_sort_benchmark<Algorithm::StdSort, T>(test_array_list, standard_answers, array_count, total_items);
-    run_sort_benchmark<Algorithm::PdQSort, T>(test_array_list, standard_answers, array_count, total_items);
+    run_sort_benchmark<Algorithm::ORLP_PdQSort, T>(test_array_list, standard_answers, array_count, total_items);
 
     printf("\n");
 }
