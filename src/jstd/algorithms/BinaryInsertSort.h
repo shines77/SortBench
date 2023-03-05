@@ -65,11 +65,13 @@ inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator 
          
             while (left < right) {
                 mid = left + (right - left) / 2;
-#if 1
+#if 0
+                // branchless version
                 bool comp_result = compare(*key, *mid);
                 left  = (comp_result ? left : (mid + 1));
-                right = (comp_result ? mid  : right);
+                right = (comp_result ?  mid : right    );
 #else
+                // branch version
                 bool comp_result = compare(*key, *mid);
                 if (comp_result)
                     right = mid;            // mid - 0
