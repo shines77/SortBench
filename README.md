@@ -1,4 +1,4 @@
-# SortBench
+# Sorting Algorithms Benchmark
 
 ## 介绍
 
