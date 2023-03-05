@@ -24,9 +24,9 @@ namespace detail {
 //
 // See: https://en.cppreference.com/w/cpp/iterator/random_access_iterator
 //
-// LegacyRandomAccessIteratorator
+// LegacyRandomAccessIterator
 //
-// See: https://en.cppreference.com/w/cpp/named_req/RandomAccessIteratorator
+// See: https://en.cppreference.com/w/cpp/named_req/RandomAccessIterator
 //
 template <typename RandomAccessIterator, typename Comparer>
 inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator last,

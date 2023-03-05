@@ -15,6 +15,9 @@
 namespace jstd {
 namespace detail {
 
+//
+// See: https://www.cnblogs.com/jyroy/p/11248691.html
+//
 template <typename RandomAccessIterator, typename Comparer>
 inline void bubble_sort(RandomAccessIterator first, RandomAccessIterator last,
                         Comparer compare, std::random_access_iterator_tag) {
@@ -40,20 +43,22 @@ template <typename BiDirectionalIterator, typename Comparer>
 inline void bubble_sort(BiDirectionalIterator first, BiDirectionalIterator last,
                         Comparer compare, std::bidirectional_iterator_tag) {
     typedef BiDirectionalIterator iterator;
-    iterator limit = std::prev(last);   // last - 1
-    iterator last_pos = limit;
-    for (iterator iter = 0; iter < limit; ++iter) {
-        iterator swapped_pos = last;
-        for (iterator cur = first; cur < last_pos; ++cur) {
-            iterator next = std::next(cur);
-            if (!compare(*cur, *next)) {
-                std::iter_swap(cur, next);
-                swapped_pos = cur;
+    if (likely(first != last)) {
+        iterator limit = std::prev(last);   // last - 1
+        iterator last_pos = limit;
+        for (iterator iter = first; iter != limit; ++iter) {
+            iterator swapped_pos = last;
+            for (iterator cur = first; cur != last_pos; ++cur) {
+                iterator next = std::next(cur);
+                if (!compare(*cur, *next)) {
+                    std::iter_swap(cur, next);
+                    swapped_pos = cur;
+                }
             }
+            last_pos = swapped_pos;
+            if (swapped_pos == last)
+                break;
         }
-        last_pos = swapped_pos;
-        if (swapped_pos == last)
-            break;
     }
 }
 
