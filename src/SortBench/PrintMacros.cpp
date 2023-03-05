@@ -251,6 +251,7 @@ static const CompilerMarco compiler_arch[] = {
     COMPILER_MARCO_ENTRY(__LITTLE_ENDIAN__),
 #endif
 
+    // To avoid empty compiler_arch[] array definitions.
     { "DEFAULT_COMPILER_ARCH", "True" }
 };
 
@@ -308,25 +309,25 @@ void print_marcos()
 {
     size_t i;
 
-    printf("/* Compiler definitions: */\n\n");
+    printf("/* Compiler definitions */\n\n");
     for (i = 0; i < __count_of(compiler_version); i++) {
         printf("#define %s %s\n", compiler_version[i].name, compiler_version[i].value);
     }
     printf("\n");
 
-    printf("/* Platform definitions: */\n\n");
+    printf("/* Platform definitions */\n\n");
     for (i = 0; i < __count_of(compiler_platforms); i++) {
         printf("#define %s %s\n", compiler_platforms[i].name, compiler_platforms[i].value);
     }
     printf("\n");
 
-    printf("/* Architecture definitions: */\n\n");
+    printf("/* Architecture definitions */\n\n");
     for (i = 0; i < __count_of(compiler_arch); i++) {
         printf("#define %s %s\n", compiler_arch[i].name, compiler_arch[i].value);
     }
     printf("\n");
 
-    printf("/* Other definitions: */\n\n");
+    printf("/* Other definitions */\n\n");
     for (i = 0; i < __count_of(compiler_others); i++) {
         printf("#define %s %s\n", compiler_others[i].name, compiler_others[i].value);
     }
