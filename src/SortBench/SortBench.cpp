@@ -354,11 +354,12 @@ void sort_benchmark()
     sort_benchmark_impl<T, ArrayType, 48, 64>();
     sort_benchmark_impl<T, ArrayType, 65, 96>();
     sort_benchmark_impl<T, ArrayType, 97, 128>();
+    sort_benchmark_impl<T, ArrayType, 192, 256>();
 
     // Randomize short array test
     sort_benchmark_impl<T, ArrayType, 40, 50>();
     sort_benchmark_impl<T, ArrayType, 90, 100>();
-    sort_benchmark_impl<T, ArrayType, 180, 200>();
+    sort_benchmark_impl<T, ArrayType, 280, 300>();
     sort_benchmark_impl<T, ArrayType, 450, 500>();
 
     // Randomize long array test
