@@ -247,7 +247,7 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
     else
         printf("Per item time: N/A ns");
 
-    if (0) {
+    if (1) {
         bool verifyRsult = verify_sort_answers(test_array_list, standard_answers, array_count);
         printf("verify = %s\n", verifyRsult ? "Passed" : "Failed");
     } else {
@@ -312,11 +312,11 @@ void sort_benchmark_impl()
         run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
 #else
-    if (maxLen <= 256) {
+    if (maxLen <= 128) {
         run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count, total_items);
         run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
-    if (maxLen <= 1024) {
+    if (maxLen <= 512) {
         run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count, total_items);
         run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
@@ -368,8 +368,10 @@ void sort_benchmark()
     sort_benchmark_impl<T, ArrayType, 9500, 10000>();
     sort_benchmark_impl<T, ArrayType, 49000, 50000>();
     sort_benchmark_impl<T, ArrayType, 99000, 100000>();
+#ifdef NDEBUG
     sort_benchmark_impl<T, ArrayType, 499000, 500000>();
     sort_benchmark_impl<T, ArrayType, 999000, 1000000>();
+#endif
 }
 
 int main(int argc, char * argv[])

@@ -36,6 +36,109 @@ inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator 
     typedef typename std::iterator_traits<iterator>::difference_type difference_type;
 
     difference_type length = last - first;
+    if (unlikely(length <= 0 && false)) {
+        if (likely(length > 0)) {
+            iterator cur = std::next(first);
+            while (cur != last) {
+                iterator key = cur;
+                iterator prev = std::prev(cur);
+
+                if (compare(*key, *prev)) {
+                    T tmp = std::move(*key);
+
+                    do {
+                        *key = std::move(*prev);
+                        --key;
+                    } while (key != first && compare(tmp, *--prev));
+
+                    *key = std::move(tmp);
+                }
+                ++cur;
+            }
+        }
+    } else {
+        for (iterator cur = std::next(first); cur != last; ++cur) {
+            iterator left = first;
+            iterator right = cur;
+            iterator key = cur;
+            iterator mid;
+         
+            do {
+                difference_type distance = (right - left);
+                if (likely(distance <= 64)) {
+                    if (likely(distance != 0)) {
+                        iterator prev = std::prev(cur);
+                        iterator tail = key;
+                        T tmp = std::move(*key);
+                        if (right != cur) {
+                            while (prev >= right) {
+                                *tail = std::move(*prev);
+                                --tail;
+                                --prev;
+                            }
+                        }
+                        if (compare(tmp, *prev)) {
+                            do {
+                                *tail = std::move(*prev);
+                                --tail;
+                            } while (tail != left && compare(tmp, *--prev));
+                        }
+                        *tail = std::move(tmp);
+                    }
+                    goto NextLoop;
+                } else {
+                    mid = left + distance / 2;
+#if 0
+                    // branchless version
+                    bool comp_result = compare(*key, *mid);
+                    left = (comp_result ? left : (mid + 1));
+                    right = (comp_result ?  mid : right);
+#else
+                    // branched version
+                    bool comp_result = compare(*key, *mid);
+                    if (comp_result)
+                        right = mid;            // mid - 0
+                    else
+                        left = std::next(mid);  // mid + 1
+#endif
+                }
+            } while (1);
+
+            if (likely(left < key)) {
+                T tmp = std::move(*key);
+
+                iterator prev = std::prev(cur);
+                do {
+                    *key = std::move(*prev);
+#ifdef NDEBUG
+                    --key;
+                    --prev;
+#else
+                    assert(key != first);
+                    --key;
+                    if (prev != first)
+                        --prev;
+                    else
+                        break;
+#endif
+                } while (prev >= left);
+
+                *key = std::move(tmp);
+            }
+NextLoop:
+            (void)(0);
+        }
+    }
+}
+
+template <typename RandomAccessIterator, typename Comparer>
+inline void binary_insert_sort2(RandomAccessIterator first, RandomAccessIterator last,
+                                Comparer compare, std::random_access_iterator_tag) {
+    typedef RandomAccessIterator iterator;
+    typedef typename std::iterator_traits<iterator>::value_type T;
+    typedef typename std::iterator_traits<iterator>::difference_type difference_type;
+
+    difference_type length = last - first;
     if (likely(length <= 256)) {
         if (likely(length > 0)) {
             iterator cur = std::next(first);
