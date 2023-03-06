@@ -36,7 +36,7 @@ inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator 
     typedef typename std::iterator_traits<iterator>::difference_type difference_type;
 
     difference_type length = last - first;
-    if (unlikely(length <= 0 && false)) {
+    if (likely(length <= 256)) {
         if (likely(length > 0)) {
             iterator key = std::next(first);
             while (key != last) {
@@ -109,12 +109,11 @@ inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator 
                 iterator prev = std::prev(key);
                 do {
                     *tail = std::move(*prev);
-#ifdef NDEBUG
-                    --tail;
-                    --prev;
-#else
                     assert(tail != first);
                     --tail;
+#ifdef NDEBUG
+                    --prev;
+#else
                     if (prev != first)
                         --prev;
                     else
@@ -188,12 +187,11 @@ inline void binary_insert_sort2(RandomAccessIterator first, RandomAccessIterator
                 iterator target = std::prev(cur);
                 do {
                     *key = std::move(*target);
-#ifdef NDEBUG
-                    --key;
-                    --target;
-#else
                     assert(key != first);
                     --key;
+#ifdef NDEBUG
+                    --target;
+#else
                     if (target != first)
                         --target;
                     else
@@ -247,6 +245,18 @@ inline void BinaryInsertSort(Iterator first, Iterator last, Comparer compare) {
 
 template <typename Iterator>
 inline void BinaryInsertSort(Iterator first, Iterator last) {
+    typedef typename std::iterator_traits<Iterator>::value_type T;
+    BinaryInsertSort(first, last, std::less<T>());
+}
+
+template <typename Iterator, typename Comparer>
+inline void BinaryInsertSort2(Iterator first, Iterator last, Comparer compare) {
+    typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
+    detail::binary_insert_sort2(first, last, compare, iterator_category());
+}
+
+template <typename Iterator>
+inline void BinaryInsertSort2(Iterator first, Iterator last) {
     typedef typename std::iterator_traits<Iterator>::value_type T;
     BinaryInsertSort(first, last, std::less<T>());
 }

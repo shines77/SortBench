@@ -41,6 +41,7 @@ struct Algorithm {
         BubbleSort,
         InsertSort,
         BinaryInsertSort,
+        BinaryInsertSort2,
         QuickSort,
         TimSort,
         StdHeapSort,
@@ -227,6 +228,8 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
             jstd::InsertSort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::BinaryInsertSort) {
             jstd::BinaryInsertSort(test_array.begin(), test_array.end());
+        } else if (AlgorithmId == Algorithm::BinaryInsertSort2) {
+            jstd::BinaryInsertSort2(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::StdHeapSort) {
             heap_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::StdStableSort) {
@@ -304,21 +307,23 @@ void sort_benchmark_impl()
 
 #ifdef NDEBUG
     if (maxLen <= 512) {
-        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count, total_items);
         run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
+        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
     if (maxLen <= 5120) {
         run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count, total_items);
         run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+        run_sort_benchmark<Algorithm::BinaryInsertSort2, T>(test_array_list, standard_answers, array_count, total_items);
     }
 #else
     if (maxLen <= 128) {
-        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count, total_items);
         run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
+        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
     if (maxLen <= 512) {
         run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count, total_items);
         run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+        run_sort_benchmark<Algorithm::BinaryInsertSort2, T>(test_array_list, standard_answers, array_count, total_items);
     }
 #endif // NDEBUG
 
