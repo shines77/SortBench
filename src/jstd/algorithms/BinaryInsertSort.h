@@ -38,39 +38,37 @@ inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator 
     difference_type length = last - first;
     if (unlikely(length <= 0 && false)) {
         if (likely(length > 0)) {
-            iterator cur = std::next(first);
-            while (cur != last) {
-                iterator key = cur;
-                iterator prev = std::prev(cur);
+            iterator key = std::next(first);
+            while (key != last) {
+                iterator tail = key;
+                iterator prev = std::prev(key);
 
-                if (compare(*key, *prev)) {
-                    T tmp = std::move(*key);
+                if (compare(*tail, *prev)) {
+                    T tmp = std::move(*tail);
 
                     do {
-                        *key = std::move(*prev);
-                        --key;
-                    } while (key != first && compare(tmp, *--prev));
+                        *tail = std::move(*prev);
+                        --tail;
+                    } while (tail != first && compare(tmp, *--prev));
 
-                    *key = std::move(tmp);
+                    *tail = std::move(tmp);
                 }
-                ++cur;
+                ++key;
             }
         }
     } else {
-        for (iterator cur = std::next(first); cur != last; ++cur) {
+        for (iterator key = std::next(first); key != last; ++key) {
             iterator left = first;
-            iterator right = cur;
-            iterator key = cur;
-            iterator mid;
+            iterator right = key;
          
             do {
                 difference_type distance = (right - left);
-                if (unlikely(distance <= 16)) {
+                if (unlikely(distance <= 128)) {
                     if (likely(distance != 0)) {
-                        iterator prev = std::prev(cur);
                         iterator tail = key;
-                        T tmp = std::move(*key);
-                        if (right != cur) {
+                        iterator prev = std::prev(key);
+                        T tmp = std::move(*tail);
+                        if (right != key) {
                             while (prev >= right) {
                                 *tail = std::move(*prev);
                                 --tail;
@@ -87,11 +85,11 @@ inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator 
                     }
                     goto NextLoop;
                 } else {
-                    mid = left + distance / 2;
+                    iterator mid = left + distance / 2;
 #if 0
                     // branchless version
                     bool comp_result = compare(*key, *mid);
-                    left = (comp_result ? left : (mid + 1));
+                    left  = (comp_result ? left : (mid + 1));
                     right = (comp_result ?  mid : right);
 #else
                     // branched version
@@ -107,15 +105,16 @@ inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator 
             if (likely(left < key)) {
                 T tmp = std::move(*key);
 
-                iterator prev = std::prev(cur);
+                iterator tail = key;
+                iterator prev = std::prev(key);
                 do {
-                    *key = std::move(*prev);
+                    *tail = std::move(*prev);
 #ifdef NDEBUG
-                    --key;
+                    --tail;
                     --prev;
 #else
-                    assert(key != first);
-                    --key;
+                    assert(tail != first);
+                    --tail;
                     if (prev != first)
                         --prev;
                     else
@@ -123,7 +122,7 @@ inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator 
 #endif
                 } while (prev >= left);
 
-                *key = std::move(tmp);
+                *tail = std::move(tmp);
             }
 NextLoop:
             (void)(0);
