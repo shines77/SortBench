@@ -315,7 +315,7 @@ void sort_benchmark_impl()
     if (maxLen <= 5120) {
         run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
-    if (maxLen <= 51200) {
+    if (maxLen <= 10240) {
         run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
         run_sort_benchmark<Algorithm::BinaryInsertSort2, T>(test_array_list, standard_answers, array_count, total_items);
     }
