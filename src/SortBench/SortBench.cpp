@@ -160,6 +160,8 @@ const char * getSortAlgorithmName()
         return "InsertSort";
     else if (AlgorithmId == Algorithm::BinaryInsertSort)
         return "BinaryInsertSort";
+    else if (AlgorithmId == Algorithm::BinaryInsertSort2)
+        return "BinaryInsertSort2";
     else if (AlgorithmId == Algorithm::QuickSort)
         return "QuickSort";
     else if (AlgorithmId == Algorithm::StdHeapSort)
