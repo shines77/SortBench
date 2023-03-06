@@ -65,7 +65,7 @@ inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator 
          
             do {
                 difference_type distance = (right - left);
-                if (likely(distance <= 64)) {
+                if (likely(distance <= 32)) {
                     if (likely(distance != 0)) {
                         iterator prev = std::prev(cur);
                         iterator tail = key;

@@ -241,15 +241,15 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
     }
     sw.stop();
 
-    printf("Sort time: %8.3f ms, ", sw.getElapsedMillisec());
+    printf("Sort time: %8.3f ms", sw.getElapsedMillisec());
     if (total_items != 0)
-        printf("Per item time: %8.3f ns", sw.getElapsedNanosec() / total_items);
+        printf(", Per item time: %8.3f ns", sw.getElapsedNanosec() / total_items);
     else
-        printf("Per item time: N/A ns");
+        printf(", Per item time: N/A ns");
 
     if (1) {
         bool verifyRsult = verify_sort_answers(test_array_list, standard_answers, array_count);
-        printf("verify = %s\n", verifyRsult ? "Passed" : "Failed");
+        printf(", verify = %s\n", verifyRsult ? "Passed" : "Failed");
     } else {
         printf("\n");
     }
