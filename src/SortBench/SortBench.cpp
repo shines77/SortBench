@@ -314,6 +314,8 @@ void sort_benchmark_impl()
     }
     if (maxLen <= 5120) {
         run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+    }
+    if (maxLen <= 51200) {
         run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
         run_sort_benchmark<Algorithm::BinaryInsertSort2, T>(test_array_list, standard_answers, array_count, total_items);
     }
@@ -322,8 +324,10 @@ void sort_benchmark_impl()
         run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
         run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
-    if (maxLen <= 512) {
+    if (maxLen <= 256) {
         run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+    }
+    if (maxLen <= 512) {
         run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
         run_sort_benchmark<Algorithm::BinaryInsertSort2, T>(test_array_list, standard_answers, array_count, total_items);
     }
