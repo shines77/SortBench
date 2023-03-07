@@ -6,6 +6,8 @@
 #pragma once
 #endif
 
+#include "jstd/basic/stddef.h"
+
 #include <cstddef>
 #include <iterator>
 #include <type_traits>
@@ -65,7 +67,25 @@ inline void bubble_sort(BiDirectionalIterator first, BiDirectionalIterator last,
 template <typename ForwardIterator, typename Comparer>
 inline void bubble_sort(ForwardIterator first, ForwardIterator last,
                         Comparer compare, std::forward_iterator_tag) {
-    throw std::invalid_argument("detail::bubble_sort() is not supported std::forward_iterator.");
+    typedef ForwardIterator iterator;
+    if (likely(first != last)) {
+        iterator last_pos = last;
+        for (iterator iter = first; iter != last; ++iter) {
+            iterator swapped_pos = last;
+            for (iterator cur = first; (cur != last_pos && cur != last); ++cur) {
+                iterator next = std::next(cur);
+                if (next == last)
+                    break;
+                if (!compare(*cur, *next)) {
+                    std::iter_swap(cur, next);
+                    swapped_pos = cur;
+                }
+            }
+            last_pos = swapped_pos;
+            if (swapped_pos == last)
+                break;
+        }
+    }
 }
 
 } // namespace detail

@@ -72,5 +72,8 @@
     <ClInclude Include="..\..\..\src\jstd\algorithms\orlp-pdqsort.h">
       <Filter>src\jstd\algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\algorithms\BucketSort.h">
+      <Filter>src\jstd\algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -35,23 +35,6 @@ static const size_t kTotalArrayCount = 1024 * 1024 * 4;
 static const size_t kTotalArrayCount = 1024 * 128;
 #endif
 
-struct Algorithm {
-    enum {
-        SelectSort,
-        BubbleSort,
-        InsertSort,
-        BinaryInsertSort,
-        BinaryInsertSort2,
-        QuickSort,
-        TimSort,
-        StdHeapSort,
-        StdStableSort,
-        StdSort,
-        ORLP_PdQSort,
-        Last
-    };
-};
-
 struct ArrayKind {
     enum {
         ShuffledNoRepeat,
@@ -67,6 +50,52 @@ struct ArrayKind {
         Last
     };
 };
+
+struct Algorithm {
+    enum {
+        BubbleSort,
+        SelectSort,
+        InsertSort,
+        BinaryInsertSort,
+        BinaryInsertSort2,
+        QuickSort,
+        TimSort,
+        StdHeapSort,
+        StdStableSort,
+        StdSort,
+        ORLP_PdQSort,
+        Last
+    };
+};
+
+template <size_t AlgorithmId>
+const char * getSortAlgorithmName()
+{
+    if (0)
+        return "Unreachable";
+    else if (AlgorithmId == Algorithm::BubbleSort)
+        return "BubbleSort";
+    else if (AlgorithmId == Algorithm::SelectSort)
+        return "SelectSort";
+    else if (AlgorithmId == Algorithm::InsertSort)
+        return "InsertSort";
+    else if (AlgorithmId == Algorithm::BinaryInsertSort)
+        return "BinaryInsertSort";
+    else if (AlgorithmId == Algorithm::BinaryInsertSort2)
+        return "BinaryInsertSort2";
+    else if (AlgorithmId == Algorithm::QuickSort)
+        return "QuickSort";
+    else if (AlgorithmId == Algorithm::StdHeapSort)
+        return "std::heap_sort";
+    else if (AlgorithmId == Algorithm::StdStableSort)
+        return "std::stable_sort";
+    else if (AlgorithmId == Algorithm::StdSort)
+        return "std::sort";
+    else if (AlgorithmId == Algorithm::ORLP_PdQSort)
+        return "orlp::pdqsort";
+    else
+        return "Unknown";
+}
 
 inline uint32_t rand16()
 {
@@ -147,35 +176,6 @@ inline size_t getArrayCount()
     return (array_count == 0) ? 1 : array_count;
 }
 
-template <size_t AlgorithmId>
-const char * getSortAlgorithmName()
-{
-    if (0)
-        return "Unreachable";
-    else if (AlgorithmId == Algorithm::SelectSort)
-        return "SelectSort";
-    else if (AlgorithmId == Algorithm::BubbleSort)
-        return "BubbleSort";
-    else if (AlgorithmId == Algorithm::InsertSort)
-        return "InsertSort";
-    else if (AlgorithmId == Algorithm::BinaryInsertSort)
-        return "BinaryInsertSort";
-    else if (AlgorithmId == Algorithm::BinaryInsertSort2)
-        return "BinaryInsertSort2";
-    else if (AlgorithmId == Algorithm::QuickSort)
-        return "QuickSort";
-    else if (AlgorithmId == Algorithm::StdHeapSort)
-        return "std::heap_sort";
-    else if (AlgorithmId == Algorithm::StdStableSort)
-        return "std::stable_sort";
-    else if (AlgorithmId == Algorithm::StdSort)
-        return "std::sort";
-    else if (AlgorithmId == Algorithm::ORLP_PdQSort)
-        return "orlp::pdqsort";
-    else
-        return "Unknown";
-}
-
 template <typename T>
 bool verify_sort_answers(const std::unique_ptr<std::vector<T>[]> & test_array_list,
                          const std::unique_ptr<std::vector<T>[]> & standard_answers,
@@ -193,6 +193,25 @@ bool verify_sort_answers(const std::unique_ptr<std::vector<T>[]> & test_array_li
     }
 
     return true;
+}
+
+template <typename T>
+void generate_standard_answers(std::unique_ptr<std::vector<T>[]> & standard_answers,
+                               const std::unique_ptr<std::vector<T>[]> & src_array_list,
+                               size_t array_count)
+{
+    // Copy test array from src_array_list
+    for (size_t i = 0; i < array_count; i++) {
+        std::vector<T> & src_test_array = src_array_list[i];
+        std::vector<T> & test_array = standard_answers[i];
+        test_array.insert(test_array.cbegin(), src_test_array.begin(), src_test_array.end());
+    }
+
+    // Generate all standard sort answers
+    for (size_t i = 0; i < array_count; i++) {
+        std::vector<T> & test_array = standard_answers[i];
+        std::sort(test_array.begin(), test_array.end());
+    }
 }
 
 template <size_t AlgorithmId, typename T>
@@ -257,25 +276,6 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
         printf(", verify = %s\n", verifyRsult ? "Passed" : "Failed");
     } else {
         printf("\n");
-    }
-}
-
-template <typename T>
-void generate_standard_answers(std::unique_ptr<std::vector<T>[]> & standard_answers,
-                               const std::unique_ptr<std::vector<T>[]> & src_array_list,
-                               size_t array_count)
-{
-    // Copy test array from src_array_list
-    for (size_t i = 0; i < array_count; i++) {
-        std::vector<T> & src_test_array = src_array_list[i];
-        std::vector<T> & test_array = standard_answers[i];
-        test_array.insert(test_array.cbegin(), src_test_array.begin(), src_test_array.end());
-    }
-
-    // Generate all standard sort answers
-    for (size_t i = 0; i < array_count; i++) {
-        std::vector<T> & test_array = standard_answers[i];
-        std::sort(test_array.begin(), test_array.end());
     }
 }
 
@@ -394,7 +394,7 @@ int main(int argc, char * argv[])
     //std::srand((unsigned int)std::time(0));
     std::srand((unsigned int)20230304L);
 
-    test::CPU::WarmUp warmUper(1000);
+    test::CPU::WarmUp warm_up(1000);
 
     if (1)
     {

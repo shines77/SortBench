@@ -25,6 +25,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\src\jstd\algorithms\BinaryInsertSort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\BubbleSort.h" />
+    <ClInclude Include="..\..\..\src\jstd\algorithms\BucketSort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\InsertSort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\orlp-pdqsort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\SelectSort.h" />
