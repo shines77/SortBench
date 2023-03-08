@@ -51,9 +51,9 @@ inline size_t ilog2(T n)
     return exponent;
 }
 
-template <typename T, typename DiffType, typename Iterator, typename Comparer>
+template <typename T, typename Iterator, typename Comparer>
 inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                 const T & minVal, const DiffType & distance) {
+                                 const T & minVal, const T & distance) {
     typedef Iterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
@@ -109,9 +109,9 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
     }
 }
 
-template <typename T, typename DiffType, typename Iterator, typename Comparer>
+template <typename T, typename Iterator, typename Comparer>
 inline void histogram_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                  const T & minVal, const DiffType & distance,
+                                  const T & minVal, const T & distance,
                                   size_t bucketSize) {
     typedef Iterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
@@ -153,9 +153,9 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
 
         value_type distance = maxVal - minVal;
         if (likely(distance != 0)) {
-            if (distance < (65536 * 4)) {
+            if (distance < value_type(65536 * 4)) {
                 counting_bucket_sort<value_type>(first, last, compare, minVal, distance);
-            } else if (length < (65536 * 4)) {
+            } else if (length < diff_type(65536 * 4)) {
                 //
             } else {
                 size_t minBucketCount = (distance + (kMaxBucketSize - 1)) / kMaxBucketSize;

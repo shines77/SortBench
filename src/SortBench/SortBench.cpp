@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <ctime>        // For std::time()
+#include <iostream>
 #include <string>
 #include <cstring>
 #include <memory>
@@ -162,6 +163,31 @@ void heap_sort(Iterator first, Iterator last)
     typedef typename std::iterator_traits<Iterator>::value_type T;
     std::make_heap(first, last, std::less<T>());
     std::sort_heap(first, last, std::less<T>());
+}
+
+template <typename T>
+void print_array(const std::string & name, const std::vector<T> & _array)
+{
+    static const size_t kItemsOneLine = 16;
+    std::cout << name.c_str()
+              << "[" << (uint32_t)_array.size() << "] = {" << std::endl;
+    size_t count = 0;
+    for (auto & val : _array) {
+        if ((count % kItemsOneLine) == 0)
+            std::cout << "  ";
+        std::cout << val;
+        if (count == (_array.size() - 1)) {
+            std::cout << std::endl;
+        } else {
+            if ((count % kItemsOneLine) != (kItemsOneLine - 1))
+                std::cout << ", ";
+            else
+                std::cout << "," << std::endl;
+        }
+        count++;
+    }
+    std::cout << "};" << std::endl;
+    std::cout << std::endl;
 }
 
 template <size_t ArrayCount, size_t N>
@@ -450,27 +476,56 @@ bool bucket_sort_test_impl(T minVal, T maxVal)
         }
     }
 
+    if (kMaxLen < 1024) {
+        print_array("test_array", test_array);
+    }
+
     std::vector<T> answer;
     generate_standard_answer<T>(test_array, answer);
 
     jstd::bucket_sort(test_array.begin(), test_array.end());
 
+    if (kMaxLen < 1024) {
+        print_array("test_array", test_array);
+        print_array("answer_array", answer);
+    }
+
     bool correctness = verify_sort_answer(test_array, answer);
     return correctness;
 }
 
-void bucket_sort_test()
+void bucket_sort_debug_test()
 {
     std::srand((unsigned int)std::time(0));
 
     bool correctness = true;
-    printf("bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535);\n");
-    //correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535);
-    printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
+    if (0) {
+        printf("bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535);\n");
+        correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535);
+        printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
+    }
 
-    printf("bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535 * 4 - 1);\n");
-    correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535 * 4 - 1);
-    printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
+    if (1) {
+        printf("bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535 * 4 - 1);\n");
+        correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535 * 4 - 1);
+        printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
+    }
+}
+
+void bucket_sort_test()
+{
+    bool correctness = true;
+    if (1) {
+        printf("bucket_sort_test_impl<uint32_t, 256, 512>(0, 65535);\n");
+        correctness = bucket_sort_test_impl<uint32_t, 256, 512>(0, 65535);
+        printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
+    }
+
+    if (1) {
+        printf("bucket_sort_test_impl<uint32_t, 256, 512>(0, 65535);\n");
+        correctness = bucket_sort_test_impl<uint32_t, 256, 512>(0, 65535);
+        printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
+    }
 }
 
 int main(int argc, char * argv[])
@@ -485,11 +540,16 @@ int main(int argc, char * argv[])
     test::CPU::WarmUp warm_up(1000);
 
 #ifdef _DEBUG
-    bucket_sort_test();
+    bucket_sort_debug_test();
 #endif
 
 #ifndef _DEBUG
     if (1)
+    {
+        bucket_sort_test();
+    }
+
+    if (0)
     {
         //sort_benchmark<uint32_t, ArrayKind::ShuffledNoRepeat>();
         sort_benchmark<uint32_t, ArrayKind::Shuffled>();
