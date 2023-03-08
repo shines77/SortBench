@@ -186,22 +186,13 @@ inline size_t getArrayCount()
 }
 
 template <typename T>
-bool verify_sort_answers(const std::unique_ptr<std::vector<T>[]> & test_array_list,
-                         const std::unique_ptr<std::vector<T>[]> & standard_answers,
-                         size_t array_count)
+void generate_standard_answer(const std::vector<T> & src_array, std::vector<T> & answers)
 {
-    for (size_t i = 0; i < array_count; i++) {
-        std::vector<T> & test_array = test_array_list[i];
-        std::vector<T> & answer_array = standard_answers[i];
-        if (test_array.size() != answer_array.size())
-            return false;
-        for (size_t n = 0; n < test_array.size(); n++) {
-            if (test_array[n] != answer_array[n])
-                return false;
-        }
-    }
+    // Copy to answer from src_array
+    answers.insert(answers.cbegin(), src_array.begin(), src_array.end());
 
-    return true;
+    // Sorting the answer
+    std::sort(answers.begin(), answers.end());
 }
 
 template <typename T>
@@ -209,18 +200,39 @@ void generate_standard_answers(std::unique_ptr<std::vector<T>[]> & standard_answ
                                const std::unique_ptr<std::vector<T>[]> & src_array_list,
                                size_t array_count)
 {
-    // Copy test array from src_array_list
+    // Copy to standard_answers from src_array_list, and then sorting.
     for (size_t i = 0; i < array_count; i++) {
-        std::vector<T> & src_test_array = src_array_list[i];
-        std::vector<T> & test_array = standard_answers[i];
-        test_array.insert(test_array.cbegin(), src_test_array.begin(), src_test_array.end());
+        std::vector<T> & src_array    = src_array_list[i];
+        std::vector<T> & answer_array = standard_answers[i];
+        generate_standard_answer(src_array, answer_array);
+    }
+}
+
+template <typename T>
+bool verify_sort_answer(const std::vector<T> & src_array, const std::vector<T> & answer)
+{
+    if (src_array.size() != answer.size())
+        return false;
+    for (size_t n = 0; n < src_array.size(); n++) {
+        if (src_array[n] != answer[n])
+            return false;
+    }
+    return true;
+}
+
+template <typename T>
+bool verify_sort_answers(const std::unique_ptr<std::vector<T>[]> & test_array_list,
+                         const std::unique_ptr<std::vector<T>[]> & standard_answers,
+                         size_t array_count)
+{
+    for (size_t i = 0; i < array_count; i++) {
+        std::vector<T> & test_array = test_array_list[i];
+        std::vector<T> & answer_array = standard_answers[i];
+        if (!verify_sort_answer(test_array, answer_array))
+            return false;
     }
 
-    // Generate all standard sort answers
-    for (size_t i = 0; i < array_count; i++) {
-        std::vector<T> & test_array = standard_answers[i];
-        std::sort(test_array.begin(), test_array.end());
-    }
+    return true;
 }
 
 template <size_t AlgorithmId, typename T>
@@ -298,23 +310,34 @@ void sort_benchmark_impl()
 {
     static const size_t minLen = (MinLen < MaxLen) ? MinLen : MaxLen;
     static const size_t maxLen = (MinLen > MaxLen) ? MinLen : MaxLen;
-    static const size_t rndRange = (maxLen + 1 - minLen);
+    static const size_t lenRange = (maxLen + 1 - minLen);
 
     size_t array_count = getArrayCount<kTotalArrayCount, (MinLen > MaxLen) ? MinLen : MaxLen>();
     std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
 
-    printf(" sort_benchmark<%u, %u, %u>, rnd_range = %u, array_count = %u\n\n",
+    printf(" sort_benchmark<%u, %u, %u>, len_range = %u, array_count = %u\n\n",
            (uint32_t)ArrayType, (uint32_t)minLen, (uint32_t)maxLen,
-           (uint32_t)rndRange, (uint32_t)array_count);
+           (uint32_t)lenRange, (uint32_t)array_count);
     
     size_t total_items = 0;
     for (size_t i = 0; i < array_count; i++) {
         std::vector<T> & test_array = test_array_list[i];
-        size_t length = minLen + static_cast<size_t>(rand30()) % rndRange;
+        size_t length;
+        if (lenRange != 0)
+            length = minLen + static_cast<size_t>(rand30()) % lenRange;
+        else
+            length = minLen + static_cast<size_t>(rand30());
         total_items += length;
-        for (size_t n = 0; n < length; n++) {
-            T rndNum = static_cast<T>(rand30());
-            test_array.push_back(rndNum);
+        if (length <= (8 * 65536)) {
+            for (size_t n = 0; n < length; n++) {
+                T rndNum = static_cast<T>(rand16());
+                test_array.push_back(rndNum);
+            }
+        } else {
+            for (size_t n = 0; n < length; n++) {
+                T rndNum = static_cast<T>(rand30());
+                test_array.push_back(rndNum);
+            }
         }
     }
 
@@ -350,12 +373,12 @@ void sort_benchmark_impl()
     }
 #endif // NDEBUG
 
-    sort_algo_bench<Algorithm::jstdBucketSort, T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::stdHeapSort,    T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::stdStableSort,  T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::stdSort,        T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::orlp_pdqsort,   T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::ska_sort,       T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::jstdBucketSort, T>(TEST_PARAMS(test_array_list));
 
     printf("\n");
 #undef TEST_PARAMS
@@ -405,6 +428,51 @@ void sort_benchmark()
 #endif
 }
 
+template <typename T, size_t MinLen, size_t MaxLen>
+bool bucket_sort_test_impl(T minVal, T maxVal)
+{
+    static const size_t kMinLen = MinLen;
+    static const size_t kMaxLen = MaxLen;
+    static const size_t kLenRange = kMaxLen - kMinLen + 1;
+    std::vector<T> test_array;
+
+    size_t valRange = maxVal - minVal + 1;
+    size_t length = kMinLen + static_cast<size_t>(rand30()) % kLenRange;
+    if (valRange != 0) {
+        for (size_t n = 0; n < length; n++) {
+            T rndNum = minVal + static_cast<T>(rand32()) % valRange;
+            test_array.push_back(rndNum);
+        }
+    } else {
+        for (size_t n = 0; n < length; n++) {
+            T rndNum = minVal + static_cast<T>(rand32());
+            test_array.push_back(rndNum);
+        }
+    }
+
+    std::vector<T> answer;
+    generate_standard_answer<T>(test_array, answer);
+
+    jstd::bucket_sort(test_array.begin(), test_array.end());
+
+    bool correctness = verify_sort_answer(test_array, answer);
+    return correctness;
+}
+
+void bucket_sort_test()
+{
+    std::srand((unsigned int)std::time(0));
+
+    bool correctness = true;
+    printf("bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535);\n");
+    //correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535);
+    printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
+
+    printf("bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 4294967295);\n");
+    correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 4294967295);
+    printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
+}
+
 int main(int argc, char * argv[])
 {
     print_marcos();
@@ -416,6 +484,11 @@ int main(int argc, char * argv[])
 
     test::CPU::WarmUp warm_up(1000);
 
+#ifdef _DEBUG
+    bucket_sort_test();
+#endif
+
+#ifndef _DEBUG
     if (1)
     {
         //sort_benchmark<uint32_t, ArrayKind::ShuffledNoRepeat>();
@@ -424,6 +497,7 @@ int main(int argc, char * argv[])
 
         //sort_benchmark<uint32_t, ArrayKind::AllEqual>();
     }
+#endif
 
     printf("\n");
     return 0;

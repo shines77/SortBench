@@ -8,16 +8,126 @@
 
 #include "jstd/basic/stddef.h"
 
+#include <assert.h>
+
 #include <cstdint>
 #include <cstddef>
 #include <iterator>
 #include <limits>
+#include <memory>       // For std::unique_ptr<T>
+#include <cstring>      // For std::memset()
 #include <type_traits>
 #include <utility>
 #include <algorithm>
 
 namespace jstd {
 namespace detail {
+
+template <typename T, typename CountType>
+struct SortBucket {
+    typedef T         value_type;
+    typedef CountType count_type;
+
+    count_type              count;
+    std::vector<value_type> items;
+
+    SortBucket() noexcept : count(0) {}
+
+    explicit SortBucket(count_type capacity) {
+        items.reserve(capacity);
+    }
+
+    ~SortBucket() {}
+};
+
+template <typename T>
+inline size_t ilog2(T n)
+{
+    size_t exponent = 0;
+    while (n > 1) {
+        exponent++;
+        n >>= 1;
+    }
+    return exponent;
+}
+
+template <typename T, typename DiffType, typename Iterator, typename Comparer>
+inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare,
+                                 const T & minVal, const DiffType & distance) {
+    typedef Iterator iterator;
+    typedef typename std::iterator_traits<iterator>::value_type      value_type;
+    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
+
+    diff_type length = last - first;
+    assert(length > 0);
+
+    assert(distance > 0);
+    if (distance < 65536) {
+        uint16_t counts[65536];
+        std::memset(&counts[0], 0, sizeof(uint16_t) * (distance + 1));
+
+        iterator iter;
+        for (iter = first; iter < last; ++iter) {
+            counts[*iter - minVal]++;
+        }
+
+        iter = first;
+        for (diff_type i = 0; i <= distance; ++i) {
+            uint16_t count = counts[i];
+            if (count != 0) {
+                value_type val = minVal + static_cast<value_type>(i);
+                for (uint16_t n = 0; n < count; ++n) {
+                    assert(iter != last);
+                    *iter++ = val;
+                }
+            }
+        }
+        assert(iter == last);
+    } else {
+        std::unique_ptr<uint32_t[]> counts(new uint32_t[distance]());
+        //std::memset(&counts[0], 0, sizeof(uint32_t) * distance);
+
+        iterator iter;
+        for (iter = first; iter < last; ++iter) {
+            counts[*iter - minVal]++;
+        }
+
+        iter = first;
+        for (diff_type i = 0; i < distance; ++i) {
+            uint32_t count = counts[i];
+            if (count != 0) {
+                value_type val = minVal + static_cast<value_type>(i);
+                for (uint32_t n = 0; n < count; ++n) {
+                    assert(iter != last);
+                    *iter++ = val;
+                }
+            }
+        }
+        assert(iter == last);
+
+        if (counts) {
+            //delete[] counts;
+        }
+    }
+}
+
+template <typename T, typename DiffType, typename Iterator, typename Comparer>
+inline void histogram_bucket_sort(Iterator first, Iterator last, Comparer compare,
+                                  const T & minVal, const DiffType & distance,
+                                  size_t bucketSize) {
+    typedef Iterator iterator;
+    typedef typename std::iterator_traits<iterator>::value_type      value_type;
+    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
+    typedef SortBucket<value_type, size_t> bucket_type;
+
+    size_t bucketCount = (distance + (bucketSize - 1)) / bucketSize;
+
+    std::unique_ptr<bucket_type[]> buckets(new bucket_type[bucketCount]);
+    for (size_t i = 0; i < bucketCount; i++) {
+        bucket_type & bucket = buckets[i];
+        bucket.count = 0;
+    }
+}
 
 template <typename RandomAccessIterator, typename Comparer>
 inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator last,
@@ -38,10 +148,31 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
             if (*iter > maxVal) maxVal = *iter;
         }
 
-        T distance = maxVal - minVal;
+        static const size_t kMaxBucketSize = 65536;
+        static const size_t kMaxBucketShift = 16;
+        static const size_t kMaxBucketCount = 65536;
+        static const size_t kBucketSizeThreshold = 8;
+
+        diff_type distance = maxVal - minVal;
         if (likely(distance != 0)) {
-            //
-        }        
+            if (distance < (65536 * 4)) {
+                counting_bucket_sort<T>(first, last, compare, minVal, distance);
+            } else if (length < (65536 * 4)) {
+                //
+            } else {
+                size_t minBucketCount = (distance + (kMaxBucketSize - 1)) / kMaxBucketSize;
+                size_t exp = ilog2(minBucketCount);
+                size_t bucketShift = kMaxBucketShift - exp;
+                size_t bucketSize = kMaxBucketSize >> bucketShift;
+                assert(bucketSize > 0);
+                if (bucketSize <= kBucketSizeThreshold ||
+                    length <= (kBucketSizeThreshold * kMaxBucketSize)) {
+                    //
+                } else {
+                    histogram_bucket_sort<T>(first, last, compare, minVal, distance, bucketSize);
+                }
+            }
+        }
     }
 }
 
