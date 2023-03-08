@@ -21,8 +21,8 @@ namespace detail {
 // See: https://www.cnblogs.com/jyroy/p/11248691.html
 //
 template <typename RandomAccessIterator, typename Comparer>
-inline void bubble_sort(RandomAccessIterator first, RandomAccessIterator last,
-                        Comparer compare, std::random_access_iterator_tag) {
+inline void bubble_sort_impl(RandomAccessIterator first, RandomAccessIterator last,
+                             Comparer compare, std::random_access_iterator_tag) {
     typedef RandomAccessIterator iterator;
     iterator limit = std::prev(last);   // last - 1
     iterator last_pos = limit;
@@ -42,8 +42,8 @@ inline void bubble_sort(RandomAccessIterator first, RandomAccessIterator last,
 }
 
 template <typename BiDirectionalIterator, typename Comparer>
-inline void bubble_sort(BiDirectionalIterator first, BiDirectionalIterator last,
-                        Comparer compare, std::bidirectional_iterator_tag) {
+inline void bubble_sort_impl(BiDirectionalIterator first, BiDirectionalIterator last,
+                             Comparer compare, std::bidirectional_iterator_tag) {
     typedef BiDirectionalIterator iterator;
     if (likely(first != last)) {
         iterator limit = std::prev(last);   // last - 1
@@ -65,8 +65,8 @@ inline void bubble_sort(BiDirectionalIterator first, BiDirectionalIterator last,
 }
 
 template <typename ForwardIterator, typename Comparer>
-inline void bubble_sort(ForwardIterator first, ForwardIterator last,
-                        Comparer compare, std::forward_iterator_tag) {
+inline void bubble_sort_impl(ForwardIterator first, ForwardIterator last,
+                             Comparer compare, std::forward_iterator_tag) {
     typedef ForwardIterator iterator;
     if (likely(first != last)) {
         iterator last_pos = last;
@@ -91,15 +91,15 @@ inline void bubble_sort(ForwardIterator first, ForwardIterator last,
 } // namespace detail
 
 template <typename Iterator, typename Comparer>
-inline void BubbleSort(Iterator first, Iterator last, Comparer compare) {
+inline void bubble_sort(Iterator first, Iterator last, Comparer compare) {
     typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
-    detail::bubble_sort(first, last, compare, iterator_category());
+    detail::bubble_sort_impl(first, last, compare, iterator_category());
 }
 
 template <typename Iterator>
-inline void BubbleSort(Iterator first, Iterator last) {
+inline void bubble_sort(Iterator first, Iterator last) {
     typedef typename std::iterator_traits<Iterator>::value_type T;
-    BubbleSort(first, last, std::less<T>());
+    bubble_sort(first, last, std::less<T>());
 }
 
 } // namespace jstd

@@ -20,8 +20,8 @@ namespace jstd {
 namespace detail {
 
 template <typename RandomAccessIterator, typename Comparer>
-inline void bucket_sort(RandomAccessIterator first, RandomAccessIterator last,
-                        Comparer compare, std::random_access_iterator_tag) {
+inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator last,
+                             Comparer compare, std::random_access_iterator_tag) {
     typedef RandomAccessIterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type      T;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
@@ -46,31 +46,35 @@ inline void bucket_sort(RandomAccessIterator first, RandomAccessIterator last,
 }
 
 template <typename BiDirectionalIterator, typename Comparer>
-inline void bucket_sort(BiDirectionalIterator first, BiDirectionalIterator last,
-                        Comparer compare, std::bidirectional_iterator_tag) {
+inline void bucket_sort_impl(BiDirectionalIterator first, BiDirectionalIterator last,
+                             Comparer compare, std::bidirectional_iterator_tag) {
     typedef BiDirectionalIterator iterator;
     if (likely(first != last)) {
+        //
     }
 }
 
 template <typename ForwardIterator, typename Comparer>
-inline void bucket_sort(ForwardIterator first, ForwardIterator last,
-                        Comparer compare, std::forward_iterator_tag) {
-    throw std::invalid_argument("detail::bucket_sort() is not supported std::forward_iterator.");
+inline void bucket_sort_impl(ForwardIterator first, ForwardIterator last,
+                             Comparer compare, std::forward_iterator_tag) {
+    typename ForwardIterator iterator;
+    typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
+    static_assert(!std::is_base_of<iterator_category, std::forward_iterator_tag>::value,
+                  "detail::bucket_sort() is not supported std::forward_iterator.");
 }
 
 } // namespace detail
 
 template <typename Iterator, typename Comparer>
-inline void BucketSort(Iterator first, Iterator last, Comparer compare) {
+inline void bucket_sort(Iterator first, Iterator last, Comparer compare) {
     typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
-    detail::bucket_sort(first, last, compare, iterator_category());
+    detail::bucket_sort_impl(first, last, compare, iterator_category());
 }
 
 template <typename Iterator>
-inline void BucketSort(Iterator first, Iterator last) {
+inline void bucket_sort(Iterator first, Iterator last) {
     typedef typename std::iterator_traits<Iterator>::value_type T;
-    BucketSort(first, last, std::less<T>());
+    bucket_sort(first, last, std::less<T>());
 }
 
 } // namespace jstd

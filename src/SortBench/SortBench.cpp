@@ -75,17 +75,17 @@ const char * getSortAlgorithmName()
     if (0)
         return "Unreachable";
     else if (AlgorithmId == Algorithm::jstdBubbleSort)
-        return "jstd::BubbleSort";
+        return "jstd::bubble_sort";
     else if (AlgorithmId == Algorithm::jstdSelectSort)
-        return "jstd::SelectSort";
+        return "jstd::select_sort";
     else if (AlgorithmId == Algorithm::jstdInsertSort)
-        return "jstd::InsertSort";
+        return "jstd::insert_sort";
     else if (AlgorithmId == Algorithm::jstdBinaryInsertSort)
-        return "jstd::BinaryInsertSort";
+        return "jstd::binary_insert_sort";
     else if (AlgorithmId == Algorithm::jstdBinaryInsertSort2)
-        return "jstd::BinaryInsertSort2";
+        return "jstd::binary_insert_sort2";
     else if (AlgorithmId == Algorithm::jstdQuickSort)
-        return "jstd::QuickSort";
+        return "jstd::quick_sort";
     else if (AlgorithmId == Algorithm::stdHeapSort)
         return "std::heap_sort";
     else if (AlgorithmId == Algorithm::stdStableSort)
@@ -95,7 +95,7 @@ const char * getSortAlgorithmName()
     else if (AlgorithmId == Algorithm::orlp_PdQSort)
         return "orlp::pdqsort";
     else
-        return "Unknown";
+        return "Unknown Algorithm";
 }
 
 inline uint32_t rand16()
@@ -243,17 +243,17 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
         if (0) {
             // Do nothing!!
         } else if (AlgorithmId == Algorithm::jstdBubbleSort) {
-            jstd::BubbleSort(test_array.begin(), test_array.end());
+            jstd::bubble_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::jstdSelectSort) {
-            jstd::SelectSort(test_array.begin(), test_array.end());
+            jstd::select_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::jstdInsertSort) {
-            jstd::InsertSort(test_array.begin(), test_array.end());
+            jstd::insert_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::jstdBinaryInsertSort) {
-            jstd::BinaryInsertSort(test_array.begin(), test_array.end());
+            jstd::binary_insert_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::jstdBinaryInsertSort2) {
-            jstd::BinaryInsertSort2(test_array.begin(), test_array.end());
+            jstd::binary_insert_sort2(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::jstdBucketSort) {
-            jstd::BucketSort(test_array.begin(), test_array.end());
+            jstd::bucket_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::stdHeapSort) {
             heap_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::stdStableSort) {
@@ -309,39 +309,43 @@ void sort_benchmark_impl()
     std::unique_ptr<std::vector<T>[]> standard_answers(new std::vector<T>[array_count]());
     generate_standard_answers<T>(standard_answers, test_array_list, array_count);
 
+#define TEST_PARAMS(test_array_list) \
+    test_array_list, standard_answers, array_count, total_items
+
 #ifdef NDEBUG
     if (maxLen <= 512) {
-        sort_algo_bench<Algorithm::jstdBubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
-        sort_algo_bench<Algorithm::jstdSelectSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdBubbleSort, T>(TEST_PARAMS(test_array_list));
+        sort_algo_bench<Algorithm::jstdSelectSort, T>(TEST_PARAMS(test_array_list));
     }
     if (maxLen <= 5120) {
-        sort_algo_bench<Algorithm::jstdInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdInsertSort, T>(TEST_PARAMS(test_array_list));
     }
     if (maxLen <= 10240) {
-        sort_algo_bench<Algorithm::jstdBinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
-        sort_algo_bench<Algorithm::jstdBinaryInsertSort2, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort,  T>(TEST_PARAMS(test_array_list));
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort2, T>(TEST_PARAMS(test_array_list));
     }
 #else
     if (maxLen <= 128) {
-        sort_algo_bench<Algorithm::jstdBubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
-        sort_algo_bench<Algorithm::jstdSelectSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdBubbleSort, T>(TEST_PARAMS(test_array_list));
+        sort_algo_bench<Algorithm::jstdSelectSort, T>(TEST_PARAMS(test_array_list));
     }
     if (maxLen <= 256) {
-        sort_algo_bench<Algorithm::jstdInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdInsertSort, T>(TEST_PARAMS(test_array_list));
     }
     if (maxLen <= 512) {
-        sort_algo_bench<Algorithm::jstdBinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
-        sort_algo_bench<Algorithm::jstdBinaryInsertSort2, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort,  T>(TEST_PARAMS(test_array_list));
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort2, T>(TEST_PARAMS(test_array_list));
     }
 #endif // NDEBUG
 
-    sort_algo_bench<Algorithm::jstdBubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
-    sort_algo_bench<Algorithm::stdHeapSort, T>(test_array_list, standard_answers, array_count, total_items);
-    sort_algo_bench<Algorithm::stdStableSort, T>(test_array_list, standard_answers, array_count, total_items);
-    sort_algo_bench<Algorithm::stdSort, T>(test_array_list, standard_answers, array_count, total_items);
-    sort_algo_bench<Algorithm::orlp_PdQSort, T>(test_array_list, standard_answers, array_count, total_items);
+    sort_algo_bench<Algorithm::jstdBubbleSort, T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::stdHeapSort,    T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::stdStableSort,  T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::stdSort,        T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::orlp_PdQSort,   T>(TEST_PARAMS(test_array_list));
 
     printf("\n");
+#undef TEST_PARAMS
 }
 
 template <typename T, size_t ArrayType, size_t N>
