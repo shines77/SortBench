@@ -57,7 +57,7 @@ inline void bucket_sort_impl(BiDirectionalIterator first, BiDirectionalIterator 
 template <typename ForwardIterator, typename Comparer>
 inline void bucket_sort_impl(ForwardIterator first, ForwardIterator last,
                              Comparer compare, std::forward_iterator_tag) {
-    typename ForwardIterator iterator;
+    typedef ForwardIterator iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
     static_assert(!std::is_base_of<iterator_category, std::forward_iterator_tag>::value,
                   "detail::bucket_sort() is not supported std::forward_iterator.");
