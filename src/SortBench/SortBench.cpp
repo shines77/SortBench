@@ -84,6 +84,8 @@ const char * getSortAlgorithmName()
         return "jstd::binary_insert_sort";
     else if (AlgorithmId == Algorithm::jstdBinaryInsertSort2)
         return "jstd::binary_insert_sort2";
+    else if (AlgorithmId == Algorithm::jstdBucketSort)
+        return "jstd::bucket_sort";
     else if (AlgorithmId == Algorithm::jstdQuickSort)
         return "jstd::quick_sort";
     else if (AlgorithmId == Algorithm::stdHeapSort)
@@ -223,7 +225,7 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
     test::StopWatch sw;
     std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
 
-    printf("Algorithm: %-26s ", getSortAlgorithmName<AlgorithmId>());
+    printf(" %-26s ", getSortAlgorithmName<AlgorithmId>());
 
     // Copy test array from src_array_list
     sw.start();
@@ -291,7 +293,7 @@ void sort_benchmark_impl()
     size_t array_count = getArrayCount<kTotalArrayCount, (MinLen > MaxLen) ? MinLen : MaxLen>();
     std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
 
-    printf("sort_benchmark<%u, %u, %u>, rnd_range = %u, array_count = %u\n\n",
+    printf(" sort_benchmark<%u, %u, %u>, rnd_range = %u, array_count = %u\n\n",
            (uint32_t)ArrayType, (uint32_t)minLen, (uint32_t)maxLen,
            (uint32_t)rndRange, (uint32_t)array_count);
     
