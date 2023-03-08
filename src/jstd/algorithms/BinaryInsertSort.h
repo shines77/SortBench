@@ -32,10 +32,10 @@ template <typename RandomAccessIterator, typename Comparer>
 inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator last,
                                Comparer compare, std::random_access_iterator_tag) {
     typedef RandomAccessIterator iterator;
-    typedef typename std::iterator_traits<iterator>::value_type T;
-    typedef typename std::iterator_traits<iterator>::difference_type difference_type;
+    typedef typename std::iterator_traits<iterator>::value_type      T;
+    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
-    difference_type length = last - first;
+    diff_type length = last - first;
     if (likely(length <= 256)) {
         if (likely(length > 0)) {
             iterator key = std::next(first);
@@ -62,7 +62,7 @@ inline void binary_insert_sort(RandomAccessIterator first, RandomAccessIterator 
             iterator right = key;
          
             do {
-                difference_type distance = (right - left);
+                diff_type distance = (right - left);
                 if (likely(distance <= 64)) {
                     if (likely(distance > 0)) {
                         iterator tail = key;
@@ -133,10 +133,10 @@ template <typename RandomAccessIterator, typename Comparer>
 inline void binary_insert_sort2(RandomAccessIterator first, RandomAccessIterator last,
                                 Comparer compare, std::random_access_iterator_tag) {
     typedef RandomAccessIterator iterator;
-    typedef typename std::iterator_traits<iterator>::value_type T;
-    typedef typename std::iterator_traits<iterator>::difference_type difference_type;
+    typedef typename std::iterator_traits<iterator>::value_type      T;
+    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
-    difference_type length = last - first;
+    diff_type length = last - first;
     if (likely(length <= 256)) {
         if (likely(length > 0)) {
             iterator cur = std::next(first);

@@ -53,17 +53,18 @@ struct ArrayKind {
 
 struct Algorithm {
     enum {
-        BubbleSort,
-        SelectSort,
-        InsertSort,
-        BinaryInsertSort,
-        BinaryInsertSort2,
-        QuickSort,
+        jstdBubbleSort,
+        jstdSelectSort,
+        jstdInsertSort,
+        jstdBinaryInsertSort,
+        jstdBinaryInsertSort2,
+        jstdBucketSort,
+        jstdQuickSort,
         TimSort,
-        StdHeapSort,
-        StdStableSort,
-        StdSort,
-        ORLP_PdQSort,
+        stdHeapSort,
+        stdStableSort,
+        stdSort,
+        orlp_PdQSort,
         Last
     };
 };
@@ -73,25 +74,25 @@ const char * getSortAlgorithmName()
 {
     if (0)
         return "Unreachable";
-    else if (AlgorithmId == Algorithm::BubbleSort)
-        return "BubbleSort";
-    else if (AlgorithmId == Algorithm::SelectSort)
-        return "SelectSort";
-    else if (AlgorithmId == Algorithm::InsertSort)
-        return "InsertSort";
-    else if (AlgorithmId == Algorithm::BinaryInsertSort)
-        return "BinaryInsertSort";
-    else if (AlgorithmId == Algorithm::BinaryInsertSort2)
-        return "BinaryInsertSort2";
-    else if (AlgorithmId == Algorithm::QuickSort)
-        return "QuickSort";
-    else if (AlgorithmId == Algorithm::StdHeapSort)
+    else if (AlgorithmId == Algorithm::jstdBubbleSort)
+        return "jstd::BubbleSort";
+    else if (AlgorithmId == Algorithm::jstdSelectSort)
+        return "jstd::SelectSort";
+    else if (AlgorithmId == Algorithm::jstdInsertSort)
+        return "jstd::InsertSort";
+    else if (AlgorithmId == Algorithm::jstdBinaryInsertSort)
+        return "jstd::BinaryInsertSort";
+    else if (AlgorithmId == Algorithm::jstdBinaryInsertSort2)
+        return "jstd::BinaryInsertSort2";
+    else if (AlgorithmId == Algorithm::jstdQuickSort)
+        return "jstd::QuickSort";
+    else if (AlgorithmId == Algorithm::stdHeapSort)
         return "std::heap_sort";
-    else if (AlgorithmId == Algorithm::StdStableSort)
+    else if (AlgorithmId == Algorithm::stdStableSort)
         return "std::stable_sort";
-    else if (AlgorithmId == Algorithm::StdSort)
+    else if (AlgorithmId == Algorithm::stdSort)
         return "std::sort";
-    else if (AlgorithmId == Algorithm::ORLP_PdQSort)
+    else if (AlgorithmId == Algorithm::orlp_PdQSort)
         return "orlp::pdqsort";
     else
         return "Unknown";
@@ -215,9 +216,9 @@ void generate_standard_answers(std::unique_ptr<std::vector<T>[]> & standard_answ
 }
 
 template <size_t AlgorithmId, typename T>
-void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list,
-                        const std::unique_ptr<std::vector<T>[]> & standard_answers,
-                        size_t array_count, size_t total_items)
+void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
+                     const std::unique_ptr<std::vector<T>[]> & standard_answers,
+                     size_t array_count, size_t total_items)
 {
     test::StopWatch sw;
     std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
@@ -241,23 +242,25 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
         std::vector<T> & test_array = test_array_list[i];
         if (0) {
             // Do nothing!!
-        } else if (AlgorithmId == Algorithm::BubbleSort) {
+        } else if (AlgorithmId == Algorithm::jstdBubbleSort) {
             jstd::BubbleSort(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::SelectSort) {
+        } else if (AlgorithmId == Algorithm::jstdSelectSort) {
             jstd::SelectSort(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::InsertSort) {
+        } else if (AlgorithmId == Algorithm::jstdInsertSort) {
             jstd::InsertSort(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::BinaryInsertSort) {
+        } else if (AlgorithmId == Algorithm::jstdBinaryInsertSort) {
             jstd::BinaryInsertSort(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::BinaryInsertSort2) {
+        } else if (AlgorithmId == Algorithm::jstdBinaryInsertSort2) {
             jstd::BinaryInsertSort2(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::StdHeapSort) {
+        } else if (AlgorithmId == Algorithm::jstdBucketSort) {
+            jstd::BucketSort(test_array.begin(), test_array.end());
+        } else if (AlgorithmId == Algorithm::stdHeapSort) {
             heap_sort(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::StdStableSort) {
+        } else if (AlgorithmId == Algorithm::stdStableSort) {
             std::stable_sort(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::StdSort) {
+        } else if (AlgorithmId == Algorithm::stdSort) {
             std::sort(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::ORLP_PdQSort) {
+        } else if (AlgorithmId == Algorithm::orlp_PdQSort) {
             orlp::pdqsort(test_array.begin(), test_array.end());
         } else {
             // Unknown algorithm
@@ -272,11 +275,10 @@ void run_sort_benchmark(const std::unique_ptr<std::vector<T>[]> & src_array_list
         printf(", Per item time: N/A ns");
 
     if (1) {
-        bool verifyRsult = verify_sort_answers(test_array_list, standard_answers, array_count);
-        printf(", verify = %s\n", verifyRsult ? "Passed" : "Failed");
-    } else {
-        printf("\n");
+        bool correctness = verify_sort_answers(test_array_list, standard_answers, array_count);
+        printf(", verify = %s", correctness ? "Pass" : "Failed");
     }
+    printf("\n");
 }
 
 template <typename T, size_t ArrayType, size_t MinLen, size_t MaxLen>
@@ -309,34 +311,35 @@ void sort_benchmark_impl()
 
 #ifdef NDEBUG
     if (maxLen <= 512) {
-        run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
-        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdBubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdSelectSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
     if (maxLen <= 5120) {
-        run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
     if (maxLen <= 10240) {
-        run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
-        run_sort_benchmark<Algorithm::BinaryInsertSort2, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort2, T>(test_array_list, standard_answers, array_count, total_items);
     }
 #else
     if (maxLen <= 128) {
-        run_sort_benchmark<Algorithm::BubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
-        run_sort_benchmark<Algorithm::SelectSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdBubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdSelectSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
     if (maxLen <= 256) {
-        run_sort_benchmark<Algorithm::InsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
     }
     if (maxLen <= 512) {
-        run_sort_benchmark<Algorithm::BinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
-        run_sort_benchmark<Algorithm::BinaryInsertSort2, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort, T>(test_array_list, standard_answers, array_count, total_items);
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort2, T>(test_array_list, standard_answers, array_count, total_items);
     }
 #endif // NDEBUG
 
-    run_sort_benchmark<Algorithm::StdHeapSort, T>(test_array_list, standard_answers, array_count, total_items);
-    run_sort_benchmark<Algorithm::StdStableSort, T>(test_array_list, standard_answers, array_count, total_items);
-    run_sort_benchmark<Algorithm::StdSort, T>(test_array_list, standard_answers, array_count, total_items);
-    run_sort_benchmark<Algorithm::ORLP_PdQSort, T>(test_array_list, standard_answers, array_count, total_items);
+    sort_algo_bench<Algorithm::jstdBubbleSort, T>(test_array_list, standard_answers, array_count, total_items);
+    sort_algo_bench<Algorithm::stdHeapSort, T>(test_array_list, standard_answers, array_count, total_items);
+    sort_algo_bench<Algorithm::stdStableSort, T>(test_array_list, standard_answers, array_count, total_items);
+    sort_algo_bench<Algorithm::stdSort, T>(test_array_list, standard_answers, array_count, total_items);
+    sort_algo_bench<Algorithm::orlp_PdQSort, T>(test_array_list, standard_answers, array_count, total_items);
 
     printf("\n");
 }

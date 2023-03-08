@@ -8,8 +8,10 @@
 
 #include "jstd/basic/stddef.h"
 
+#include <cstdint>
 #include <cstddef>
 #include <iterator>
+#include <limits>
 #include <type_traits>
 #include <utility>
 #include <algorithm>
@@ -21,6 +23,26 @@ template <typename RandomAccessIterator, typename Comparer>
 inline void bucket_sort(RandomAccessIterator first, RandomAccessIterator last,
                         Comparer compare, std::random_access_iterator_tag) {
     typedef RandomAccessIterator iterator;
+    typedef typename std::iterator_traits<iterator>::value_type      T;
+    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
+
+    diff_type length = last - first;
+    if (likely(length <= 256)) {
+        std::sort(first, last, compare);
+    } else {
+        assert(first != last);
+        T minVal = *first;
+        T maxVal = *first;
+        for (iterator iter = std::next(first); iter < last; ++iter) {
+            if (*iter < minVal) minVal = *iter;
+            if (*iter > maxVal) maxVal = *iter;
+        }
+
+        T distance = maxVal - minVal;
+        if (likely(distance != 0)) {
+            //
+        }        
+    }
 }
 
 template <typename BiDirectionalIterator, typename Comparer>
