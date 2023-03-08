@@ -149,9 +149,11 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
         diff_type distance = static_cast<diff_type>(maxVal - minVal);
         if (likely(distance != 0)) {
             if (distance < diff_type(65536 * 4)) {
+                printf("counting_bucket_sort()\n");
                 counting_bucket_sort<value_type>(first, last, compare, minVal, distance);
             } else if (length < diff_type(65536 * 4)) {
                 //
+                printf("bucket_sort_impl() unknown branch1\n");
             } else {
                 static const size_t kMaxBucketSize = 65536;
                 static const size_t kMaxBucketShift = 16;
@@ -166,7 +168,9 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
                 if (bucketSize <= kBucketSizeThreshold ||
                     (size_t)length <= (kBucketSizeThreshold * kMaxBucketSize)) {
                     //
+                    printf("bucket_sort_impl() unknown branch2\n");
                 } else {
+                    printf("histogram_bucket_sort()\n");
                     histogram_bucket_sort<value_type>(first, last, compare, minVal, distance, bucketSize);
                 }
             }

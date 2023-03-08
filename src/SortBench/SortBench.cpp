@@ -354,7 +354,7 @@ void sort_benchmark_impl()
         total_items += length;
         if (length <= (8 * 65536)) {
             for (size_t n = 0; n < length; n++) {
-                T rndNum = static_cast<T>(rand16());
+                T rndNum = static_cast<T>(rand16() % 65536);
                 test_array.push_back(rndNum);
             }
         } else {
