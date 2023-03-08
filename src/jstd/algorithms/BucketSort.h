@@ -78,7 +78,8 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
                 value_type val = minVal + static_cast<value_type>(i);
                 for (uint16_t n = 0; n < count; ++n) {
                     assert(iter != last);
-                    *iter++ = val;
+                    *iter = val;
+                    ++iter;
                 }
             }
         }
@@ -99,7 +100,8 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
                 value_type val = minVal + static_cast<value_type>(i);
                 for (uint32_t n = 0; n < count; ++n) {
                     assert(iter != last);
-                    *iter++ = val;
+                    *iter = val;
+                    ++iter;
                 }
             }
         }
