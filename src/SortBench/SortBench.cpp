@@ -338,7 +338,7 @@ void sort_benchmark_impl()
     }
 #endif // NDEBUG
 
-    sort_algo_bench<Algorithm::jstdBubbleSort, T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::jstdBucketSort, T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::stdHeapSort,    T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::stdStableSort,  T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::stdSort,        T>(TEST_PARAMS(test_array_list));
