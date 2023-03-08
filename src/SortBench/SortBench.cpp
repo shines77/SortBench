@@ -231,7 +231,7 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
     test::StopWatch sw;
     std::unique_ptr<std::vector<T>[]> test_array_list(new std::vector<T>[array_count]());
 
-    printf(" %-26s ", getSortAlgorithmName<AlgorithmId>());
+    printf(" %-28s ", getSortAlgorithmName<AlgorithmId>());
 
     // Copy test array from src_array_list
     sw.start();
