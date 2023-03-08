@@ -14,5 +14,6 @@
 #include "jstd/algorithms/BucketSort.h"
 
 #include "jstd/algorithms/orlp-pdqsort.h"
+#include "jstd/algorithms/ska_sort.hpp"
 
 #endif // !JSTD_ALGORITHMS_H

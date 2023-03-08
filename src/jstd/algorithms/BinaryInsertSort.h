@@ -29,8 +29,117 @@ namespace detail {
 // See: https://en.cppreference.com/w/cpp/named_req/RandomAccessIterator
 //
 template <typename RandomAccessIterator, typename Comparer>
-inline void binary_insert_sort_impl(RandomAccessIterator first, RandomAccessIterator last,
-                                    Comparer compare, std::random_access_iterator_tag) {
+inline void binary_insert_sort_v1_impl(RandomAccessIterator first, RandomAccessIterator last,
+                                       Comparer compare, std::random_access_iterator_tag) {
+    typedef RandomAccessIterator iterator;
+    typedef typename std::iterator_traits<iterator>::value_type      T;
+    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
+
+    diff_type length = last - first;
+    if (likely(length <= 256)) {
+        if (likely(length > 0)) {
+            iterator cur = std::next(first);
+            while (cur != last) {
+                iterator key = cur;
+                iterator target = std::prev(cur);
+
+                if (compare(*key, *target)) {
+                    T tmp = std::move(*key);
+
+                    do {
+                        *key = std::move(*target);
+                        --key;
+                    } while (key != first && compare(tmp, *--target));
+
+                    *key = std::move(tmp);
+                }
+                ++cur;
+            }
+        }
+    } else {
+        for (iterator cur = std::next(first); cur != last; ++cur) {
+            iterator left = first;
+            iterator right = cur;
+            iterator key = cur;
+            iterator mid;
+         
+            while (left < right) {
+                mid = left + (right - left) / 2;
+#if 0
+                // branchless version
+                bool comp_result = compare(*key, *mid);
+                left  = (comp_result ? left : (mid + 1));
+                right = (comp_result ?  mid : right    );
+#else
+                // branched version
+                bool comp_result = compare(*key, *mid);
+                if (comp_result)
+                    right = mid;            // mid - 0
+                else
+                    left = std::next(mid);  // mid + 1
+#endif
+            }
+
+            if (likely(left < key)) {
+                T tmp = std::move(*key);
+
+                iterator target = std::prev(cur);
+                do {
+                    *key = std::move(*target);
+                    assert(key != first);
+                    --key;
+#ifdef NDEBUG
+                    --target;
+#else
+                    if (target != first)
+                        --target;
+                    else
+                        break;
+#endif
+                } while (target >= left);
+
+                *key = std::move(tmp);
+            }
+        }
+    }
+}
+
+template <typename BiDirectionalIterator, typename Comparer>
+inline void binary_insert_sort_v1_impl(BiDirectionalIterator first, BiDirectionalIterator last,
+                                       Comparer compare, std::bidirectional_iterator_tag) {
+    typedef BiDirectionalIterator iterator;
+    typedef typename std::iterator_traits<iterator>::value_type T;
+    if (unlikely(first == last)) return;
+
+    for (iterator cur = std::next(first); cur != last; ++cur) {
+        iterator key = cur;
+        iterator target = std::prev(cur);
+
+        if (compare(*key, *target)) {
+            T tmp = std::move(*key);
+
+            do {
+                *key = std::move(*target);
+                --key;
+            } while (key != first && compare(tmp, *--target));
+
+            *key = std::move(tmp);
+        }
+    }
+}
+
+template <typename ForwardIterator, typename Comparer>
+inline void binary_insert_sort_v1_impl(ForwardIterator first, ForwardIterator last,
+                                       Comparer compare, std::forward_iterator_tag) {
+    typedef ForwardIterator iterator;
+    typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
+    static_assert(!std::is_base_of<iterator_category, std::forward_iterator_tag>::value,
+                  "detail::binary_insert_sort_v1() is not supported std::forward_iterator.");
+}
+
+template <typename RandomAccessIterator, typename Comparer>
+inline void binary_insert_sort_v2_impl(RandomAccessIterator first, RandomAccessIterator last,
+                                       Comparer compare, std::random_access_iterator_tag) {
     typedef RandomAccessIterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type      T;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
@@ -129,139 +238,57 @@ NextLoop:
     }
 }
 
-template <typename RandomAccessIterator, typename Comparer>
-inline void binary_insert_sort2_impl(RandomAccessIterator first, RandomAccessIterator last,
-                                     Comparer compare, std::random_access_iterator_tag) {
-    typedef RandomAccessIterator iterator;
-    typedef typename std::iterator_traits<iterator>::value_type      T;
-    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
-
-    diff_type length = last - first;
-    if (likely(length <= 256)) {
-        if (likely(length > 0)) {
-            iterator cur = std::next(first);
-            while (cur != last) {
-                iterator key = cur;
-                iterator target = std::prev(cur);
-
-                if (compare(*key, *target)) {
-                    T tmp = std::move(*key);
-
-                    do {
-                        *key = std::move(*target);
-                        --key;
-                    } while (key != first && compare(tmp, *--target));
-
-                    *key = std::move(tmp);
-                }
-                ++cur;
-            }
-        }
-    } else {
-        for (iterator cur = std::next(first); cur != last; ++cur) {
-            iterator left = first;
-            iterator right = cur;
-            iterator key = cur;
-            iterator mid;
-         
-            while (left < right) {
-                mid = left + (right - left) / 2;
-#if 0
-                // branchless version
-                bool comp_result = compare(*key, *mid);
-                left  = (comp_result ? left : (mid + 1));
-                right = (comp_result ?  mid : right    );
-#else
-                // branched version
-                bool comp_result = compare(*key, *mid);
-                if (comp_result)
-                    right = mid;            // mid - 0
-                else
-                    left = std::next(mid);  // mid + 1
-#endif
-            }
-
-            if (likely(left < key)) {
-                T tmp = std::move(*key);
-
-                iterator target = std::prev(cur);
-                do {
-                    *key = std::move(*target);
-                    assert(key != first);
-                    --key;
-#ifdef NDEBUG
-                    --target;
-#else
-                    if (target != first)
-                        --target;
-                    else
-                        break;
-#endif
-                } while (target >= left);
-
-                *key = std::move(tmp);
-            }
-        }
-    }
-}
-
 template <typename BiDirectionalIterator, typename Comparer>
-inline void binary_insert_sort_impl(BiDirectionalIterator first, BiDirectionalIterator last,
-                                    Comparer compare, std::bidirectional_iterator_tag) {
-    typedef BiDirectionalIterator iterator;
-    typedef typename std::iterator_traits<iterator>::value_type T;
-    if (unlikely(first == last)) return;
-
-    for (iterator cur = std::next(first); cur != last; ++cur) {
-        iterator key = cur;
-        iterator target = std::prev(cur);
-
-        if (compare(*key, *target)) {
-            T tmp = std::move(*key);
-
-            do {
-                *key = std::move(*target);
-                --key;
-            } while (key != first && compare(tmp, *--target));
-
-            *key = std::move(tmp);
-        }
-    }
+inline void binary_insert_sort_v2_impl(BiDirectionalIterator first, BiDirectionalIterator last,
+                                       Comparer compare, std::bidirectional_iterator_tag) {
+    binary_insert_sort_v2_impl(first, last, compare, std::bidirectional_iterator_tag);
 }
 
 template <typename ForwardIterator, typename Comparer>
-inline void binary_insert_sort_impl(ForwardIterator first, ForwardIterator last,
-                                    Comparer compare, std::forward_iterator_tag) {
+inline void binary_insert_sort_v2_impl(ForwardIterator first, ForwardIterator last,
+                                       Comparer compare, std::forward_iterator_tag) {
     typedef ForwardIterator iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
     static_assert(!std::is_base_of<iterator_category, std::forward_iterator_tag>::value,
-                  "detail::binary_insert_sort() is not supported std::forward_iterator.");
+                  "detail::binary_insert_sort_v2() is not supported std::forward_iterator.");
 }
 
 } // namespace detail
 
 template <typename Iterator, typename Comparer>
+inline void binary_insert_sort_v1(Iterator first, Iterator last, Comparer compare) {
+    typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
+    detail::binary_insert_sort_v1_impl(first, last, compare, iterator_category());
+}
+
+template <typename Iterator>
+inline void binary_insert_sort_v1(Iterator first, Iterator last) {
+    typedef typename std::iterator_traits<Iterator>::value_type T;
+    binary_insert_sort_v1(first, last, std::less<T>());
+}
+
+template <typename Iterator, typename Comparer>
+inline void binary_insert_sort_v2(Iterator first, Iterator last, Comparer compare) {
+    typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
+    detail::binary_insert_sort_v2_impl(first, last, compare, iterator_category());
+}
+
+template <typename Iterator>
+inline void binary_insert_sort_v2(Iterator first, Iterator last) {
+    typedef typename std::iterator_traits<Iterator>::value_type T;
+    binary_insert_sort_v2(first, last, std::less<T>());
+}
+
+template <typename Iterator, typename Comparer>
 inline void binary_insert_sort(Iterator first, Iterator last, Comparer compare) {
     typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
-    detail::binary_insert_sort_impl(first, last, compare, iterator_category());
+    detail::binary_insert_sort_v2_impl(first, last, compare, iterator_category());
 }
 
 template <typename Iterator>
 inline void binary_insert_sort(Iterator first, Iterator last) {
     typedef typename std::iterator_traits<Iterator>::value_type T;
     binary_insert_sort(first, last, std::less<T>());
-}
-
-template <typename Iterator, typename Comparer>
-inline void binary_insert_sort2(Iterator first, Iterator last, Comparer compare) {
-    typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
-    detail::binary_insert_sort2_impl(first, last, compare, iterator_category());
-}
-
-template <typename Iterator>
-inline void binary_insert_sort2(Iterator first, Iterator last) {
-    typedef typename std::iterator_traits<Iterator>::value_type T;
-    binary_insert_sort2(first, last, std::less<T>());
 }
 
 } // namespace jstd

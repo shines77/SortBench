@@ -75,5 +75,8 @@
     <ClInclude Include="..\..\..\src\jstd\algorithms\BucketSort.h">
       <Filter>src\jstd\algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\algorithms\ska_sort.hpp">
+      <Filter>src\jstd\algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

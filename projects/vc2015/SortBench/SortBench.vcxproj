@@ -29,6 +29,7 @@
     <ClInclude Include="..\..\..\src\jstd\algorithms\InsertSort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\orlp-pdqsort.h" />
     <ClInclude Include="..\..\..\src\jstd\algorithms\SelectSort.h" />
+    <ClInclude Include="..\..\..\src\jstd\algorithms\ska_sort.hpp" />
     <ClInclude Include="..\..\..\src\jstd\basic\config.h" />
     <ClInclude Include="..\..\..\src\jstd\basic\stddef.h" />
     <ClInclude Include="..\..\..\src\jstd\basic\vld.h" />
