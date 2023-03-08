@@ -117,7 +117,7 @@ inline void histogram_bucket_sort(Iterator first, Iterator last, Comparer compar
                                   size_t bucketSize) {
     typedef Iterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
-    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
+    //typedef typename std::iterator_traits<iterator>::difference_type diff_type;
     typedef SortBucket<value_type, size_t> bucket_type;
 
     size_t bucketCount = (distance + (bucketSize - 1)) / bucketSize;
@@ -166,7 +166,7 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
                 size_t bucketSize = kMaxBucketSize >> bucketShift;
                 assert(bucketSize > 0);
                 if (bucketSize <= kBucketSizeThreshold ||
-                    length <= (kBucketSizeThreshold * kMaxBucketSize)) {
+                    (size_t)length <= (kBucketSizeThreshold * kMaxBucketSize)) {
                     //
                 } else {
                     histogram_bucket_sort<T>(first, last, compare, minVal, distance, bucketSize);
@@ -180,6 +180,9 @@ template <typename BiDirectionalIterator, typename Comparer>
 inline void bucket_sort_impl(BiDirectionalIterator first, BiDirectionalIterator last,
                              Comparer compare, std::bidirectional_iterator_tag) {
     typedef BiDirectionalIterator iterator;
+    typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
+    static_assert(!std::is_base_of<iterator_category, std::bidirectional_iterator_tag>::value,
+                  "detail::bucket_sort() is not supported std::bidirectional_iterator.");
     if (likely(first != last)) {
         //
     }
