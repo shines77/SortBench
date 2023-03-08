@@ -241,7 +241,7 @@ NextLoop:
 template <typename BiDirectionalIterator, typename Comparer>
 inline void binary_insert_sort_v2_impl(BiDirectionalIterator first, BiDirectionalIterator last,
                                        Comparer compare, std::bidirectional_iterator_tag) {
-    binary_insert_sort_v2_impl(first, last, compare, std::bidirectional_iterator_tag);
+    binary_insert_sort_v1_impl(first, last, compare, std::bidirectional_iterator_tag());
 }
 
 template <typename ForwardIterator, typename Comparer>
@@ -281,8 +281,7 @@ inline void binary_insert_sort_v2(Iterator first, Iterator last) {
 
 template <typename Iterator, typename Comparer>
 inline void binary_insert_sort(Iterator first, Iterator last, Comparer compare) {
-    typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
-    detail::binary_insert_sort_v2_impl(first, last, compare, iterator_category());
+    binary_insert_sort_v2(first, last, compare);
 }
 
 template <typename Iterator>
