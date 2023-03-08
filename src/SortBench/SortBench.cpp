@@ -517,11 +517,11 @@ void bucket_sort_test()
     bool correctness = true;
     if (1) {
         printf("bucket_sort_test_impl<uint32_t, 256, 512>(0, 65535);\n");
-        correctness = bucket_sort_test_impl<uint32_t, 256, 512>(0, 65535);
+        correctness = bucket_sort_test_impl<uint32_t, 256, 320>(0, 65535);
         printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
     }
 
-    if (1) {
+    if (0) {
         printf("bucket_sort_test_impl<uint32_t, 256, 512>(0, 65535);\n");
         correctness = bucket_sort_test_impl<uint32_t, 256, 512>(0, 65535);
         printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
@@ -549,7 +549,7 @@ int main(int argc, char * argv[])
         bucket_sort_test();
     }
 
-    if (0)
+    if (1)
     {
         //sort_benchmark<uint32_t, ArrayKind::ShuffledNoRepeat>();
         sort_benchmark<uint32_t, ArrayKind::Shuffled>();
