@@ -84,8 +84,8 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
         }
         assert(iter == last);
     } else {
-        std::unique_ptr<uint32_t[]> counts(new uint32_t[distance]());
-        //std::memset(&counts[0], 0, sizeof(uint32_t) * distance);
+        std::unique_ptr<uint32_t[]> counts(new uint32_t[distance + 1]());
+        //std::memset(&counts[0], 0, sizeof(uint32_t) * (distance + 1));
 
         iterator iter;
         for (iter = first; iter < last; ++iter) {
@@ -93,7 +93,7 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
         }
 
         iter = first;
-        for (diff_type i = 0; i < distance; ++i) {
+        for (diff_type i = 0; i <= distance; ++i) {
             uint32_t count = counts[i];
             if (count != 0) {
                 value_type val = minVal + static_cast<value_type>(i);
@@ -104,10 +104,6 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
             }
         }
         assert(iter == last);
-
-        if (counts) {
-            //delete[] counts;
-        }
     }
 }
 
@@ -133,7 +129,7 @@ template <typename RandomAccessIterator, typename Comparer>
 inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator last,
                              Comparer compare, std::random_access_iterator_tag) {
     typedef RandomAccessIterator iterator;
-    typedef typename std::iterator_traits<iterator>::value_type      T;
+    typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
     diff_type length = last - first;
@@ -141,8 +137,8 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
         std::sort(first, last, compare);
     } else {
         assert(first != last);
-        T minVal = *first;
-        T maxVal = *first;
+        value_type minVal = *first;
+        value_type maxVal = *first;
         for (iterator iter = std::next(first); iter < last; ++iter) {
             if (*iter < minVal) minVal = *iter;
             if (*iter > maxVal) maxVal = *iter;
@@ -153,10 +149,10 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
         static const size_t kMaxBucketCount = 65536;
         static const size_t kBucketSizeThreshold = 8;
 
-        diff_type distance = maxVal - minVal;
+        value_type distance = maxVal - minVal;
         if (likely(distance != 0)) {
             if (distance < (65536 * 4)) {
-                counting_bucket_sort<T>(first, last, compare, minVal, distance);
+                counting_bucket_sort<value_type>(first, last, compare, minVal, distance);
             } else if (length < (65536 * 4)) {
                 //
             } else {
@@ -169,7 +165,7 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
                     (size_t)length <= (kBucketSizeThreshold * kMaxBucketSize)) {
                     //
                 } else {
-                    histogram_bucket_sort<T>(first, last, compare, minVal, distance, bucketSize);
+                    histogram_bucket_sort<value_type>(first, last, compare, minVal, distance, bucketSize);
                 }
             }
         }

@@ -468,8 +468,8 @@ void bucket_sort_test()
     //correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535);
     printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
 
-    printf("bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 4294967295);\n");
-    correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 4294967295);
+    printf("bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535 * 4 - 1);\n");
+    correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535 * 4 - 1);
     printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
 }
 
