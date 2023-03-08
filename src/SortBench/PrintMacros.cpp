@@ -303,6 +303,10 @@ static const CompilerMarco compiler_others[] = {
 #ifdef __cpp_exceptions
     COMPILER_MARCO_ENTRY(__cpp_exceptions),
 #endif
+
+#ifdef RAND_MAX
+    COMPILER_MARCO_ENTRY(RAND_MAX),
+#endif
 };
 
 void print_marcos()

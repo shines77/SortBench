@@ -51,9 +51,9 @@ inline size_t ilog2(T n)
     return exponent;
 }
 
-template <typename T, typename Iterator, typename Comparer>
+template <typename T, typename DiffType, typename Iterator, typename Comparer>
 inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                 const T & minVal, const T & distance) {
+                                 const T & minVal, const DiffType & distance) {
     typedef Iterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
@@ -62,7 +62,7 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
     assert(length > 0);
 
     assert(distance > 0);
-    if (distance < 65536) {
+    if (distance < diff_type(65536)) {
         uint16_t counts[65536];
         std::memset(&counts[0], 0, sizeof(uint16_t) * (distance + 1));
 
@@ -109,9 +109,9 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
     }
 }
 
-template <typename T, typename Iterator, typename Comparer>
+template <typename T, typename DiffType, typename Iterator, typename Comparer>
 inline void histogram_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                  const T & minVal, const T & distance,
+                                  const T & minVal, const DiffType & distance,
                                   size_t bucketSize) {
     typedef Iterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
@@ -146,18 +146,18 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
             if (*iter > maxVal) maxVal = *iter;
         }
 
-        static const size_t kMaxBucketSize = 65536;
-        static const size_t kMaxBucketShift = 16;
-        static const size_t kMaxBucketCount = 65536;
-        static const size_t kBucketSizeThreshold = 8;
-
-        value_type distance = maxVal - minVal;
+        diff_type distance = static_cast<diff_type>(maxVal - minVal);
         if (likely(distance != 0)) {
-            if (distance < value_type(65536 * 4)) {
+            if (distance < diff_type(65536 * 4)) {
                 counting_bucket_sort<value_type>(first, last, compare, minVal, distance);
             } else if (length < diff_type(65536 * 4)) {
                 //
             } else {
+                static const size_t kMaxBucketSize = 65536;
+                static const size_t kMaxBucketShift = 16;
+                static const size_t kMaxBucketCount = 65536;
+                static const size_t kBucketSizeThreshold = 8;
+
                 size_t minBucketCount = (distance + (kMaxBucketSize - 1)) / kMaxBucketSize;
                 size_t exp = ilog2(minBucketCount);
                 size_t bucketShift = kMaxBucketShift - exp;

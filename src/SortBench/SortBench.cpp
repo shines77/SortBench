@@ -109,7 +109,7 @@ const char * getSortAlgorithmName()
 
 inline uint32_t rand16()
 {
-    return (uint32_t)rand();
+    return ((uint32_t)rand() & 0xFFFF);
 }
 
 inline uint32_t rand30()
@@ -312,8 +312,6 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
             orlp::pdqsort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::ska_sort) {
             ska_sort(test_array.begin(), test_array.end());
-        } else {
-            // Unknown algorithm
         }
     }
     sw.stop();
