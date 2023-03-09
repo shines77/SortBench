@@ -61,6 +61,7 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
     diff_type length = last - first;
     assert(length > 0);
 
+#if 0
     static size_t print_cnt = 0;
 
     if (print_cnt < 16) {
@@ -68,6 +69,7 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
                (uint32_t)length, (uint32_t)minVal, (uint32_t)distance);
         print_cnt++;
     }
+#endif
 
     assert(distance > 0);
     if (distance < diff_type(65536)) {
@@ -80,6 +82,7 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
             counts[idx] = counts[idx] + 1;
         }
 
+#if 0
         if (print_cnt < 16) {
             printf("counts[] = {\n");
             printf("    ");
@@ -88,6 +91,7 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
             }
             printf("\n}\n");
         }
+#endif
 
         iter = first;
         for (diff_type i = 0; i <= distance; ++i) {
@@ -104,7 +108,7 @@ inline void counting_bucket_sort(Iterator first, Iterator last, Comparer compare
         assert(iter == last);
     } else {
         std::unique_ptr<uint32_t[]> counts(new uint32_t[distance + 1]());
-        std::memset(&counts[0], 0, sizeof(uint32_t) * (distance + 1));
+        //std::memset(&counts[0], 0, sizeof(uint32_t) * (distance + 1));
 
         iterator iter;
         for (iter = first; iter < last; ++iter) {
@@ -173,7 +177,7 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
                 counting_bucket_sort<value_type>(first, last, compare, minVal, distance);
             } else if (length < diff_type(65536 * 4)) {
                 //
-                printf("bucket_sort_impl() unknown branch1\n");
+                //printf("bucket_sort_impl() unknown branch1\n");
             } else {
                 static const size_t kMaxBucketSize = 65536;
                 static const size_t kMaxBucketShift = 16;
@@ -188,9 +192,9 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
                 if (bucketSize <= kBucketSizeThreshold ||
                     (size_t)length <= (kBucketSizeThreshold * kMaxBucketSize)) {
                     //
-                    printf("bucket_sort_impl() unknown branch2\n");
+                    //printf("bucket_sort_impl() unknown branch2\n");
                 } else {
-                    printf("histogram_bucket_sort()\n");
+                    //printf("histogram_bucket_sort()\n");
                     histogram_bucket_sort<value_type>(first, last, compare, minVal, distance, bucketSize);
                 }
             }
