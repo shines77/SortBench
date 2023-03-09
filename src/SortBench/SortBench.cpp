@@ -354,7 +354,7 @@ void sort_benchmark_impl()
         total_items += length;
         if (length <= (8 * 65536)) {
             for (size_t n = 0; n < length; n++) {
-                T rndNum = static_cast<T>(rand16() % 65536);
+                T rndNum = static_cast<T>(rand30() % ((maxLen < 65536) ? 65536 : maxLen));
                 test_array.push_back(rndNum);
             }
         } else {
@@ -542,7 +542,7 @@ int main(int argc, char * argv[])
 #endif
 
 #ifndef _DEBUG
-    if (1)
+    if (0)
     {
         bucket_sort_test();
     }
