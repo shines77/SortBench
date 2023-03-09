@@ -241,7 +241,7 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
         diff_type distance = static_cast<diff_type>(maxVal - minVal);
         if (likely(distance != 0)) {
             if (distance < diff_type(8 * 65536)) {
-                if (likely(distance <= (length / 2) && false))
+                if (likely(distance >= (length * 4) || true))
                     sparse_counting_bucket_sort<value_type>(first, last, compare, minVal, distance);
                 else
                     dense_counting_bucket_sort<value_type>(first, last, compare, minVal, distance);
