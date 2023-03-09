@@ -7,6 +7,7 @@
 #endif
 
 #include "jstd/basic/stddef.h"
+#include "jstd/support/BitUtils.h"
 
 #include <assert.h>
 
@@ -140,28 +141,47 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
+    static const size_t kFixedDistance = 65536;
+    static const size_t kBitsPerWord = 8 * sizeof(size_t);
+    static const size_t kShiftPerWord = 6;
+
     diff_type length = last - first;
     assert(length > 0);
 
     assert(distance > 0);
-    if (distance < diff_type(65536)) {
-        std::bitset<65536> count_bits;
-        uint16_t counts[65536];
-        std::memset(&counts[0], 0, sizeof(uint16_t) * (distance + 1));
+    if (distance < diff_type(kFixedDistance)) {
+        static const size_t kBitsLength = kFixedDistance / sizeof(size_t);
+        size_t count_bits[kBitsLength];
+        uint16_t counts[kFixedDistance];
+        size_t bitsAlignedBytes = ((distance + 1) + sizeof(size_t) - 1) / sizeof(size_t);
+        size_t maxBitsWordLen = (bitsAlignedBytes + sizeof(size_t) - 1) / sizeof(size_t);
+        size_t maxCountWordLen = ((distance + 1) * sizeof(uint16_t) + sizeof(size_t) - 1) / sizeof(size_t);
+        assert(maxBitsWordLen <= kBitsLength);
+        std::memset(&count_bits[0], 0, sizeof(size_t) * maxBitsWordLen);
+        std::memset(&counts[0],     0, sizeof(size_t) * maxCountWordLen);
 
         iterator iter;
         for (iter = first; iter < last; ++iter) {
             value_type idx = *iter - minVal;
-            counts[idx] = counts[idx] + 1;
-            if (!count_bits.test(idx))
-                count_bits.set(idx);
+            uint16_t old_count = counts[idx];
+            counts[idx] = old_count + 1;
+            if (old_count == 0) {
+                size_t pos   = idx / kBitsPerWord;
+                size_t shift = idx % kBitsPerWord;
+                size_t mask  = size_t(1) << shift;
+                count_bits[pos] |= mask;
+            }
         }
 
         iter = first;
-        for (diff_type i = 0; i <= distance; ++i) {
-            if (count_bits.test(i)) {
-                value_type val = minVal + static_cast<value_type>(i);
-                uint16_t count = counts[i];
+        for (diff_type i = 0; i < (diff_type)maxBitsWordLen; ++i) {
+            size_t mask = count_bits[i];
+            while (mask != 0) {
+                size_t bit_pos = BitUtils::bsf(mask);
+                mask ^= BitUtils::ls1b(mask);
+                size_t dist = i * kBitsPerWord + bit_pos;
+                value_type val = minVal + static_cast<value_type>(dist);
+                uint16_t count = counts[dist];
                 assert(count != 0);
                 for (uint16_t n = 0; n < count; ++n) {
                     assert(iter != last);
@@ -172,23 +192,35 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
         }
         assert(iter == last);
     } else {
-        std::bitset<65536 * 8> count_bits;
+        size_t bitsAlignedBytes = ((distance + 1) + sizeof(size_t) - 1) / sizeof(size_t);
+        size_t maxBitsWordLen = (bitsAlignedBytes + sizeof(size_t) - 1) / sizeof(size_t);
+        std::unique_ptr<size_t[]> count_bits(new size_t[maxBitsWordLen]());
         std::unique_ptr<uint32_t[]> counts(new uint32_t[distance + 1]());
         //std::memset(&counts[0], 0, sizeof(uint32_t) * (distance + 1));
 
         iterator iter;
         for (iter = first; iter < last; ++iter) {
             value_type idx = *iter - minVal;
-            counts[idx] = counts[idx] + 1;
-            if (!count_bits.test(idx))
-                count_bits.set(idx);
+            uint32_t old_count = counts[idx];
+            counts[idx] = old_count + 1;
+            if (old_count == 0) {
+                size_t pos   = idx / kBitsPerWord;
+                size_t shift = idx % kBitsPerWord;
+                size_t mask  = size_t(1) << shift;
+                size_t * bits = count_bits.get();
+                bits[pos] |= mask;
+            }
         }
 
         iter = first;
-        for (diff_type i = 0; i <= distance; ++i) {
-            if (count_bits.test(i)) {
-                value_type val = minVal + static_cast<value_type>(i);
-                uint16_t count = counts[i];
+        for (diff_type i = 0; i < (diff_type)maxBitsWordLen; ++i) {
+            size_t mask = count_bits.get()[i];
+            while (mask != 0) {
+                size_t bit_pos = BitUtils::bsf(mask);
+                mask ^= BitUtils::ls1b(mask);
+                size_t dist = i * kBitsPerWord + bit_pos;
+                value_type val = minVal + static_cast<value_type>(dist);
+                uint32_t count = counts[dist];
                 assert(count != 0);
                 for (uint32_t n = 0; n < count; ++n) {
                     assert(iter != last);
