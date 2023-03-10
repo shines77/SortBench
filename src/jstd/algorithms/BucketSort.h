@@ -75,20 +75,6 @@ inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer c
             counts[idx] += 1;
         }
 
-#if 0
-        static size_t debug_print_cnt = 0;
-
-        if (debug_print_cnt < 16) {
-            printf("counts[] = {\n");
-            printf("    ");
-            for (diff_type i = 0; i <= 32; ++i) {
-                printf("%u, ", counts[i]);
-            }
-            printf("\n}\n");
-            debug_print_cnt++;
-        }
-#endif
-
         iter = first;
         for (diff_type i = 0; i <= distance; ++i) {
             count_type count = counts[i];
@@ -137,6 +123,7 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
     static const size_t kFixedDistance = 65536;
+    static const size_t kFixedBitsWordLen = kFixedDistance / sizeof(size_t);
     static const size_t kBitsPerWord = sizeof(size_t) * 8;
     static const size_t kShiftPerWord = 6;
 
@@ -145,13 +132,13 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
 
     assert(distance > 0);
     if (likely(distance < diff_type(kFixedDistance))) {
-        static const size_t kFixedBitsWordLen = kFixedDistance / sizeof(size_t);
         size_t count_bits[kFixedBitsWordLen];
         count_type counts[kFixedDistance];
         size_t bitsAlignedBytes = ((distance + 1) + sizeof(size_t) - 1) / sizeof(size_t);
         size_t maxBitsWordLen  = (bitsAlignedBytes + sizeof(size_t) - 1) / sizeof(size_t);
         size_t maxCountWordLen = ((distance + 1) * sizeof(count_type) + sizeof(size_t) - 1) / sizeof(size_t);
         assert(maxBitsWordLen <= kFixedBitsWordLen);
+        assert(maxCountWordLen <= kFixedDistance);
         std::memset(&count_bits[0], 0, sizeof(size_t) * maxBitsWordLen);
         std::memset(&counts[0],     0, sizeof(size_t) * maxCountWordLen);
 
@@ -192,7 +179,7 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
         size_t maxBitsWordLen = (bitsAlignedBytes + sizeof(size_t) - 1) / sizeof(size_t);
         std::unique_ptr<size_t[]> count_bits(new size_t[maxBitsWordLen]());
         std::unique_ptr<count_type[]> counts(new count_type[distance + 1]());
-        //std::memset(&counts[0], 0, sizeof(uint32_t) * (distance + 1));
+        //std::memset(&counts[0], 0, sizeof(count_type) * (distance + 1));
 
         iterator iter;
         for (iter = first; iter < last; ++iter) {
