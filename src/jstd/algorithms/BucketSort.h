@@ -53,9 +53,10 @@ inline size_t ilog2(T n)
     return exponent;
 }
 
-template <typename T, typename DiffType, typename Iterator, typename Comparer>
+template <typename T, typename ValueType, typename DiffType, typename Iterator, typename Comparer>
 inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                       const T & minVal, const DiffType & distance) {
+                                       const ValueType & minVal, const DiffType & distance) {
+    typedef T count_type;
     typedef Iterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
@@ -63,44 +64,37 @@ inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer c
     diff_type length = last - first;
     assert(length > 0);
 
-#if 0
-    static size_t print_cnt = 0;
-
-    if (print_cnt < 16) {
-        printf("counting_bucket_sort(), length = %5u, minVal = %5u, distance = %5u\n",
-               (uint32_t)length, (uint32_t)minVal, (uint32_t)distance);
-        print_cnt++;
-    }
-#endif
-
     assert(distance > 0);
-    if (distance < diff_type(65536)) {
-        uint16_t counts[65536];
-        std::memset(&counts[0], 0, sizeof(uint16_t) * (distance + 1));
+    if (likely(distance < diff_type(65536))) {
+        count_type counts[65536];
+        std::memset(&counts[0], 0, sizeof(count_type) * (distance + 1));
 
         iterator iter;
         for (iter = first; iter < last; ++iter) {
             value_type idx = *iter - minVal;
-            counts[idx] = counts[idx] + 1;
+            counts[idx] += 1;
         }
 
 #if 0
-        if (print_cnt < 16) {
+        static size_t debug_print_cnt = 0;
+
+        if (debug_print_cnt < 16) {
             printf("counts[] = {\n");
             printf("    ");
             for (diff_type i = 0; i <= 32; ++i) {
                 printf("%u, ", counts[i]);
             }
             printf("\n}\n");
+            debug_print_cnt++;
         }
 #endif
 
         iter = first;
         for (diff_type i = 0; i <= distance; ++i) {
-            uint16_t count = counts[i];
+            count_type count = counts[i];
             if (count != 0) {
                 value_type val = minVal + static_cast<value_type>(i);
-                for (uint16_t n = 0; n < count; ++n) {
+                for (count_type n = 0; n < count; ++n) {
                     assert(iter != last);
                     *iter = val;
                     ++iter;
@@ -109,21 +103,21 @@ inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer c
         }
         assert(iter == last);
     } else {
-        std::unique_ptr<uint32_t[]> counts(new uint32_t[distance + 1]());
-        //std::memset(&counts[0], 0, sizeof(uint32_t) * (distance + 1));
+        std::unique_ptr<count_type[]> counts(new count_type[distance + 1]());
+        //std::memset(&counts[0], 0, sizeof(count_type) * (distance + 1));
 
         iterator iter;
         for (iter = first; iter < last; ++iter) {
             value_type idx = *iter - minVal;
-            counts[idx] = counts[idx] + 1;
+            counts[idx] += 1;
         }
 
         iter = first;
         for (diff_type i = 0; i <= distance; ++i) {
-            uint32_t count = counts[i];
+            count_type count = counts[i];
             if (count != 0) {
                 value_type val = minVal + static_cast<value_type>(i);
-                for (uint32_t n = 0; n < count; ++n) {
+                for (count_type n = 0; n < count; ++n) {
                     assert(iter != last);
                     *iter = val;
                     ++iter;
@@ -134,41 +128,43 @@ inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer c
     }
 }
 
-template <typename T, typename DiffType, typename Iterator, typename Comparer>
+template <typename T, typename ValueType, typename DiffType, typename Iterator, typename Comparer>
 inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                        const T & minVal, const DiffType & distance) {
+                                        const ValueType & minVal, const DiffType & distance) {
+    typedef T count_type;
     typedef Iterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
     static const size_t kFixedDistance = 65536;
-    static const size_t kBitsPerWord = 8 * sizeof(size_t);
+    static const size_t kBitsPerWord = sizeof(size_t) * 8;
     static const size_t kShiftPerWord = 6;
 
     diff_type length = last - first;
     assert(length > 0);
 
     assert(distance > 0);
-    if (distance < diff_type(kFixedDistance)) {
-        static const size_t kBitsLength = kFixedDistance / sizeof(size_t);
-        size_t count_bits[kBitsLength];
-        uint16_t counts[kFixedDistance];
+    if (likely(distance < diff_type(kFixedDistance))) {
+        static const size_t kFixedBitsWordLen = kFixedDistance / sizeof(size_t);
+        size_t count_bits[kFixedBitsWordLen];
+        count_type counts[kFixedDistance];
         size_t bitsAlignedBytes = ((distance + 1) + sizeof(size_t) - 1) / sizeof(size_t);
-        size_t maxBitsWordLen = (bitsAlignedBytes + sizeof(size_t) - 1) / sizeof(size_t);
-        size_t maxCountWordLen = ((distance + 1) * sizeof(uint16_t) + sizeof(size_t) - 1) / sizeof(size_t);
-        assert(maxBitsWordLen <= kBitsLength);
+        size_t maxBitsWordLen  = (bitsAlignedBytes + sizeof(size_t) - 1) / sizeof(size_t);
+        size_t maxCountWordLen = ((distance + 1) * sizeof(count_type) + sizeof(size_t) - 1) / sizeof(size_t);
+        assert(maxBitsWordLen <= kFixedBitsWordLen);
         std::memset(&count_bits[0], 0, sizeof(size_t) * maxBitsWordLen);
         std::memset(&counts[0],     0, sizeof(size_t) * maxCountWordLen);
 
         iterator iter;
         for (iter = first; iter < last; ++iter) {
             value_type idx = *iter - minVal;
-            uint16_t old_count = counts[idx];
+            count_type old_count = counts[idx];
             counts[idx] = old_count + 1;
             if (old_count == 0) {
                 size_t pos   = idx / kBitsPerWord;
                 size_t shift = idx % kBitsPerWord;
                 size_t mask  = size_t(1) << shift;
+                assert(pos < kFixedBitsWordLen);
                 count_bits[pos] |= mask;
             }
         }
@@ -181,9 +177,9 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
                 mask ^= BitUtils::ls1b(mask);
                 size_t dist = i * kBitsPerWord + bit_pos;
                 value_type val = minVal + static_cast<value_type>(dist);
-                uint16_t count = counts[dist];
+                count_type count = counts[dist];
                 assert(count != 0);
-                for (uint16_t n = 0; n < count; ++n) {
+                for (count_type n = 0; n < count; ++n) {
                     assert(iter != last);
                     *iter = val;
                     ++iter;
@@ -195,19 +191,20 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
         size_t bitsAlignedBytes = ((distance + 1) + sizeof(size_t) - 1) / sizeof(size_t);
         size_t maxBitsWordLen = (bitsAlignedBytes + sizeof(size_t) - 1) / sizeof(size_t);
         std::unique_ptr<size_t[]> count_bits(new size_t[maxBitsWordLen]());
-        std::unique_ptr<uint32_t[]> counts(new uint32_t[distance + 1]());
+        std::unique_ptr<count_type[]> counts(new count_type[distance + 1]());
         //std::memset(&counts[0], 0, sizeof(uint32_t) * (distance + 1));
 
         iterator iter;
         for (iter = first; iter < last; ++iter) {
             value_type idx = *iter - minVal;
-            uint32_t old_count = counts[idx];
+            count_type old_count = counts[idx];
             counts[idx] = old_count + 1;
             if (old_count == 0) {
                 size_t pos   = idx / kBitsPerWord;
                 size_t shift = idx % kBitsPerWord;
                 size_t mask  = size_t(1) << shift;
                 size_t * bits = count_bits.get();
+                assert(pos < maxBitsWordLen);
                 bits[pos] |= mask;
             }
         }
@@ -219,10 +216,10 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
                 size_t bit_pos = BitUtils::bsf(mask);
                 mask ^= BitUtils::ls1b(mask);
                 size_t dist = i * kBitsPerWord + bit_pos;
+                count_type count = counts[dist];
                 value_type val = minVal + static_cast<value_type>(dist);
-                uint32_t count = counts[dist];
                 assert(count != 0);
-                for (uint32_t n = 0; n < count; ++n) {
+                for (count_type n = 0; n < count; ++n) {
                     assert(iter != last);
                     *iter = val;
                     ++iter;
@@ -271,12 +268,13 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
         }
 
         diff_type distance = static_cast<diff_type>(maxVal - minVal);
-        if (likely(distance != 0)) {
-            if (distance < diff_type(8 * 65536)) {
-                if (likely(distance >= (length * 5 / 4)))
-                    sparse_counting_bucket_sort<value_type>(first, last, compare, minVal, distance);
-                else
-                    dense_counting_bucket_sort<value_type>(first, last, compare, minVal, distance);
+        if (likely(length <= 65536)) {
+            // Short array [0, 65536]
+            if (likely(distance < diff_type(8 * 65536))) {
+                if (likely(distance > (length * 5 / 4)))
+                    sparse_counting_bucket_sort<uint16_t>(first, last, compare, minVal, distance);
+                else if (likely(distance != 0))
+                    dense_counting_bucket_sort<uint16_t>(first, last, compare, minVal, distance);
             } else if (length < diff_type(8 * 65536)) {
                 //
                 //printf("bucket_sort_impl() unknown branch1\n");
@@ -299,6 +297,19 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
                     //printf("histogram_bucket_sort()\n");
                     histogram_bucket_sort<value_type>(first, last, compare, minVal, distance, bucketSize);
                 }
+            }
+        } else {
+            // Long array (65536, UInt32Max or UInt64Max]
+            if (likely(distance < diff_type(8 * 65536))) {
+                if (likely(distance > (length * 5 / 4)))
+                    sparse_counting_bucket_sort<uint32_t>(first, last, compare, minVal, distance);
+                else if (likely(distance != 0))
+                    dense_counting_bucket_sort<uint32_t>(first, last, compare, minVal, distance);
+            } else if (length < diff_type(8 * 65536)) {
+                //
+                //printf("bucket_sort_impl() unknown branch1\n");
+            } else {
+                //
             }
         }
     }
