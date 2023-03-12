@@ -23,7 +23,7 @@
 #include <algorithm>
 
 namespace jstd {
-namespace detail {
+namespace bucket_detail {
 
 template <typename T, typename CountType>
 struct SortBucket {
@@ -53,7 +53,7 @@ inline size_t ilog2(T n)
     return exponent;
 }
 
-template <typename T, typename ValueType, typename DiffType, typename Iterator, typename Comparer>
+template <typename T, typename Iterator, typename Comparer, typename ValueType, typename DiffType>
 inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer compare,
                                        const ValueType & minVal, const DiffType & distance) {
     typedef T count_type;
@@ -114,7 +114,7 @@ inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer c
     }
 }
 
-template <typename T, typename ValueType, typename DiffType, typename Iterator, typename Comparer>
+template <typename T, typename Iterator, typename Comparer, typename ValueType, typename DiffType>
 inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer compare,
                                         const ValueType & minVal, const DiffType & distance) {
     typedef T count_type;
@@ -130,12 +130,13 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
     diff_type length = last - first;
     assert(length > 0);
 
+    size_t bitsAlignedBytes = ((distance + 1) + sizeof(size_t) - 1) / sizeof(size_t);
+    size_t maxBitsWordLen = (bitsAlignedBytes + sizeof(size_t) - 1) / sizeof(size_t);
+
     assert(distance > 0);
     if (likely(distance < diff_type(kFixedDistance))) {
         size_t count_bits[kFixedBitsWordLen];
         count_type counts[kFixedDistance];
-        size_t bitsAlignedBytes = ((distance + 1) + sizeof(size_t) - 1) / sizeof(size_t);
-        size_t maxBitsWordLen  = (bitsAlignedBytes + sizeof(size_t) - 1) / sizeof(size_t);
         size_t maxCountWordLen = ((distance + 1) * sizeof(count_type) + sizeof(size_t) - 1) / sizeof(size_t);
         assert(maxBitsWordLen <= kFixedBitsWordLen);
         assert(maxCountWordLen <= kFixedDistance);
@@ -175,8 +176,6 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
         }
         assert(iter == last);
     } else {
-        size_t bitsAlignedBytes = ((distance + 1) + sizeof(size_t) - 1) / sizeof(size_t);
-        size_t maxBitsWordLen = (bitsAlignedBytes + sizeof(size_t) - 1) / sizeof(size_t);
         std::unique_ptr<size_t[]> count_bits(new size_t[maxBitsWordLen]());
         std::unique_ptr<count_type[]> counts(new count_type[distance + 1]());
         //std::memset(&counts[0], 0, sizeof(count_type) * (distance + 1));
@@ -217,10 +216,11 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
     }
 }
 
-template <typename T, typename DiffType, typename Iterator, typename Comparer>
+template <typename T, typename ValueType, typename DiffType, typename Iterator, typename Comparer>
 inline void histogram_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                  const T & minVal, const DiffType & distance,
+                                  const ValueType & minVal, const DiffType & distance,
                                   size_t bucketSize) {
+    typedef T count_type;
     typedef Iterator iterator;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
     //typedef typename std::iterator_traits<iterator>::difference_type diff_type;
@@ -276,8 +276,7 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
                 size_t bucketShift = kMaxBucketShift - exp;
                 size_t bucketSize = kMaxBucketSize >> bucketShift;
                 assert(bucketSize > 0);
-                if (bucketSize <= kBucketSizeThreshold ||
-                    (size_t)length <= (kBucketSizeThreshold * kMaxBucketSize)) {
+                if (bucketSize <= kBucketSizeThreshold) {
                     //
                     //printf("bucket_sort_impl() unknown branch2\n");
                 } else {
@@ -307,8 +306,8 @@ inline void bucket_sort_impl(BiDirectionalIterator first, BiDirectionalIterator 
                              Comparer compare, std::bidirectional_iterator_tag) {
     typedef BiDirectionalIterator iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
-    static_assert(!std::is_base_of<iterator_category, std::bidirectional_iterator_tag>::value,
-                  "detail::bucket_sort() is not supported std::bidirectional_iterator.");
+    static_assert(!std::is_same<iterator_category, std::bidirectional_iterator_tag>::value,
+                  "bucket_detail::bucket_sort() is not supported std::bidirectional_iterator.");
     if (likely(first != last)) {
         //
     }
@@ -319,16 +318,16 @@ inline void bucket_sort_impl(ForwardIterator first, ForwardIterator last,
                              Comparer compare, std::forward_iterator_tag) {
     typedef ForwardIterator iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
-    static_assert(!std::is_base_of<iterator_category, std::forward_iterator_tag>::value,
-                  "detail::bucket_sort() is not supported std::forward_iterator.");
+    static_assert(!std::is_same<iterator_category, std::forward_iterator_tag>::value,
+                  "bucket_detail::bucket_sort() is not supported std::forward_iterator.");
 }
 
-} // namespace detail
+} // namespace bucket_detail
 
 template <typename Iterator, typename Comparer>
 inline void bucket_sort(Iterator first, Iterator last, Comparer compare) {
     typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
-    detail::bucket_sort_impl(first, last, compare, iterator_category());
+    bucket_detail::bucket_sort_impl(first, last, compare, iterator_category());
 }
 
 template <typename Iterator>

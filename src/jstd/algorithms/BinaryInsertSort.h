@@ -133,7 +133,7 @@ inline void binary_insert_sort_v1_impl(ForwardIterator first, ForwardIterator la
                                        Comparer compare, std::forward_iterator_tag) {
     typedef ForwardIterator iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
-    static_assert(!std::is_base_of<iterator_category, std::forward_iterator_tag>::value,
+    static_assert(!std::is_same<iterator_category, std::forward_iterator_tag>::value,
                   "detail::binary_insert_sort_v1() is not supported std::forward_iterator.");
 }
 
@@ -249,7 +249,7 @@ inline void binary_insert_sort_v2_impl(ForwardIterator first, ForwardIterator la
                                        Comparer compare, std::forward_iterator_tag) {
     typedef ForwardIterator iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
-    static_assert(!std::is_base_of<iterator_category, std::forward_iterator_tag>::value,
+    static_assert(!std::is_same<iterator_category, std::forward_iterator_tag>::value,
                   "detail::binary_insert_sort_v2() is not supported std::forward_iterator.");
 }
 
