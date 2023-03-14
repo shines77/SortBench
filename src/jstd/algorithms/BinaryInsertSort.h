@@ -17,21 +17,21 @@
 #include <algorithm>
 
 namespace jstd {
-namespace detail {
+namespace insert_detail {
 
 //
 // std::random_access_iterator_tag
 //
 // See: https://en.cppreference.com/w/cpp/iterator/random_access_iterator
 //
-// LegacyRandomAccessIterator
+// LegacyRandomAccessIter
 //
-// See: https://en.cppreference.com/w/cpp/named_req/RandomAccessIterator
+// See: https://en.cppreference.com/w/cpp/named_req/RandomAccessIter
 //
-template <typename RandomAccessIterator, typename Comparer>
-inline void binary_insert_sort_v1_impl(RandomAccessIterator first, RandomAccessIterator last,
-                                       Comparer compare, std::random_access_iterator_tag) {
-    typedef RandomAccessIterator iterator;
+template <typename RandomAccessIter, typename Comparer>
+inline void binary_insert_sort_v1(RandomAccessIter first, RandomAccessIter last,
+                                  Comparer compare, std::random_access_iterator_tag) {
+    typedef RandomAccessIter iterator;
     typedef typename std::iterator_traits<iterator>::value_type      T;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
@@ -104,10 +104,10 @@ inline void binary_insert_sort_v1_impl(RandomAccessIterator first, RandomAccessI
     }
 }
 
-template <typename BiDirectionalIterator, typename Comparer>
-inline void binary_insert_sort_v1_impl(BiDirectionalIterator first, BiDirectionalIterator last,
-                                       Comparer compare, std::bidirectional_iterator_tag) {
-    typedef BiDirectionalIterator iterator;
+template <typename BiDirectionalIter, typename Comparer>
+inline void binary_insert_sort_v1(BiDirectionalIter first, BiDirectionalIter last,
+                                  Comparer compare, std::bidirectional_iterator_tag) {
+    typedef BiDirectionalIter iterator;
     typedef typename std::iterator_traits<iterator>::value_type T;
     if (unlikely(first == last)) return;
 
@@ -128,19 +128,19 @@ inline void binary_insert_sort_v1_impl(BiDirectionalIterator first, BiDirectiona
     }
 }
 
-template <typename ForwardIterator, typename Comparer>
-inline void binary_insert_sort_v1_impl(ForwardIterator first, ForwardIterator last,
-                                       Comparer compare, std::forward_iterator_tag) {
-    typedef ForwardIterator iterator;
+template <typename ForwardIter, typename Comparer>
+inline void binary_insert_sort_v1(ForwardIter first, ForwardIter last,
+                                  Comparer compare, std::forward_iterator_tag) {
+    typedef ForwardIter iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
     static_assert(!std::is_same<iterator_category, std::forward_iterator_tag>::value,
-                  "detail::binary_insert_sort_v1() is not supported std::forward_iterator.");
+                  "insert_detail::binary_insert_sort_v1() is not supported std::forward_iterator.");
 }
 
-template <typename RandomAccessIterator, typename Comparer>
-inline void binary_insert_sort_v2_impl(RandomAccessIterator first, RandomAccessIterator last,
-                                       Comparer compare, std::random_access_iterator_tag) {
-    typedef RandomAccessIterator iterator;
+template <typename RandomAccessIter, typename Comparer>
+inline void binary_insert_sort_v2(RandomAccessIter first, RandomAccessIter last,
+                                  Comparer compare, std::random_access_iterator_tag) {
+    typedef RandomAccessIter iterator;
     typedef typename std::iterator_traits<iterator>::value_type      T;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
@@ -220,7 +220,7 @@ inline void binary_insert_sort_v2_impl(RandomAccessIterator first, RandomAccessI
                     *tail = std::move(*prev);
                     assert(tail != first);
                     --tail;
-#ifdef NDEBUG
+#ifndef _DEBUG
                     --prev;
 #else
                     if (prev != first)
@@ -238,27 +238,27 @@ NextLoop:
     }
 }
 
-template <typename BiDirectionalIterator, typename Comparer>
-inline void binary_insert_sort_v2_impl(BiDirectionalIterator first, BiDirectionalIterator last,
-                                       Comparer compare, std::bidirectional_iterator_tag) {
-    binary_insert_sort_v1_impl(first, last, compare, std::bidirectional_iterator_tag());
+template <typename BiDirectionalIter, typename Comparer>
+inline void binary_insert_sort_v2(BiDirectionalIter first, BiDirectionalIter last,
+                                  Comparer compare, std::bidirectional_iterator_tag) {
+    binary_insert_sort_v1(first, last, compare, std::bidirectional_iterator_tag());
 }
 
-template <typename ForwardIterator, typename Comparer>
-inline void binary_insert_sort_v2_impl(ForwardIterator first, ForwardIterator last,
-                                       Comparer compare, std::forward_iterator_tag) {
-    typedef ForwardIterator iterator;
+template <typename ForwardIter, typename Comparer>
+inline void binary_insert_sort_v2(ForwardIter first, ForwardIter last,
+                                  Comparer compare, std::forward_iterator_tag) {
+    typedef ForwardIter iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
     static_assert(!std::is_same<iterator_category, std::forward_iterator_tag>::value,
-                  "detail::binary_insert_sort_v2() is not supported std::forward_iterator.");
+                  "insert_detail::binary_insert_sort_v2() is not supported std::forward_iterator.");
 }
 
-} // namespace detail
+} // namespace insert_detail
 
 template <typename Iterator, typename Comparer>
 inline void binary_insert_sort_v1(Iterator first, Iterator last, Comparer compare) {
     typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
-    detail::binary_insert_sort_v1_impl(first, last, compare, iterator_category());
+    insert_detail::binary_insert_sort_v1(first, last, compare, iterator_category());
 }
 
 template <typename Iterator>
@@ -270,7 +270,7 @@ inline void binary_insert_sort_v1(Iterator first, Iterator last) {
 template <typename Iterator, typename Comparer>
 inline void binary_insert_sort_v2(Iterator first, Iterator last, Comparer compare) {
     typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
-    detail::binary_insert_sort_v2_impl(first, last, compare, iterator_category());
+    insert_detail::binary_insert_sort_v2(first, last, compare, iterator_category());
 }
 
 template <typename Iterator>

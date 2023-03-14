@@ -235,10 +235,10 @@ inline void histogram_bucket_sort(Iterator first, Iterator last, Comparer compar
     }
 }
 
-template <typename RandomAccessIterator, typename Comparer>
-inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator last,
-                             Comparer compare, std::random_access_iterator_tag) {
-    typedef RandomAccessIterator iterator;
+template <typename RandomAccessIter, typename Comparer>
+inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
+                        Comparer compare, std::random_access_iterator_tag) {
+    typedef RandomAccessIter iterator;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
@@ -264,7 +264,7 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
                     dense_counting_bucket_sort<uint16_t>(first, last, compare, minVal, distance);
             } else if (length < diff_type(8 * 65536)) {
                 //
-                //printf("bucket_sort_impl() unknown branch1\n");
+                //printf("bucket_sort() unknown branch1\n");
             } else {
                 static const size_t kMaxBucketSize = 65536;
                 static const size_t kMaxBucketShift = 16;
@@ -278,7 +278,7 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
                 assert(bucketSize > 0);
                 if (bucketSize <= kBucketSizeThreshold) {
                     //
-                    //printf("bucket_sort_impl() unknown branch2\n");
+                    //printf("bucket_sort() unknown branch2\n");
                 } else {
                     //printf("histogram_bucket_sort()\n");
                     histogram_bucket_sort<value_type>(first, last, compare, minVal, distance, bucketSize);
@@ -293,7 +293,7 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
                     dense_counting_bucket_sort<uint32_t>(first, last, compare, minVal, distance);
             } else if (length < diff_type(8 * 65536)) {
                 //
-                //printf("bucket_sort_impl() unknown branch1\n");
+                //printf("bucket_sort() unknown branch1\n");
             } else {
                 //
             }
@@ -301,10 +301,10 @@ inline void bucket_sort_impl(RandomAccessIterator first, RandomAccessIterator la
     }
 }
 
-template <typename BiDirectionalIterator, typename Comparer>
-inline void bucket_sort_impl(BiDirectionalIterator first, BiDirectionalIterator last,
-                             Comparer compare, std::bidirectional_iterator_tag) {
-    typedef BiDirectionalIterator iterator;
+template <typename BiDirectionalIter, typename Comparer>
+inline void bucket_sort(BiDirectionalIter first, BiDirectionalIter last,
+                        Comparer compare, std::bidirectional_iterator_tag) {
+    typedef BiDirectionalIter iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
     static_assert(!std::is_same<iterator_category, std::bidirectional_iterator_tag>::value,
                   "bucket_detail::bucket_sort() is not supported std::bidirectional_iterator.");
@@ -313,10 +313,10 @@ inline void bucket_sort_impl(BiDirectionalIterator first, BiDirectionalIterator 
     }
 }
 
-template <typename ForwardIterator, typename Comparer>
-inline void bucket_sort_impl(ForwardIterator first, ForwardIterator last,
-                             Comparer compare, std::forward_iterator_tag) {
-    typedef ForwardIterator iterator;
+template <typename ForwardIter, typename Comparer>
+inline void bucket_sort(ForwardIter first, ForwardIter last,
+                        Comparer compare, std::forward_iterator_tag) {
+    typedef ForwardIter iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
     static_assert(!std::is_same<iterator_category, std::forward_iterator_tag>::value,
                   "bucket_detail::bucket_sort() is not supported std::forward_iterator.");
@@ -327,7 +327,7 @@ inline void bucket_sort_impl(ForwardIterator first, ForwardIterator last,
 template <typename Iterator, typename Comparer>
 inline void bucket_sort(Iterator first, Iterator last, Comparer compare) {
     typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
-    bucket_detail::bucket_sort_impl(first, last, compare, iterator_category());
+    bucket_detail::bucket_sort(first, last, compare, iterator_category());
 }
 
 template <typename Iterator>

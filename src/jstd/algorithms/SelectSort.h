@@ -13,12 +13,12 @@
 #include <algorithm>
 
 namespace jstd {
-namespace detail {
+namespace select_detail {
 
-template <typename RandomAccessIterator, typename Comparer>
-inline void select_sort_impl(RandomAccessIterator first, RandomAccessIterator last,
-                             Comparer compare, std::random_access_iterator_tag) {
-    typedef RandomAccessIterator iterator;
+template <typename RandomAccessIter, typename Comparer>
+inline void select_sort(RandomAccessIter first, RandomAccessIter last,
+                        Comparer compare, std::random_access_iterator_tag) {
+    typedef RandomAccessIter iterator;
     iterator limit = std::prev(last);   // last - 1
     for (iterator iter = first; iter < limit; ++iter) {
         iterator min_pos = iter;
@@ -33,10 +33,10 @@ inline void select_sort_impl(RandomAccessIterator first, RandomAccessIterator la
     }
 }
 
-template <typename BiDirectionalIterator, typename Comparer>
-inline void select_sort_impl(BiDirectionalIterator first, BiDirectionalIterator last,
-                             Comparer compare, std::bidirectional_iterator_tag) {
-    typedef BiDirectionalIterator iterator;
+template <typename BiDirectionalIter, typename Comparer>
+inline void select_sort(BiDirectionalIter first, BiDirectionalIter last,
+                        Comparer compare, std::bidirectional_iterator_tag) {
+    typedef BiDirectionalIter iterator;
     iterator limit = std::prev(last);   // last - 1
     for (iterator iter = first; iter != limit; ++iter) {
         iterator min_pos = iter;
@@ -51,10 +51,10 @@ inline void select_sort_impl(BiDirectionalIterator first, BiDirectionalIterator 
     }
 }
 
-template <typename ForwardIterator, typename Comparer>
-inline void select_sort_impl(ForwardIterator first, ForwardIterator last,
-                             Comparer compare, std::forward_iterator_tag) {
-    typedef ForwardIterator iterator;
+template <typename ForwardIter, typename Comparer>
+inline void select_sort(ForwardIter first, ForwardIter last,
+                        Comparer compare, std::forward_iterator_tag) {
+    typedef ForwardIter iterator;
     for (iterator iter = first; iter != last; ++iter) {
         iterator min_pos = iter;
         for (iterator cur = std::next(iter); cur != last; ++cur) {
@@ -68,12 +68,12 @@ inline void select_sort_impl(ForwardIterator first, ForwardIterator last,
     }
 }
 
-} // namespace jstd::detail
+} // namespace select_detail
 
 template <typename Iterator, typename Comparer>
 inline void select_sort(Iterator first, Iterator last, Comparer compare) {
     typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
-    detail::select_sort_impl(first, last, compare, iterator_category());
+    select_detail::select_sort(first, last, compare, iterator_category());
 }
 
 template <typename Iterator>

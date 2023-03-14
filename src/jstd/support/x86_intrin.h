@@ -88,7 +88,9 @@
 #endif
 
 #if defined(__AVX__) || defined(__AVX2__)
-/* For including AVX instructions */
+/* For including AVX and AVX2 instructions,
+ * usually supported by gcc >= 7.1, clang >= 4 and icc >= 19, msvc >= vs 2015 update 3
+ */
 #include <immintrin.h>
 #if defined(__GNUC__) || defined(__clang__)
 #include <avxintrin.h>
