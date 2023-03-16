@@ -8,13 +8,14 @@
 
 #include "jstd/basic/stddef.h"
 #include "jstd/support/BitUtils.h"
+#include "jstd/support/Power2.h"
 
 #include <assert.h>
 
 #include <cstdint>
 #include <cstddef>
 #include <iterator>
-#include <limits>
+#include <limits>       // For std::min(), std::max()
 #include <memory>       // For std::unique_ptr<T>
 #include <cstring>      // For std::memset()
 #include <bitset>       // For std::bitset<N>
@@ -25,21 +26,57 @@
 namespace jstd {
 namespace bucket_detail {
 
+// The threshold of built-in insertion sort
+static const size_t kInsertSortThreshold = 64;
+
+// The threshold of std::sort()
+static const size_t kStdSortThreshold = 256;
+
 template <typename T, typename CountType>
 struct SortBucket {
-    typedef T         value_type;
-    typedef CountType count_type;
+    typedef T                                            value_type;
+    typedef typename std::make_unsigned<CountType>::type count_type;
+    typedef count_type                                   size_type;
 
-    count_type              count;
-    std::vector<value_type> items;
+    count_type count;
+    size_type  start;
+    size_type  offset;
+    size_type  reserve;
 
-    SortBucket() noexcept : count(0) {}
+    explicit SortBucket(size_type start = 0, count_type count = 0) noexcept
+        : count(count), start(0), offset(0), reserve(0) {
+    }
 
-    explicit SortBucket(count_type capacity) {
-        items.reserve(capacity);
+    SortBucket(const SortBucket & src) noexcept
+        : count(src.count), start(src.start),
+          offset(src.offset), reserve(src.reserve) {
     }
 
     ~SortBucket() {}
+};
+
+template <typename T, typename CountType>
+struct PackedBucket {
+    typedef T                                            value_type;
+    typedef typename std::make_unsigned<CountType>::type count_type;
+    typedef count_type                                   size_type;
+
+    size_type  first;
+    size_type  last;
+
+    explicit PackedBucket(size_type count = 0) noexcept
+        : first(count), last(0) {
+    }
+
+    PackedBucket(size_type first, size_type last) noexcept
+        : first(first), last(last) {
+    }
+
+    PackedBucket(const PackedBucket & src) noexcept
+        : first(src.first), start(src.last) {
+    }
+
+    ~PackedBucket() {}
 };
 
 template <typename T>
@@ -53,20 +90,22 @@ inline size_t ilog2(T n)
     return exponent;
 }
 
-template <typename T, typename Iterator, typename Comparer, typename ValueType, typename DiffType>
+template <typename CountType, typename Iterator, typename Comparer, typename DiffType, typename ValueType>
 inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                       const ValueType & minVal, const DiffType & distance) {
-    typedef T count_type;
+                                       DiffType distance, const ValueType & minVal) {
     typedef Iterator iterator;
+    typedef typename std::make_unsigned<CountType>::type             count_type;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
+
+    static const size_t kFixedDistance = 65536;
 
     diff_type length = last - first;
     assert(length > 0);
 
     assert(distance > 0);
-    if (likely(distance < diff_type(65536))) {
-        count_type counts[65536];
+    if (likely(distance < diff_type(kFixedDistance))) {
+        count_type counts[kFixedDistance];
         std::memset(&counts[0], 0, sizeof(count_type) * (distance + 1));
 
         iterator iter;
@@ -90,7 +129,6 @@ inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer c
         assert(iter == last);
     } else {
         std::unique_ptr<count_type[]> counts(new count_type[distance + 1]());
-        //std::memset(&counts[0], 0, sizeof(count_type) * (distance + 1));
 
         iterator iter;
         for (iter = first; iter < last; ++iter) {
@@ -114,11 +152,11 @@ inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer c
     }
 }
 
-template <typename T, typename Iterator, typename Comparer, typename ValueType, typename DiffType>
+template <typename CountType, typename Iterator, typename Comparer, typename DiffType, typename ValueType>
 inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                        const ValueType & minVal, const DiffType & distance) {
-    typedef T count_type;
+                                        DiffType distance, const ValueType & minVal) {
     typedef Iterator iterator;
+    typedef typename std::make_unsigned<CountType>::type             count_type;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
@@ -216,22 +254,108 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
     }
 }
 
-template <typename T, typename ValueType, typename DiffType, typename Iterator, typename Comparer>
-inline void histogram_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                  const ValueType & minVal, const DiffType & distance,
-                                  size_t bucketSize) {
-    typedef T count_type;
+template <typename DiffType>
+inline size_t calc_bucket_size(DiffType length, DiffType distance, size_t & nShiftBits) {
+    static const size_t kMaxBucketSize = 65536;
+    static const size_t kMaxShiftBits = 16;
+    size_t lengthBits   = jstd::pow2::log2_int<size_t, kStdSortThreshold>(static_cast<size_t>(length));
+    size_t distanceBits = jstd::pow2::log2_int<size_t, 1>(static_cast<size_t>(distance));
+    size_t shiftBits = ((distanceBits >= lengthBits) ? (distanceBits - lengthBits) : 0) + 1;
+    size_t bucketSize = size_t(1) << shiftBits;
+    if (likely(bucketSize <= kMaxBucketSize)) {
+        nShiftBits = shiftBits;
+        return bucketSize;
+    } else {
+        nShiftBits = kMaxShiftBits;
+        return kMaxBucketSize;
+    }
+}
+
+//
+// Histogram sort
+//
+// See: https://zh.wikipedia.org/zh-cn/%E6%8F%92%E5%80%BC%E6%8E%92%E5%BA%8F
+//
+template <typename CountType, typename ValueType, typename DiffType, typename Iterator, typename Comparer>
+inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer compare,
+                                        DiffType length, DiffType distance,
+                                        const ValueType & minVal, const ValueType & maxVal) {
     typedef Iterator iterator;
+    typedef typename std::make_unsigned<CountType>::type             count_type;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
-    //typedef typename std::iterator_traits<iterator>::difference_type diff_type;
-    typedef SortBucket<value_type, size_t> bucket_type;
+    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
+    typedef PackedBucket<value_type, count_type>                     bucket_type;
 
-    size_t bucketCount = (distance + (bucketSize - 1)) / bucketSize;
+    static const count_type kEmptyBucket = static_cast<count_type>(-1); 
 
-    std::unique_ptr<bucket_type[]> buckets(new bucket_type[bucketCount]);
+    assert(length > kStdSortThreshold);
+    assert(distance > 0);
+
+    size_t shiftBits;
+    size_t bucketSize = calc_bucket_size(length, distance, shiftBits);
+    size_t bucketCount = ((size_t)distance + bucketSize - 1) >> shiftBits;
+
+    std::unique_ptr<bucket_type[]> bucketCounts(new bucket_type[bucketCount]());
+    for (iterator iter = first; iter < last; ++iter) {
+        size_t index = static_cast<size_t>(*iter - minVal) >> shiftBits;
+        ++bucketCounts[index].first;
+    }
+
+    size_t total = 0;
     for (size_t i = 0; i < bucketCount; i++) {
-        bucket_type & bucket = buckets[i];
-        bucket.count = 0;
+        size_t old_count = bucketCounts[i].first;
+#if 0
+        count_type value = (old_count != 0) ? (count_type)total : kEmptyBucket;
+        bucketCounts[i].first = value;
+        bucketCounts[i].last  = value;
+        total += old_count;
+#else
+        if (old_count != 0) {
+            bucketCounts[i].first = (count_type)total;
+            bucketCounts[i].last  = (count_type)total;
+            total += old_count;
+        } else {
+#ifdef _DEBUG
+            bucketCounts[i].first = kEmptyBucket;
+            bucketCounts[i].last  = kEmptyBucket;
+#endif
+        }
+#endif
+    }
+
+    if (true) {
+        std::unique_ptr<value_type[]> sortedArray(new value_type[length]);
+
+        for (iterator iter = first; iter < last; ++iter) {
+            size_t bucketIndex = static_cast<size_t>(*iter - minVal) >> shiftBits;
+            count_type insertFirst = bucketCounts[bucketIndex].first;
+            count_type insertLast  = bucketCounts[bucketIndex].last;
+            assert(insertFirst != kEmptyBucket);
+            ++bucketCounts[bucketIndex].last;
+            if (bucketIndex < bucketCount - 1) {
+                assert(bucketCounts[bucketIndex].last <= bucketCounts[bucketIndex + 1].first);
+            }
+            if (likely(insertFirst == insertLast)) {
+                sortedArray[insertLast] = std::move(*iter);
+            } else {
+                value_type * insert = &sortedArray[insertLast];
+                value_type * target = insert - 1;
+                if (compare(*iter, *target)) {
+                    value_type * start = &sortedArray[insertFirst];
+                    do {
+                        *insert = std::move(*target);
+                        --insert;
+                        --target;
+                    } while (insert > start && compare(*iter, *target));
+                }
+                *insert = std::move(*iter);
+            }
+        }
+
+        value_type * sorted = &sortedArray[0];
+        for (iterator iter = first; iter < last; ++iter) {
+            *iter = *sorted++;
+        }
     }
 }
 
@@ -243,10 +367,13 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
     diff_type length = last - first;
-    if (likely(length <= 256)) {
-        std::sort(first, last, compare);
+    if (likely(length <= kStdSortThreshold)) {
+        if (likely(length <= kInsertSortThreshold))
+            jstd::insert_sort(first, last, compare);
+        else
+            std::sort(first, last, compare);
     } else {
-        assert(first != last);
+        assert(length > 0);
         value_type minVal = *first;
         value_type maxVal = *first;
         for (iterator iter = std::next(first); iter < last; ++iter) {
@@ -255,14 +382,26 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
         }
 
         diff_type distance = static_cast<diff_type>(maxVal - minVal);
+        if (unlikely(distance == 0)) return;
+
         if (likely(length <= 65536)) {
             // Short array [0, 65536]
-            if (likely(distance < diff_type(8 * 65536))) {
+            if (likely(distance < diff_type(65536 * 8))) {
                 if (likely(distance > (length * 5 / 4)))
-                    sparse_counting_bucket_sort<uint16_t>(first, last, compare, minVal, distance);
+                    sparse_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal);
                 else if (likely(distance != 0))
-                    dense_counting_bucket_sort<uint16_t>(first, last, compare, minVal, distance);
-            } else if (length < diff_type(8 * 65536)) {
+                    dense_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal);
+            } else {
+                small_histogram_bucket_sort<uint16_t>(first, last, compare, length, distance, minVal, maxVal);
+            }
+        } else {
+            // Long array (65536, UInt32Max or UInt64Max]
+            if (likely(distance < diff_type(65536 * 8))) {
+                if (likely(distance > (length * 5 / 4)))
+                    sparse_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
+                else if (likely(distance != 0))
+                    dense_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
+            } else if (length < diff_type(65536 * 8)) {
                 //
                 //printf("bucket_sort() unknown branch1\n");
             } else {
@@ -281,21 +420,8 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
                     //printf("bucket_sort() unknown branch2\n");
                 } else {
                     //printf("histogram_bucket_sort()\n");
-                    histogram_bucket_sort<value_type>(first, last, compare, minVal, distance, bucketSize);
+                    //histogram_bucket_sort<uint32_t>(first, last, compare, minVal, distance, bucketSize);
                 }
-            }
-        } else {
-            // Long array (65536, UInt32Max or UInt64Max]
-            if (likely(distance < diff_type(8 * 65536))) {
-                if (likely(distance > (length * 5 / 4)))
-                    sparse_counting_bucket_sort<uint32_t>(first, last, compare, minVal, distance);
-                else if (likely(distance != 0))
-                    dense_counting_bucket_sort<uint32_t>(first, last, compare, minVal, distance);
-            } else if (length < diff_type(8 * 65536)) {
-                //
-                //printf("bucket_sort() unknown branch1\n");
-            } else {
-                //
             }
         }
     }
@@ -308,9 +434,6 @@ inline void bucket_sort(BiDirectionalIter first, BiDirectionalIter last,
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
     static_assert(!std::is_same<iterator_category, std::bidirectional_iterator_tag>::value,
                   "bucket_detail::bucket_sort() is not supported std::bidirectional_iterator.");
-    if (likely(first != last)) {
-        //
-    }
 }
 
 template <typename ForwardIter, typename Comparer>

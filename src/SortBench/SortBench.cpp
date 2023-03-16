@@ -508,13 +508,19 @@ void bucket_sort_debug_test()
         correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535 * 4 - 1);
         printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
     }
+
+    if (1) {
+        printf("bucket_sort_test_impl<uint32_t, 1024, 2048>(0, 65536 * 16);\n");
+        correctness = bucket_sort_test_impl<uint32_t, 1024, 2048>(0, 65536 * 16);
+        printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
+    }
 }
 
 void bucket_sort_test()
 {
     bool correctness = true;
     if (1) {
-        printf("bucket_sort_test_impl<uint32_t, 256, 512>(0, 65535);\n");
+        printf("bucket_sort_test_impl<uint32_t, 256, 320>(0, 65535);\n");
         correctness = bucket_sort_test_impl<uint32_t, 256, 320>(0, 65535);
         printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
     }

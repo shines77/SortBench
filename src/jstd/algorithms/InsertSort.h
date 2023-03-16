@@ -24,9 +24,11 @@ inline void insert_sort(RandomAccessIter first, RandomAccessIter last,
                         Comparer compare, std::random_access_iterator_tag) {
     typedef RandomAccessIter iterator;
     typedef typename std::iterator_traits<iterator>::value_type T;
+#ifdef _DEBUG
     if (unlikely(first == last)) return;
+#endif
 
-    for (iterator cur = std::next(first); cur != last; ++cur) {
+    for (iterator cur = std::next(first); cur < last; ++cur) {
         iterator key = cur;
         iterator target = std::prev(cur);
 
