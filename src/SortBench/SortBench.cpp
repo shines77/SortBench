@@ -376,19 +376,7 @@ void sort_benchmark_impl()
 #define TEST_PARAMS(test_array_list) \
     test_array_list, standard_answers, array_count, total_items
 
-#ifdef NDEBUG
-    if (maxLen <= 512) {
-        sort_algo_bench<Algorithm::jstdBubbleSort, T>(TEST_PARAMS(test_array_list));
-        sort_algo_bench<Algorithm::jstdSelectSort, T>(TEST_PARAMS(test_array_list));
-    }
-    if (maxLen <= 5120) {
-        sort_algo_bench<Algorithm::jstdInsertSort, T>(TEST_PARAMS(test_array_list));
-    }
-    if (maxLen <= 10240) {
-        sort_algo_bench<Algorithm::jstdBinaryInsertSort_v1, T>(TEST_PARAMS(test_array_list));
-        sort_algo_bench<Algorithm::jstdBinaryInsertSort_v2, T>(TEST_PARAMS(test_array_list));
-    }
-#else
+#ifndef _DEBUG
     if (maxLen <= 128) {
         sort_algo_bench<Algorithm::jstdBubbleSort, T>(TEST_PARAMS(test_array_list));
         sort_algo_bench<Algorithm::jstdSelectSort, T>(TEST_PARAMS(test_array_list));
@@ -400,7 +388,23 @@ void sort_benchmark_impl()
         sort_algo_bench<Algorithm::jstdBinaryInsertSort_v1, T>(TEST_PARAMS(test_array_list));
         sort_algo_bench<Algorithm::jstdBinaryInsertSort_v2, T>(TEST_PARAMS(test_array_list));
     }
-#endif // NDEBUG
+#else
+    if (maxLen <= 512) {
+        sort_algo_bench<Algorithm::jstdBubbleSort, T>(TEST_PARAMS(test_array_list));
+        sort_algo_bench<Algorithm::jstdSelectSort, T>(TEST_PARAMS(test_array_list));
+    }
+    if (maxLen <= 5120) {
+        sort_algo_bench<Algorithm::jstdInsertSort, T>(TEST_PARAMS(test_array_list));
+    }
+#ifdef _MSC_VER
+    if (maxLen <= 5120) {
+#else
+    if (maxLen <= 10240) {
+#endif
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort_v1, T>(TEST_PARAMS(test_array_list));
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort_v2, T>(TEST_PARAMS(test_array_list));
+    }
+#endif // _DEBUG
 
     sort_algo_bench<Algorithm::stdHeapSort,    T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::stdStableSort,  T>(TEST_PARAMS(test_array_list));

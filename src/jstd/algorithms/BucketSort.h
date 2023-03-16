@@ -283,7 +283,7 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
     typedef Iterator iterator;
     typedef typename std::make_unsigned<CountType>::type             count_type;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
-    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
+//  typedef typename std::iterator_traits<iterator>::difference_type diff_type;
     typedef PackedBucket<value_type, count_type>                     bucket_type;
 
     static const count_type kEmptyBucket = static_cast<count_type>(-1); 
@@ -323,7 +323,7 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
 #endif
     }
 
-    if (true) {
+    {
         std::unique_ptr<value_type[]> sortedArray(new value_type[length]);
 
         for (iterator iter = first; iter < last; ++iter) {
@@ -401,7 +401,7 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
                     sparse_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
                 else if (likely(distance != 0))
                     dense_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
-            } else if (length < diff_type(65536 * 8)) {
+            } else if (length < diff_type(65536 * 8) && false) {
                 //
                 //printf("bucket_sort() unknown branch1\n");
             } else {
@@ -422,6 +422,7 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
                     //printf("histogram_bucket_sort()\n");
                     //histogram_bucket_sort<uint32_t>(first, last, compare, minVal, distance, bucketSize);
                 }
+                small_histogram_bucket_sort<uint32_t>(first, last, compare, length, distance, minVal, maxVal);
             }
         }
     }
