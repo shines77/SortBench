@@ -73,7 +73,7 @@ struct PackedBucket {
     }
 
     PackedBucket(const PackedBucket & src) noexcept
-        : first(src.first), start(src.last) {
+        : first(src.first), last(src.last) {
     }
 
     ~PackedBucket() {}
