@@ -61,6 +61,7 @@ struct Algorithm {
         jstdBinaryInsertSort_v1,
         jstdBinaryInsertSort_v2,
         jstdBucketSort,
+        jstdBucketSortWide,
         jstdQuickSort,
         TimSort,
         stdHeapSort,
@@ -91,6 +92,8 @@ const char * getSortAlgorithmName()
         return "jstd::binary_insert_sort_v2";
     else if (AlgorithmId == Algorithm::jstdBucketSort)
         return "jstd::bucket_sort";
+    else if (AlgorithmId == Algorithm::jstdBucketSortWide)
+        return "jstd::bucket_sort (wide)";
     else if (AlgorithmId == Algorithm::jstdQuickSort)
         return "jstd::quick_sort";
     else if (AlgorithmId == Algorithm::stdHeapSort)
@@ -261,7 +264,7 @@ bool verify_sort_answers(const std::unique_ptr<std::vector<T>[]> & test_array_li
     return true;
 }
 
-template <size_t AlgorithmId, typename T>
+template <size_t AlgorithmId, typename T, bool IsWideField = false>
 void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
                      const std::unique_ptr<std::vector<T>[]> & standard_answers,
                      size_t array_count, size_t total_items)
@@ -300,7 +303,8 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
             jstd::binary_insert_sort_v1(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::jstdBinaryInsertSort_v2) {
             jstd::binary_insert_sort_v2(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::jstdBucketSort) {
+        } else if (AlgorithmId == Algorithm::jstdBucketSort ||
+                   AlgorithmId == Algorithm::jstdBucketSortWide) {
             jstd::bucket_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::stdHeapSort) {
             heap_sort(test_array.begin(), test_array.end());
@@ -403,6 +407,19 @@ void sort_benchmark_impl()
     sort_algo_bench<Algorithm::orlp_pdqsort,   T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::ska_sort,       T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::jstdBucketSort, T>(TEST_PARAMS(test_array_list));
+
+    // Forced test wide field array
+    for (size_t i = 0; i < array_count; i++) {
+        std::vector<T> & test_array = test_array_list[i];
+        size_t length = test_array.size();
+        for (size_t n = 0; n < length; n++) {
+            T rndNum = static_cast<T>(rand30());
+            test_array[n] = rndNum;
+        }
+    }
+    generate_standard_answers<T>(standard_answers, test_array_list, array_count);
+
+    sort_algo_bench<Algorithm::jstdBucketSortWide, T>(TEST_PARAMS(test_array_list));
 
     printf("\n");
 #undef TEST_PARAMS

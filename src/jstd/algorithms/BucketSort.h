@@ -367,8 +367,8 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
     diff_type length = last - first;
-    if (likely(length <= kStdSortThreshold)) {
-        if (likely(length <= kInsertSortThreshold))
+    if (likely((size_t)length <= kStdSortThreshold)) {
+        if (likely((size_t)length <= kInsertSortThreshold))
             jstd::insert_sort(first, last, compare);
         else
             std::sort(first, last, compare);
