@@ -218,6 +218,7 @@ template <typename T>
 void generate_standard_answer(const std::vector<T> & src_array, std::vector<T> & answers)
 {
     // Copy to answer from src_array
+    answers.clear();
     answers.insert(answers.cbegin(), src_array.begin(), src_array.end());
 
     // Sorting the answer
