@@ -298,29 +298,29 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
     size_t bucketSize = calc_bucket_size(length, distance, shiftBits);
     size_t bucketCount = ((size_t)distance + bucketSize - 1) >> shiftBits;
 
-    std::unique_ptr<bucket_type[]> bucketCounts(new bucket_type[bucketCount]());
+    std::unique_ptr<bucket_type[]> buckets(new bucket_type[bucketCount]());
     for (iterator iter = first; iter < last; ++iter) {
         size_t index = static_cast<size_t>(*iter - minVal) >> shiftBits;
-        ++bucketCounts[index].first;
+        ++buckets[index].first;
     }
 
     size_t total = 0;
     for (size_t i = 0; i < bucketCount; i++) {
-        size_t old_count = bucketCounts[i].first;
+        size_t old_count = buckets[i].first;
 #if 0
         count_type value = (old_count != 0) ? static_cast<count_type>(total) : kEmptyBucket;
-        bucketCounts[i].first = value;
-        bucketCounts[i].last  = value;
+        buckets[i].first = value;
+        buckets[i].last  = value;
         total += old_count;
 #else
         if (old_count != 0) {
-            bucketCounts[i].first = static_cast<count_type>(total);
-            bucketCounts[i].last  = static_cast<count_type>(total);
+            buckets[i].first = static_cast<count_type>(total);
+            buckets[i].last  = static_cast<count_type>(total);
             total += old_count;
         } else {
 #ifdef _DEBUG
-            bucketCounts[i].first = kEmptyBucket;
-            bucketCounts[i].last  = kEmptyBucket;
+            buckets[i].first = kEmptyBucket;
+            buckets[i].last  = kEmptyBucket;
 #endif
         }
 #endif
@@ -331,12 +331,12 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
 
         for (iterator iter = first; iter < last; ++iter) {
             size_t bucketIndex = static_cast<size_t>(*iter - minVal) >> shiftBits;
-            count_type insertFirst = bucketCounts[bucketIndex].first;
-            count_type insertLast  = bucketCounts[bucketIndex].last;
+            count_type insertFirst = buckets[bucketIndex].first;
+            count_type insertLast  = buckets[bucketIndex].last;
             assert(insertFirst != kEmptyBucket);
-            ++bucketCounts[bucketIndex].last;
+            ++buckets[bucketIndex].last;
             if (bucketIndex < bucketCount - 1) {
-                assert(bucketCounts[bucketIndex].last <= bucketCounts[bucketIndex + 1].first);
+                assert(buckets[bucketIndex].last <= buckets[bucketIndex + 1].first);
             }
             value_type * insert = &sortedArray[insertLast];
             if (likely(insertFirst != insertLast)) {
@@ -354,7 +354,8 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
 
         value_type * sorted = &sortedArray[0];
         for (iterator iter = first; iter < last; ++iter) {
-            *iter = *sorted++;
+            *iter = std::move(*sorted);
+            ++sorted;
         }
     }
 }
