@@ -264,6 +264,12 @@ inline size_t calc_shift_factor(DiffType length, DiffType distance) {
         size_t distanceBits = jstd::pow2::log2_int<size_t, 1>(static_cast<size_t>(distance));
         assert(distanceBits >= lengthBits);
         size_t shiftBits = distanceBits - lengthBits;
+        if (length > DiffType(65536 * 8)) {
+            printf("length = %u, distance = %u\n",
+                   (uint32_t)length, (uint32_t)distance);
+            printf("lengthBits = %u, distanceBits = %u, shiftBits = %u\n",
+                   (uint32_t)lengthBits, (uint32_t)distanceBits, (uint32_t)shiftBits);
+        }
         // (length * shiftFactor * 1.5) > distance ?
         size_t ll = length << shiftBits;
         shiftBits += ((ll + (ll >> 1)) > (size_t)distance);
