@@ -27,7 +27,7 @@ namespace jstd {
 namespace bucket_detail {
 
 // The threshold of built-in insertion sort
-static const size_t kInsertSortThreshold  = 64;
+static const size_t kInsertSortThreshold = 128;
 
 // The threshold of std::sort()
 static const size_t kStdSortThreshold = 128;
