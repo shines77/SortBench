@@ -314,7 +314,7 @@
 #endif // __BYTE_ORDER
 #endif // !JSTD_ENDIAN
 
-#define USE_DEBUG_PRINT         1
+#define USE_DEBUG_PRINT         0
 
 #if USE_DEBUG_PRINT
 #define debug_print(fmt, ...)   printf(fmt, ##__VA_ARGS__)
