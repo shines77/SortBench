@@ -119,19 +119,19 @@ const char * getSortAlgorithmName()
         return "Unknown Algorithm";
 }
 
-inline uint32_t rand16()
+inline uint16_t rand16()
 {
-    return ((uint32_t)rand() & 0xFFFF);
+    return ((uint16_t)(rand() & 0x0000FFFFu));
 }
 
 inline uint32_t rand30()
 {
 #if (RAND_MAX == 0x7FFF)
-    return (((uint32_t)rand() << 15) |
-            ((uint32_t)rand() & 0x00007FFFu));
+    return ((((uint32_t)rand() & 0x00007FFFu) << 15) |
+             ((uint32_t)rand() & 0x00007FFFu));
 #else
-    return  ((uint32_t)rand() << 16) |
-            ((uint32_t)rand() & 0x0000FFFFu);
+    return ((((uint32_t)rand() & 0x00003FFFu) << 16) |
+             ((uint32_t)rand() & 0x0000FFFFu));
 #endif
 }
 
@@ -142,8 +142,8 @@ inline uint32_t rand32()
             (((uint32_t)rand() & 0x00007FFFu) << 15) |
              ((uint32_t)rand() & 0x00007FFFu));
 #else
-    return  ((uint32_t)rand() << 16) |
-            ((uint32_t)rand() & 0x0000FFFFu);
+    return ((((uint32_t)rand()              ) << 16) |
+             ((uint32_t)rand() & 0x0000FFFFu));
 #endif
 }
 
