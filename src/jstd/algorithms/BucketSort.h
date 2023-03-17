@@ -281,8 +281,8 @@ inline size_t calc_shift_factor(DiffType length, DiffType distance) {
 
 template <typename DiffType>
 inline std::pair<size_t, size_t> calc_bucket_count(DiffType length, DiffType distance) {
-    static const size_t kMaxBucketSize = 128 * 1024;
-    static const size_t kMaxLengthBits = 17;
+    static const size_t kMaxBucketSize = 256 * 1024;
+    static const size_t kMaxLengthBits = 18;
     size_t shiftBits   = calc_shift_factor(length, distance);
     size_t shiftFactor = size_t(1) << shiftBits;
     size_t bucketCount = (((size_t)distance + 1) + (shiftFactor - 1)) >> shiftBits;
