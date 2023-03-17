@@ -295,8 +295,6 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
     //printf("Copy time: %6.3f ms, ", sw.getElapsedMillisec());
 
     // Sort all test array
-    std::vector<T> test_array_copy;
-    test_array_copy.resize(max_length);
     sw.start();
     for (size_t i = 0; i < array_count; i++) {
         std::vector<T> & test_array = test_array_list[i];
@@ -328,7 +326,9 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
         } else if (AlgorithmId == Algorithm::ska_sort) {
             ska_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::ska_sort_copy) {
-            ska_sort_copy(test_array.begin(), test_array.end(), test_array_copy.begin());
+            size_t buff_size = test_array.size();
+            std::unique_ptr<T[]> test_array_buff(new T[buff_size]);
+            ska_sort_copy(test_array.begin(), test_array.end(), &test_array_buff[0]);
         }
     }
     sw.stop();
