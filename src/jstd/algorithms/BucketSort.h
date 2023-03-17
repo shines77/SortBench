@@ -260,7 +260,7 @@ inline size_t calc_shift_factor(DiffType length, DiffType distance) {
     assert(distance > 0);
     if (likely(length <= (distance + 1))) {
         size_t lengthBits = jstd::pow2::log2_int<size_t, kStdSortThreshold>(static_cast<size_t>(length));
-               lengthBits = (lengthBits <= kMaxLengthBits) ? lengthBits : kMaxLengthBits;
+        //     lengthBits = (lengthBits <= kMaxLengthBits) ? lengthBits : kMaxLengthBits;
         size_t distanceBits = jstd::pow2::log2_int<size_t, 1>(static_cast<size_t>(distance));
         assert(distanceBits >= lengthBits);
         size_t shiftBits = distanceBits - lengthBits;
