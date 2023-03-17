@@ -445,8 +445,8 @@ void sort_benchmark_impl()
     }
     generate_standard_answers<T>(standard_answers, test_array_list, array_count);
 
-    sort_algo_bench<Algorithm::ska_sort_wide,      T>(TEST_PARAMS(test_array_list));
-    sort_algo_bench<Algorithm::ska_sort_copy_wide, T>(TEST_PARAMS(test_array_list));
+    //sort_algo_bench<Algorithm::ska_sort_wide,      T>(TEST_PARAMS(test_array_list));
+    //sort_algo_bench<Algorithm::ska_sort_copy_wide, T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::jstdBucketSortWide, T>(TEST_PARAMS(test_array_list));
 
     printf("\n");
