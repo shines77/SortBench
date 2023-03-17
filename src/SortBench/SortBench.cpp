@@ -462,6 +462,7 @@ void sort_benchmark_impl()
 template <typename T, size_t ArrayType>
 void sort_benchmark()
 {
+#ifndef _DEBUG
     // Randomize short array threshold test
     sort_benchmark_impl<T, ArrayType, 1, 8>();
     sort_benchmark_impl<T, ArrayType, 1, 16>();
@@ -482,6 +483,7 @@ void sort_benchmark()
     // Randomize short array test
     sort_benchmark_impl<T, ArrayType, 40, 50>();
     sort_benchmark_impl<T, ArrayType, 90, 100>();
+#endif
     sort_benchmark_impl<T, ArrayType, 280, 300>();
     sort_benchmark_impl<T, ArrayType, 450, 500>();
 
@@ -491,7 +493,7 @@ void sort_benchmark()
     sort_benchmark_impl<T, ArrayType, 9500, 10000>();
     sort_benchmark_impl<T, ArrayType, 49000, 50000>();
     sort_benchmark_impl<T, ArrayType, 99000, 100000>();
-#ifdef NDEBUG
+#ifndef _DEBUG
     sort_benchmark_impl<T, ArrayType, 499000, 500000>();
     sort_benchmark_impl<T, ArrayType, 999000, 1000000>();
 #endif
