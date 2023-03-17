@@ -70,6 +70,8 @@ struct Algorithm {
         orlp_pdqsort,
         ska_sort,
         ska_sort_copy,
+        ska_sort_wide,
+        ska_sort_copy_wide,
         Last
     };
 };
@@ -109,6 +111,10 @@ const char * getSortAlgorithmName()
         return "ska_sort";
     else if (AlgorithmId == Algorithm::ska_sort_copy)
         return "ska_sort_copy";
+    else if (AlgorithmId == Algorithm::ska_sort_wide)
+        return "ska_sort_wide";
+    else if (AlgorithmId == Algorithm::ska_sort_copy_wide)
+        return "ska_sort_copy_wide";
     else
         return "Unknown Algorithm";
 }
@@ -323,9 +329,11 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
             std::sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::orlp_pdqsort) {
             orlp::pdqsort(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::ska_sort) {
+        } else if (AlgorithmId == Algorithm::ska_sort ||
+                   AlgorithmId == Algorithm::ska_sort_wide) {
             ska_sort(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::ska_sort_copy) {
+        } else if (AlgorithmId == Algorithm::ska_sort_copy ||
+                   AlgorithmId == Algorithm::ska_sort_copy_wide) {
             size_t buff_size = test_array.size();
             std::unique_ptr<T[]> test_array_buff(new T[buff_size]);
             ska_sort_copy(test_array.begin(), test_array.end(), &test_array_buff[0]);
@@ -438,6 +446,8 @@ void sort_benchmark_impl()
     generate_standard_answers<T>(standard_answers, test_array_list, array_count);
 
     sort_algo_bench<Algorithm::jstdBucketSortWide, T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::ska_sort_wide,      T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::ska_sort_copy_wide, T>(TEST_PARAMS(test_array_list));
 
     printf("\n");
 #undef TEST_PARAMS
