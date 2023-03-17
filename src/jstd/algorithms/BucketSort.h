@@ -425,47 +425,47 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
         }
 
         diff_type distance = static_cast<diff_type>(maxVal - minVal);
-        if (unlikely(distance == 0)) return;
-
-        if (likely(length <= 65536)) {
-            // Short array [0, 65536]
-            if (likely(distance < diff_type(65536 * 8))) {
-                if (likely(distance > (length * 5 / 4)))
-                    sparse_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal); 
-                else if (likely(distance != 0))
-                    dense_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal);
-            } else {
-                small_histogram_bucket_sort<uint16_t>(first, last, compare, length, distance, minVal, maxVal);
-            }
-        } else {
-            // Long array (65536, UInt32Max or UInt64Max]
-            if (likely(distance < diff_type(65536 * 8))) {
-                if (likely(distance > (length * 5 / 4)))
-                    sparse_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
-                else if (likely(distance != 0))
-                    dense_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
-            } else if (length < diff_type(65536 * 8) && false) {
-                //
-                //printf("bucket_sort() unknown branch1\n");
-            } else {
-                static const size_t kMaxBucketSize = 65536;
-                static const size_t kMaxBucketShift = 16;
-                static const size_t kMaxBucketCount = 65536;
-                static const size_t kBucketSizeThreshold = 8;
-
-                size_t minBucketCount = (distance + (kMaxBucketSize - 1)) / kMaxBucketSize;
-                size_t exp = ilog2(minBucketCount);
-                size_t bucketShift = kMaxBucketShift - exp;
-                size_t bucketSize = kMaxBucketSize >> bucketShift;
-                assert(bucketSize > 0);
-                if (bucketSize <= kBucketSizeThreshold) {
-                    //
-                    //printf("bucket_sort() unknown branch2\n");
+        if (likely(distance != 0)) {
+            if (likely(length <= 65536)) {
+                // Short array [0, 65536]
+                if (likely(distance < diff_type(65536 * 8))) {
+                    if (likely(distance > (length * 5 / 4)))
+                        sparse_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal); 
+                    else if (likely(distance != 0))
+                        dense_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal);
                 } else {
-                    //printf("histogram_bucket_sort()\n");
-                    //histogram_bucket_sort<uint32_t>(first, last, compare, minVal, distance, bucketSize);
+                    small_histogram_bucket_sort<uint16_t>(first, last, compare, length, distance, minVal, maxVal);
                 }
-                small_histogram_bucket_sort<uint32_t>(first, last, compare, length, distance, minVal, maxVal);
+            } else {
+                // Long array (65536, UInt32Max or UInt64Max]
+                if (likely(distance < diff_type(65536 * 8))) {
+                    if (likely(distance > (length * 5 / 4)))
+                        sparse_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
+                    else if (likely(distance != 0))
+                        dense_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
+                } else if (length < diff_type(65536 * 8) && false) {
+                    //
+                    //printf("bucket_sort() unknown branch1\n");
+                } else {
+                    static const size_t kMaxBucketSize = 65536;
+                    static const size_t kMaxBucketShift = 16;
+                    static const size_t kMaxBucketCount = 65536;
+                    static const size_t kBucketSizeThreshold = 8;
+
+                    size_t minBucketCount = (distance + (kMaxBucketSize - 1)) / kMaxBucketSize;
+                    size_t exp = ilog2(minBucketCount);
+                    size_t bucketShift = kMaxBucketShift - exp;
+                    size_t bucketSize = kMaxBucketSize >> bucketShift;
+                    assert(bucketSize > 0);
+                    if (bucketSize <= kBucketSizeThreshold) {
+                        //
+                        //printf("bucket_sort() unknown branch2\n");
+                    } else {
+                        //printf("histogram_bucket_sort()\n");
+                        //histogram_bucket_sort<uint32_t>(first, last, compare, minVal, distance, bucketSize);
+                    }
+                    small_histogram_bucket_sort<uint32_t>(first, last, compare, length, distance, minVal, maxVal);
+                }
             }
         }
     }
