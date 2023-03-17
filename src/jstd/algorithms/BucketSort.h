@@ -276,7 +276,7 @@ inline size_t calc_bucket_size(DiffType length, DiffType distance, size_t & nShi
 //
 // See: https://zh.wikipedia.org/zh-cn/%E6%8F%92%E5%80%BC%E6%8E%92%E5%BA%8F
 //
-template <typename CountType, typename ValueType, typename DiffType, typename Iterator, typename Comparer>
+template <typename CountType, typename Iterator, typename Comparer, typename DiffType, typename ValueType>
 inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer compare,
                                         DiffType length, DiffType distance,
                                         const ValueType & minVal, const ValueType & maxVal) {
@@ -286,7 +286,7 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
 //  typedef typename std::iterator_traits<iterator>::difference_type diff_type;
     typedef PackedBucket<value_type, count_type>                     bucket_type;
 
-    static const count_type kEmptyBucket = static_cast<count_type>(-1); 
+    static const count_type kEmptyBucket = static_cast<count_type>(-1);
 
     assert(length > kStdSortThreshold);
     assert(distance > 0);
@@ -343,8 +343,7 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
                     do {
                         *insert = std::move(*target);
                         --insert;
-                        --target;
-                    } while (insert > start && compare(*iter, *target));
+                    } while (insert > start && compare(*iter, *--target));
                 }
             }
             *insert = std::move(*iter);

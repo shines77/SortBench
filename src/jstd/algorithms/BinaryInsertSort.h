@@ -172,7 +172,22 @@ inline void binary_insert_sort_v2(RandomAccessIter first, RandomAccessIter last,
          
             do {
                 diff_type distance = (right - left);
-                if (likely(distance <= 64)) {
+                if (likely(distance > 64)) {
+                    iterator mid = left + distance / 2;
+#if 0
+                    // branchless version
+                    bool comp_result = compare(*key, *mid);
+                    left  = (comp_result ? left : (mid + 1));
+                    right = (comp_result ?  mid : right);
+#else
+                    // branched version
+                    bool comp_result = compare(*key, *mid);
+                    if (comp_result)
+                        right = mid;            // mid - 0
+                    else
+                        left = std::next(mid);  // mid + 1
+#endif
+                } else {
                     if (likely(distance > 0)) {
                         iterator tail = key;
                         iterator prev = std::prev(key);
@@ -193,21 +208,6 @@ inline void binary_insert_sort_v2(RandomAccessIter first, RandomAccessIter last,
                         *tail = std::move(tmp);
                     }
                     goto NextLoop;
-                } else {
-                    iterator mid = left + distance / 2;
-#if 0
-                    // branchless version
-                    bool comp_result = compare(*key, *mid);
-                    left  = (comp_result ? left : (mid + 1));
-                    right = (comp_result ?  mid : right);
-#else
-                    // branched version
-                    bool comp_result = compare(*key, *mid);
-                    if (comp_result)
-                        right = mid;            // mid - 0
-                    else
-                        left = std::next(mid);  // mid + 1
-#endif
                 }
             } while (1);
 
