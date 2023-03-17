@@ -254,13 +254,11 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
     }
 }
 
-template <typename DiffType>
-inline std::pair<size_t, size_t> calc_shift_factor(DiffType length, DiffType distance) {
-    static const size_t kMaxBucketSize = 65536;
-    static const size_t kMaxLengthBits = 16;
+template <size_t kMaxLengthBits, typename DiffType>
+inline size_t calc_shift_factor(DiffType length, DiffType distance) {
     assert(length > kStdSortThreshold);
     assert(distance > 0);
-    if (likely(length <= distance)) {
+    if (likely(length <= (distance + 1))) {
         size_t lengthBits = jstd::pow2::log2_int<size_t, kStdSortThreshold>(static_cast<size_t>(length));
                lengthBits = (lengthBits <= kMaxLengthBits) ? lengthBits : kMaxLengthBits;
         size_t distanceBits = jstd::pow2::log2_int<size_t, 1>(static_cast<size_t>(distance));
@@ -269,10 +267,29 @@ inline std::pair<size_t, size_t> calc_shift_factor(DiffType length, DiffType dis
         // (length * shiftFactor * 1.5) > distance ?
         size_t ll = length << shiftBits;
         shiftBits += ((ll + (ll >> 1)) > (size_t)distance);
-        return std::make_pair(size_t(1) << shiftBits, shiftBits);
+        return shiftBits;
     } else {
-        return std::make_pair(size_t(1), size_t(0));
+        return 0;
     }
+}
+
+template <typename DiffType>
+inline std::pair<size_t, size_t> calc_bucket_count(DiffType length, DiffType distance) {
+    static const size_t kMaxBucketSize = 65536;
+    static const size_t kMaxLengthBits = 16;
+    size_t shiftBits   = calc_shift_factor<kMaxLengthBits>(length, distance);
+    size_t shiftFactor = size_t(1) << shiftBits;
+    size_t bucketCount = (((size_t)distance + 1) + (shiftFactor - 1)) >> shiftBits;
+    if (bucketCount > kMaxBucketSize) {
+        // If bucketCount is bigger than kMaxBucketSize,
+        // recalculate the shiftBits, shiftFactor and bucketCount,
+        // let the size of bucketCount approach kMaxBucketSize.
+        shiftFactor = (((size_t)distance + 1) + (kMaxBucketSize - 1)) / kMaxBucketSize;
+        shiftBits = jstd::pow2::log2_int<size_t, 2>(shiftFactor);
+        shiftFactor = size_t(1) << shiftBits;
+        bucketCount = (((size_t)distance + 1) + (shiftFactor - 1)) >> shiftBits;
+    }
+    return std::make_pair(bucketCount, shiftBits);
 }
 
 //
@@ -295,10 +312,9 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
     assert(length > kStdSortThreshold);
     assert(distance > 0);
 
-    std::pair<size_t, size_t> shiftInfo = calc_shift_factor(length, distance);
-    size_t shiftFactor = shiftInfo.first;
-    size_t shiftBits   = shiftInfo.second;
-    size_t bucketCount = (((size_t)distance + 1) + (shiftFactor - 1)) >> shiftBits;
+    std::pair<size_t, size_t> shiftData = calc_bucket_count(length, distance);
+    size_t bucketCount = shiftData.first;
+    size_t shiftBits   = shiftData.second;
 
     std::unique_ptr<bucket_type[]> buckets(new bucket_type[bucketCount]());
     for (iterator iter = first; iter < last; ++iter) {
