@@ -121,7 +121,7 @@ inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer c
                 value_type val = minVal + static_cast<value_type>(i);
                 for (count_type n = 0; n < count; ++n) {
                     assert(iter != last);
-                    *iter = val;
+                    *iter =  std::move(val);
                     ++iter;
                 }
             }
@@ -143,7 +143,7 @@ inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer c
                 value_type val = minVal + static_cast<value_type>(i);
                 for (count_type n = 0; n < count; ++n) {
                     assert(iter != last);
-                    *iter = val;
+                    *iter =  std::move(val);
                     ++iter;
                 }
             }
@@ -207,7 +207,7 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
                 assert(count != 0);
                 for (count_type n = 0; n < count; ++n) {
                     assert(iter != last);
-                    *iter = val;
+                    *iter =  std::move(val);
                     ++iter;
                 }
             }
@@ -245,7 +245,7 @@ inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer 
                 assert(count != 0);
                 for (count_type n = 0; n < count; ++n) {
                     assert(iter != last);
-                    *iter = val;
+                    *iter = std::move(val);
                     ++iter;
                 }
             }
@@ -260,9 +260,12 @@ inline size_t calc_bucket_size(DiffType length, DiffType distance, size_t & nShi
     static const size_t kMaxShiftBits = 16;
     size_t lengthBits   = jstd::pow2::log2_int<size_t, kStdSortThreshold>(static_cast<size_t>(length));
     size_t distanceBits = jstd::pow2::log2_int<size_t, 1>(static_cast<size_t>(distance));
-    size_t shiftBits = ((distanceBits >= lengthBits) ? (distanceBits - lengthBits) : 0) + 1;
-    size_t bucketSize = size_t(1) << shiftBits;
+    size_t shiftBits = (distanceBits >= lengthBits) ? (distanceBits - lengthBits) : 0;
+    // (length * bucketSize * 1.5) > distance ?
+    size_t ll = length << shiftBits;
+    shiftBits += ((ll + (ll >> 1)) > (size_t)distance);
     if (likely(shiftBits <= kMaxShiftBits)) {
+        size_t bucketSize = size_t(1) << shiftBits;
         nShiftBits = shiftBits;
         return bucketSize;
     } else {
@@ -337,7 +340,7 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
             }
             value_type * insert = &sortedArray[insertLast];
             if (likely(insertFirst != insertLast)) {
-                value_type * target = insert - 1;
+                value_type * target = std::prev(insert);
                 if (compare(*iter, *target)) {
                     value_type * start = &sortedArray[insertFirst];
                     do {
