@@ -78,7 +78,7 @@ inline void insert_sort(ForwardIter first, ForwardIter last,
                   "insert_detail::insert_sort() is not supported std::forward_iterator.");
 }
 
-} // namespace detail
+} // namespace insert_detail
 
 template <typename Iterator, typename Comparer>
 inline void insert_sort(Iterator first, Iterator last, Comparer compare) {
