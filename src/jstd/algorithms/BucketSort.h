@@ -28,10 +28,9 @@ namespace bucket_detail {
 
 // The threshold of built-in insertion sort
 static const size_t kInsertSortThreshold  = 64;
-static const size_t kInsertSortThreshold2 = 128;
 
 // The threshold of std::sort()
-static const size_t kStdSortThreshold = 64;
+static const size_t kStdSortThreshold = 128;
 
 template <typename T, typename CountType>
 struct SortBucket {
@@ -431,14 +430,10 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
         if (likely(length <= 65536)) {
             // Short array [0, 65536]
             if (likely(distance < diff_type(65536 * 8))) {
-                if (likely(length > kInsertSortThreshold2)) {
-                    if (likely(distance > (length * 5 / 4)))
-                        sparse_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal); 
-                    else if (likely(distance != 0))
-                        dense_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal);
-                } else {
-                    jstd::insert_sort(first, last, compare);
-                }
+                if (likely(distance > (length * 5 / 4)))
+                    sparse_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal); 
+                else if (likely(distance != 0))
+                    dense_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal);
             } else {
                 small_histogram_bucket_sort<uint16_t>(first, last, compare, length, distance, minVal, maxVal);
             }
