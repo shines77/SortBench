@@ -265,10 +265,10 @@ inline size_t calc_shift_factor(DiffType length, DiffType distance) {
         assert(distanceBits >= lengthBits);
         size_t shiftBits = distanceBits - lengthBits;
         if (length > DiffType(65536 * 8)) {
-            printf("length = %u, distance = %u\n",
-                   (uint32_t)length, (uint32_t)distance);
-            printf("lengthBits = %u, distanceBits = %u, shiftBits = %u\n",
-                   (uint32_t)lengthBits, (uint32_t)distanceBits, (uint32_t)shiftBits);
+            debug_print("length = %u, distance = %u\n",
+                        (uint32_t)length, (uint32_t)distance);
+            debug_print("lengthBits = %u, distanceBits = %u, shiftBits = %u\n",
+                        (uint32_t)lengthBits, (uint32_t)distanceBits, (uint32_t)shiftBits);
         }
         // (length * shiftFactor * 1.5) > distance ?
         size_t ll = length << shiftBits;
@@ -281,17 +281,17 @@ inline size_t calc_shift_factor(DiffType length, DiffType distance) {
 
 template <typename DiffType>
 inline std::pair<size_t, size_t> calc_bucket_count(DiffType length, DiffType distance) {
-    static const size_t kMaxBucketSize = 65536;
-    static const size_t kMaxLengthBits = 16;
+    static const size_t kMaxBucketSize = 256 * 1024;
+    static const size_t kMaxLengthBits = 18;
     size_t shiftBits   = calc_shift_factor<kMaxLengthBits>(length, distance);
     size_t shiftFactor = size_t(1) << shiftBits;
     size_t bucketCount = (((size_t)distance + 1) + (shiftFactor - 1)) >> shiftBits;
     assert(bucketCount >= 2);
     if (length > DiffType(65536 * 8)) {
-        printf("length = %u, distance = %u\n",
-               (uint32_t)length, (uint32_t)distance);
-        printf("shiftBits = %u, shiftFactor = 0x%08X, bucketCount = %u\n",
-               (uint32_t)shiftBits, (uint32_t)shiftFactor, (uint32_t)bucketCount);
+        debug_print("length = %u, distance = %u\n",
+                    (uint32_t)length, (uint32_t)distance);
+        debug_print("shiftBits = %u, shiftFactor = 0x%08X, bucketCount = %u\n",
+                    (uint32_t)shiftBits, (uint32_t)shiftFactor, (uint32_t)bucketCount);
     }
     if (bucketCount > kMaxBucketSize) {
         // If bucketCount is bigger than kMaxBucketSize,
@@ -301,10 +301,10 @@ inline std::pair<size_t, size_t> calc_bucket_count(DiffType length, DiffType dis
         shiftBits = jstd::pow2::log2_int<size_t, 2>(shiftFactor);
         shiftFactor = size_t(1) << shiftBits;
         bucketCount = (((size_t)distance + 1) + (shiftFactor - 1)) >> shiftBits;
-        printf(">> length = %u, distance = %u\n",
-               (uint32_t)length, (uint32_t)distance);
-        printf(">> shiftBits = %u, shiftFactor = 0x%08X, bucketCount = %u\n",
-               (uint32_t)shiftBits, (uint32_t)shiftFactor, (uint32_t)bucketCount);
+        debug_print(">> length = %u, distance = %u\n",
+                    (uint32_t)length, (uint32_t)distance);
+        debug_print(">> shiftBits = %u, shiftFactor = 0x%08X, bucketCount = %u\n",
+                    (uint32_t)shiftBits, (uint32_t)shiftFactor, (uint32_t)bucketCount);
     }
     return std::make_pair(bucketCount, shiftBits);
 }

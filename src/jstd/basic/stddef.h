@@ -314,4 +314,12 @@
 #endif // __BYTE_ORDER
 #endif // !JSTD_ENDIAN
 
+#define USE_DEBUG_PRINT         1
+
+#if USE_DEBUG_PRINT
+#define debug_print(fmt, ...)   printf(fmt, ##__VA_ARGS__)
+#else
+#define debug_print(fmt, ...)   ((void)0)
+#endif
+
 #endif // JSTD_BASIC_STDDEF_H
