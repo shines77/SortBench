@@ -265,7 +265,7 @@ bool verify_sort_answers(const std::unique_ptr<std::vector<T>[]> & test_array_li
     return true;
 }
 
-template <size_t AlgorithmId, typename T, bool IsWideField = false>
+template <size_t AlgorithmId, typename T>
 void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
                      const std::unique_ptr<std::vector<T>[]> & standard_answers,
                      size_t array_count, size_t total_items)

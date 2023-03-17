@@ -262,7 +262,7 @@ inline size_t calc_bucket_size(DiffType length, DiffType distance, size_t & nShi
     size_t distanceBits = jstd::pow2::log2_int<size_t, 1>(static_cast<size_t>(distance));
     size_t shiftBits = ((distanceBits >= lengthBits) ? (distanceBits - lengthBits) : 0) + 1;
     size_t bucketSize = size_t(1) << shiftBits;
-    if (likely(bucketSize <= kMaxBucketSize)) {
+    if (likely(shiftBits <= kMaxShiftBits)) {
         nShiftBits = shiftBits;
         return bucketSize;
     } else {
@@ -305,14 +305,14 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
     for (size_t i = 0; i < bucketCount; i++) {
         size_t old_count = bucketCounts[i].first;
 #if 0
-        count_type value = (old_count != 0) ? (count_type)total : kEmptyBucket;
+        count_type value = (old_count != 0) ? static_cast<count_type>(total) : kEmptyBucket;
         bucketCounts[i].first = value;
         bucketCounts[i].last  = value;
         total += old_count;
 #else
         if (old_count != 0) {
-            bucketCounts[i].first = (count_type)total;
-            bucketCounts[i].last  = (count_type)total;
+            bucketCounts[i].first = static_cast<count_type>(total);
+            bucketCounts[i].last  = static_cast<count_type>(total);
             total += old_count;
         } else {
 #ifdef _DEBUG
@@ -335,10 +335,8 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
             if (bucketIndex < bucketCount - 1) {
                 assert(bucketCounts[bucketIndex].last <= bucketCounts[bucketIndex + 1].first);
             }
-            if (likely(insertFirst == insertLast)) {
-                sortedArray[insertLast] = std::move(*iter);
-            } else {
-                value_type * insert = &sortedArray[insertLast];
+            value_type * insert = &sortedArray[insertLast];
+            if (likely(insertFirst != insertLast)) {
                 value_type * target = insert - 1;
                 if (compare(*iter, *target)) {
                     value_type * start = &sortedArray[insertFirst];
@@ -348,8 +346,8 @@ inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer 
                         --target;
                     } while (insert > start && compare(*iter, *target));
                 }
-                *insert = std::move(*iter);
             }
+            *insert = std::move(*iter);
         }
 
         value_type * sorted = &sortedArray[0];
