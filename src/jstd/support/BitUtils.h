@@ -485,11 +485,11 @@ namespace BitUtils {
     // log2_int()
     //
     static inline uint32_t log2_32(uint32_t n) {
-        return (n > 1) ? (uint32_t)(bsr32(n - 1) + 1) : n;
+        return (n > 1) ? (uint32_t)(bsr32(n - 1) + 1) : 0;
     }
 
     static inline uint64_t log2_64(uint64_t n) {
-        return (n > 1) ? (uint64_t)(bsr64(n - 1) + 1) : n;
+        return (n > 1) ? (uint64_t)(bsr64(n - 1) + 1) : 0;
     }
 
     static inline size_t log2_int(size_t n) {
