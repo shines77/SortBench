@@ -69,6 +69,7 @@ struct Algorithm {
         stdSort,
         orlp_pdqsort,
         ska_sort,
+        ska_sort_copy,
         Last
     };
 };
@@ -106,6 +107,8 @@ const char * getSortAlgorithmName()
         return "orlp::pdqsort";
     else if (AlgorithmId == Algorithm::ska_sort)
         return "ska_sort";
+    else if (AlgorithmId == Algorithm::ska_sort_copy)
+        return "ska_sort_copy";
     else
         return "Unknown Algorithm";
 }
@@ -276,17 +279,24 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
     printf(" %-28s ", getSortAlgorithmName<AlgorithmId>());
 
     // Copy test array from src_array_list
+    size_t max_length = 0;
     sw.start();
     for (size_t i = 0; i < array_count; i++) {
         std::vector<T> & src_test_array = src_array_list[i];
         std::vector<T> & test_array = test_array_list[i];
+        test_array.clear();
         test_array.insert(test_array.cbegin(), src_test_array.begin(), src_test_array.end());
+        if (test_array.size() > max_length) {
+            max_length = test_array.size();
+        }
     }
     sw.stop();
 
     //printf("Copy time: %6.3f ms, ", sw.getElapsedMillisec());
 
     // Sort all test array
+    std::vector<T> test_array_copy;
+    test_array_copy.resize(max_length);
     sw.start();
     for (size_t i = 0; i < array_count; i++) {
         std::vector<T> & test_array = test_array_list[i];
@@ -317,6 +327,8 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
             orlp::pdqsort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::ska_sort) {
             ska_sort(test_array.begin(), test_array.end());
+        } else if (AlgorithmId == Algorithm::ska_sort_copy) {
+            ska_sort_copy(test_array.begin(), test_array.end(), test_array_copy.begin());
         }
     }
     sw.stop();
@@ -411,6 +423,7 @@ void sort_benchmark_impl()
     sort_algo_bench<Algorithm::stdSort,        T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::orlp_pdqsort,   T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::ska_sort,       T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::ska_sort_copy,  T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::jstdBucketSort, T>(TEST_PARAMS(test_array_list));
 
     // Forced test wide field array
