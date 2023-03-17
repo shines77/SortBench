@@ -288,6 +288,8 @@ inline std::pair<size_t, size_t> calc_bucket_count(DiffType length, DiffType dis
         shiftBits = jstd::pow2::log2_int<size_t, 2>(shiftFactor);
         shiftFactor = size_t(1) << shiftBits;
         bucketCount = (((size_t)distance + 1) + (shiftFactor - 1)) >> shiftBits;
+        printf("shiftBits = %u, shiftFactor = 0x%08X, bucketCount = %u\n",
+               (uint32_t)shiftBits, (uint32_t)shiftFactor, (uint32_t)bucketCount);
     }
     return std::make_pair(bucketCount, shiftBits);
 }
