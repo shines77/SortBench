@@ -11,7 +11,7 @@
 #include "jstd/algorithms/BubbleSort.h"
 
 #include "jstd/algorithms/BinaryInsertSort.h"
-#include "jstd/algorithms/BucketSort.h"
+#include "jstd/algorithms/HistogramSort.h"
 
 #include "jstd/algorithms/SGIIntroSort.h"
 #include "jstd/algorithms/orlp-pdqsort.h"
