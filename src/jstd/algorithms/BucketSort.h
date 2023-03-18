@@ -90,9 +90,10 @@ inline size_t ilog2(T n)
     return exponent;
 }
 
-template <typename CountType, typename Iterator, typename Comparer, typename DiffType, typename ValueType>
-inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                       DiffType distance, const ValueType & minVal) {
+template <typename CountType, typename Iterator, typename Comparer,
+          typename DiffType, typename ValueType>
+inline void dense_counting_sort(Iterator first, Iterator last, Comparer compare,
+                                DiffType distance, const ValueType & minVal) {
     typedef Iterator iterator;
     typedef typename std::make_unsigned<CountType>::type             count_type;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
@@ -152,9 +153,10 @@ inline void dense_counting_bucket_sort(Iterator first, Iterator last, Comparer c
     }
 }
 
-template <typename CountType, typename Iterator, typename Comparer, typename DiffType, typename ValueType>
-inline void sparse_counting_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                        DiffType distance, const ValueType & minVal) {
+template <typename CountType, typename Iterator, typename Comparer,
+          typename DiffType, typename ValueType>
+inline void sparse_counting_sort(Iterator first, Iterator last, Comparer compare,
+                                 DiffType distance, const ValueType & minVal) {
     typedef Iterator iterator;
     typedef typename std::make_unsigned<CountType>::type             count_type;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
@@ -310,14 +312,15 @@ inline std::pair<size_t, size_t> calc_bucket_count(DiffType length, DiffType dis
 }
 
 //
-// Histogram sort
+// Histogram sort & Proxmap sort
 //
 // See: https://zh.wikipedia.org/zh-cn/%E6%8F%92%E5%80%BC%E6%8E%92%E5%BA%8F
 //
-template <typename CountType, typename Iterator, typename Comparer, typename DiffType, typename ValueType>
-inline void small_histogram_bucket_sort(Iterator first, Iterator last, Comparer compare,
-                                        DiffType length, DiffType distance,
-                                        const ValueType & minVal, const ValueType & maxVal) {
+template <typename CountType, typename Iterator, typename Comparer,
+          typename DiffType, typename ValueType>
+inline void proxmap_sort(Iterator first, Iterator last, Comparer compare,
+                         DiffType length, DiffType distance,
+                         const ValueType & minVal, const ValueType & maxVal) {
     typedef Iterator iterator;
     typedef typename std::make_unsigned<CountType>::type             count_type;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
@@ -404,6 +407,8 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
+    static const size_t kMaxWordBits = sizeof(size_t) * 8;
+
     diff_type length = last - first;
     if (likely((size_t)length <= kStdSortThreshold)) {
         if (likely((size_t)length <= kInsertSortThreshold))
@@ -430,27 +435,27 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
                 // Short array [0, 65536]
                 if (likely(distance < diff_type(65536 * 8))) {
                     if (likely(distance <= (length * 5 / 4)))
-                        dense_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal);
-                    else if (likely(distance <= (length * 64)))
-                        sparse_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal); 
+                        dense_counting_sort<uint16_t>(first, last, compare, distance, minVal);
+                    else if (likely(distance <= (length * diff_type(kMaxWordBits))))
+                        sparse_counting_sort<uint16_t>(first, last, compare, distance, minVal); 
                     else
-                        goto SmallHistogramSort16;
+                        goto ProxmapSort16;
                 } else {
-SmallHistogramSort16:
-                    small_histogram_bucket_sort<uint16_t>(first, last, compare, length, distance, minVal, maxVal);
+ProxmapSort16:
+                    proxmap_sort<uint16_t>(first, last, compare, length, distance, minVal, maxVal);
                 }
             } else {
                 // Long array (65536, UInt32Max or UInt64Max]
                 if (likely(distance < diff_type(65536 * 8))) {
                     if (likely(distance <= (length * 5 / 4)))
-                        dense_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);    
-                    else if (likely(distance <= (length * 64)))
-                        sparse_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
+                        dense_counting_sort<uint32_t>(first, last, compare, distance, minVal);    
+                    else if (likely(distance <= (length * diff_type(kMaxWordBits))))
+                        sparse_counting_sort<uint32_t>(first, last, compare, distance, minVal);
                     else
-                        goto SmallHistogramSort32;
+                        goto ProxmapSort32;
                 } else {
-SmallHistogramSort32:
-                    small_histogram_bucket_sort<uint32_t>(first, last, compare, length, distance, minVal, maxVal);
+ProxmapSort32:
+                    proxmap_sort<uint32_t>(first, last, compare, length, distance, minVal, maxVal);
                 }
             }
         }
