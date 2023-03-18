@@ -158,7 +158,7 @@ inline ValueType mean3(RandomAccessIter first, RandomAccessIter last) {
 
 template <typename RandomAccessIter, typename ValueType, typename Comparer>
 inline void unguarded_linear_insert(RandomAccessIter first, RandomAccessIter last,
-                                    const ValueType & value, Comparer compare) {
+                                    ValueType & value, Comparer compare) {
     typedef RandomAccessIter iterator;
 
     iterator prev = last;
@@ -170,7 +170,7 @@ inline void unguarded_linear_insert(RandomAccessIter first, RandomAccessIter las
         --prev;
     }
     assert(last >= first);
-    *last = value;
+    *last = std::move(value);
 }
 
 template <typename RandomAccessIter, typename Comparer>
@@ -189,14 +189,15 @@ inline void unguarded_linear_insert(RandomAccessIter first, RandomAccessIter las
             --last;
             --prev;
         } while (compare(tmp, *prev));
+
         assert(last >= first);
-        *last = tmp;
+        *last = std::move(tmp);
     }
 }
 
 template <typename RandomAccessIter, typename ValueType, typename Comparer>
 inline void guarded_linear_insert(RandomAccessIter first, RandomAccessIter last,
-                                  const ValueType & value, Comparer compare) {
+                                  ValueType & value, Comparer compare) {
     typedef RandomAccessIter iterator;
 
     iterator prev = last;
@@ -207,7 +208,7 @@ inline void guarded_linear_insert(RandomAccessIter first, RandomAccessIter last,
         --prev;
     }
     assert(last >= first);
-    *last = value;
+    *last = std::move(value);
 }
 
 template <typename RandomAccessIter, typename Comparer>
@@ -257,7 +258,7 @@ inline void final_insertion_sort(RandomAccessIter first, RandomAccessIter last,
 
 template <typename RandomAccessIter, typename ValueType, typename Comparer>
 inline RandomAccessIter unguarded_partition(RandomAccessIter first, RandomAccessIter last,
-                                            const ValueType & pivot, Comparer compare){
+                                            const ValueType & pivot, Comparer compare) {
     do {
         while (compare(*first, pivot)) {
             ++first;
@@ -308,7 +309,7 @@ inline void intro_sort_loop(RandomAccessIter first, RandomAccessIter last,
 
             intro_sort_loop(first, pivot, compare, depth);
             // intro_sort_loop(pivot + 1, last, compare, depth);
-            
+
             first = std::next(pivot);
         } else {
             // Change to heap sort
