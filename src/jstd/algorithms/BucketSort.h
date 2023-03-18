@@ -1,6 +1,6 @@
 
-#ifndef JSTD_BUCKET_SORT_H
-#define JSTD_BUCKET_SORT_H
+#ifndef JSTD_HISTOGRAM_SORT_H
+#define JSTD_HISTOGRAM_SORT_H
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
@@ -24,7 +24,7 @@
 #include <algorithm>
 
 namespace jstd {
-namespace bucket_detail {
+namespace histogram_detail {
 
 // The threshold of built-in insertion sort
 static const size_t kInsertSortThreshold = 128;
@@ -218,7 +218,6 @@ inline void sparse_counting_sort(Iterator first, Iterator last, Comparer compare
     } else {
         std::unique_ptr<size_t[]> count_bits(new size_t[maxBitsWordLen]());
         std::unique_ptr<count_type[]> counts(new count_type[distance + 1]());
-        //std::memset(&counts[0], 0, sizeof(count_type) * (distance + 1));
 
         iterator iter;
         for (iter = first; iter < last; ++iter) {
@@ -322,10 +321,9 @@ inline void proxmap_sort(Iterator first, Iterator last, Comparer compare,
                          DiffType length, DiffType distance,
                          const ValueType & minVal, const ValueType & maxVal) {
     typedef Iterator iterator;
-    typedef typename std::make_unsigned<CountType>::type             count_type;
-    typedef typename std::iterator_traits<iterator>::value_type      value_type;
-//  typedef typename std::iterator_traits<iterator>::difference_type diff_type;
-    typedef PackedBucket<value_type, count_type>                     bucket_type;
+    typedef typename std::make_unsigned<CountType>::type        count_type;
+    typedef typename std::iterator_traits<iterator>::value_type value_type;
+    typedef PackedBucket<value_type, count_type>                bucket_type;
 
     static const count_type kEmptyBucket = static_cast<count_type>(-1);
 
@@ -401,8 +399,8 @@ inline void proxmap_sort(Iterator first, Iterator last, Comparer compare,
 }
 
 template <typename RandomAccessIter, typename Comparer>
-inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
-                        Comparer compare, std::random_access_iterator_tag) {
+inline void histogram_sort(RandomAccessIter first, RandomAccessIter last,
+                           Comparer compare, std::random_access_iterator_tag) {
     typedef RandomAccessIter iterator;
     typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
@@ -463,37 +461,37 @@ ProxmapSort32:
 }
 
 template <typename BiDirectionalIter, typename Comparer>
-inline void bucket_sort(BiDirectionalIter first, BiDirectionalIter last,
-                        Comparer compare, std::bidirectional_iterator_tag) {
+inline void histogram_sort(BiDirectionalIter first, BiDirectionalIter last,
+                           Comparer compare, std::bidirectional_iterator_tag) {
     typedef BiDirectionalIter iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
     static_assert(!std::is_same<iterator_category, std::bidirectional_iterator_tag>::value,
-                  "bucket_detail::bucket_sort() is not supported std::bidirectional_iterator.");
+                  "histogram_detail::histogram_sort() is not supported std::bidirectional_iterator.");
 }
 
 template <typename ForwardIter, typename Comparer>
-inline void bucket_sort(ForwardIter first, ForwardIter last,
-                        Comparer compare, std::forward_iterator_tag) {
+inline void histogram_sort(ForwardIter first, ForwardIter last,
+                           Comparer compare, std::forward_iterator_tag) {
     typedef ForwardIter iterator;
     typedef typename std::iterator_traits<iterator>::iterator_category iterator_category;
     static_assert(!std::is_same<iterator_category, std::forward_iterator_tag>::value,
-                  "bucket_detail::bucket_sort() is not supported std::forward_iterator.");
+                  "histogram_detail::histogram_sort() is not supported std::forward_iterator.");
 }
 
-} // namespace bucket_detail
+} // namespace histogram_detail
 
 template <typename Iterator, typename Comparer>
-void bucket_sort(Iterator first, Iterator last, Comparer compare) {
+void histogram_sort(Iterator first, Iterator last, Comparer compare) {
     typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
-    bucket_detail::bucket_sort(first, last, compare, iterator_category());
+    histogram_detail::histogram_sort(first, last, compare, iterator_category());
 }
 
 template <typename Iterator>
-void bucket_sort(Iterator first, Iterator last) {
+void histogram_sort(Iterator first, Iterator last) {
     typedef typename std::iterator_traits<Iterator>::value_type T;
-    bucket_sort(first, last, std::less<T>());
+    histogram_sort(first, last, std::less<T>());
 }
 
 } // namespace jstd
 
-#endif // !JSTD_BUCKET_SORT_H
+#endif // !JSTD_HISTOGRAM_SORT_H

@@ -62,6 +62,8 @@ struct Algorithm {
         jstdBinaryInsertSort_v2,
         jstdBucketSort,
         jstdBucketSortWide,
+        jstdHistogramSort,
+        jstdHistogramSortWide,
         jstdQuickSort,
         TimSort,
         stdHeapSort,
@@ -98,6 +100,10 @@ const char * getSortAlgorithmName()
         return "jstd::bucket_sort";
     else if (AlgorithmId == Algorithm::jstdBucketSortWide)
         return "jstd::bucket_sort (wide)";
+    else if (AlgorithmId == Algorithm::jstdHistogramSort)
+        return "jstd::histogram_sort";
+    else if (AlgorithmId == Algorithm::jstdHistogramSortWide)
+        return "jstd::histogram_sort (wide)";
     else if (AlgorithmId == Algorithm::jstdQuickSort)
         return "jstd::quick_sort";
     else if (AlgorithmId == Algorithm::stdHeapSort)
@@ -115,9 +121,9 @@ const char * getSortAlgorithmName()
     else if (AlgorithmId == Algorithm::ska_sort_copy)
         return "ska_sort_copy";
     else if (AlgorithmId == Algorithm::ska_sort_wide)
-        return "ska_sort_wide";
+        return "ska_sort (wide)";
     else if (AlgorithmId == Algorithm::ska_sort_copy_wide)
-        return "ska_sort_copy_wide";
+        return "ska_sort_copy (wide)";
     else
         return "Unknown Algorithm";
 }
@@ -166,14 +172,14 @@ inline uint64_t rand64()
 }
 
 template <typename Iterator, typename Comparer>
-void heap_sort(Iterator first, Iterator last, Comparer compare)
+void std_heap_sort(Iterator first, Iterator last, Comparer compare)
 {
     std::make_heap(first, last, compare);
     std::sort_heap(first, last, compare);
 }
 
 template <typename Iterator>
-void heap_sort(Iterator first, Iterator last)
+void std_heap_sort(Iterator first, Iterator last)
 {
     typedef typename std::iterator_traits<Iterator>::value_type T;
     std::make_heap(first, last, std::less<T>());
@@ -321,11 +327,11 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
             jstd::binary_insert_sort_v1(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::jstdBinaryInsertSort_v2) {
             jstd::binary_insert_sort_v2(test_array.begin(), test_array.end());
-        } else if (AlgorithmId == Algorithm::jstdBucketSort ||
-                   AlgorithmId == Algorithm::jstdBucketSortWide) {
-            jstd::bucket_sort(test_array.begin(), test_array.end());
+        } else if (AlgorithmId == Algorithm::jstdHistogramSort ||
+                   AlgorithmId == Algorithm::jstdHistogramSortWide) {
+            jstd::histogram_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::stdHeapSort) {
-            heap_sort(test_array.begin(), test_array.end());
+            std_heap_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::stdStableSort) {
             std::stable_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::stdSort) {
@@ -510,7 +516,7 @@ void sort_benchmark()
 }
 
 template <typename T, size_t MinLen, size_t MaxLen>
-bool bucket_sort_test_impl(T minVal, T maxVal)
+bool histogram_sort_test_impl(T minVal, T maxVal)
 {
     static const size_t kMinLen = MinLen;
     static const size_t kMaxLen = MaxLen;
@@ -538,7 +544,7 @@ bool bucket_sort_test_impl(T minVal, T maxVal)
     std::vector<T> answer;
     generate_standard_answer<T>(test_array, answer);
 
-    jstd::bucket_sort(test_array.begin(), test_array.end());
+    jstd::histogram_sort(test_array.begin(), test_array.end());
 
     if (kMaxLen < 1024) {
         print_array("test_array", test_array);
@@ -549,42 +555,42 @@ bool bucket_sort_test_impl(T minVal, T maxVal)
     return correctness;
 }
 
-void bucket_sort_debug_test()
+void histogram_sort_debug_test()
 {
     std::srand((unsigned int)std::time(0));
 
     bool correctness = true;
     if (0) {
-        printf("bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535);\n");
-        correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535);
+        printf("histogram_sort_test_impl<uint32_t, 20000, 65536>(0, 65535);\n");
+        correctness = histogram_sort_test_impl<uint32_t, 20000, 65536>(0, 65535);
         printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
     }
 
     if (1) {
-        printf("bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535 * 4 - 1);\n");
-        correctness = bucket_sort_test_impl<uint32_t, 20000, 65536>(0, 65535 * 4 - 1);
+        printf("histogram_sort_test_impl<uint32_t, 20000, 65536>(0, 65535 * 4 - 1);\n");
+        correctness = histogram_sort_test_impl<uint32_t, 20000, 65536>(0, 65535 * 4 - 1);
         printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
     }
 
     if (1) {
-        printf("bucket_sort_test_impl<uint32_t, 1024, 2048>(0, 65536 * 16);\n");
-        correctness = bucket_sort_test_impl<uint32_t, 1024, 2048>(0, 65536 * 16);
+        printf("histogram_sort_test_impl<uint32_t, 1024, 2048>(0, 65536 * 16);\n");
+        correctness = histogram_sort_test_impl<uint32_t, 1024, 2048>(0, 65536 * 16);
         printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
     }
 }
 
-void bucket_sort_test()
+void histogram_sort_test()
 {
     bool correctness = true;
     if (1) {
-        printf("bucket_sort_test_impl<uint32_t, 256, 320>(0, 65535);\n");
-        correctness = bucket_sort_test_impl<uint32_t, 256, 320>(0, 65535);
+        printf("histogram_sort_test_impl<uint32_t, 256, 320>(0, 65535);\n");
+        correctness = histogram_sort_test_impl<uint32_t, 256, 320>(0, 65535);
         printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
     }
 
     if (0) {
-        printf("bucket_sort_test_impl<uint32_t, 256, 512>(0, 65535);\n");
-        correctness = bucket_sort_test_impl<uint32_t, 256, 512>(0, 65535);
+        printf("histogram_sort_test_impl<uint32_t, 256, 512>(0, 65535);\n");
+        correctness = histogram_sort_test_impl<uint32_t, 256, 512>(0, 65535);
         printf("correctness = %s\n\n", (correctness ? "Pass" : "Failed"));
     }
 }
@@ -601,13 +607,13 @@ int main(int argc, char * argv[])
     test::CPU::WarmUp warm_up(1000);
 
 #ifdef _DEBUG
-    bucket_sort_debug_test();
+    histogram_sort_debug_test();
 #endif
 
 #ifndef _DEBUG
     if (0)
     {
-        bucket_sort_test();
+        histogram_sort_test();
     }
 
     if (1)
