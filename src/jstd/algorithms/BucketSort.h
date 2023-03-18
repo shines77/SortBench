@@ -428,20 +428,30 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
         if (likely(distance != 0)) {
             if (likely(length <= 65536)) {
                 // Short array [0, 65536]
-                if (likely(distance <= (length * 5 / 4)))
-                    dense_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal);
-                else if (likely(distance > (length * 64)))
-                    sparse_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal); 
-                else
+                if (likely(distance < diff_type(65536 * 8))) {
+                    if (likely(distance <= (length * 5 / 4)))
+                        dense_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal);
+                    else if (likely(distance > (length * 64)))
+                        sparse_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal); 
+                    else
+                        goto SmallHistogram16;
+                } else {
+SmallHistogram16:
                     small_histogram_bucket_sort<uint16_t>(first, last, compare, length, distance, minVal, maxVal);
+                }
             } else {
                 // Long array (65536, UInt32Max or UInt64Max]
-                if (likely(distance <= (length * 5 / 4)))
-                    dense_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);    
-                else if (likely(distance > (length * 64)))
-                    sparse_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
-                else
+                if (likely(distance < diff_type(65536 * 8))) {
+                    if (likely(distance <= (length * 5 / 4)))
+                        dense_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);    
+                    else if (likely(distance > (length * 64)))
+                        sparse_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
+                    else
+                        goto SmallHistogram32;
+                } else {
+SmallHistogram32:
                     small_histogram_bucket_sort<uint32_t>(first, last, compare, length, distance, minVal, maxVal);
+                }
             }
         }
     }
