@@ -274,20 +274,6 @@ inline RandomAccessIter unguarded_partition(RandomAccessIter first, RandomAccess
 }
 
 template <typename RandomAccessIter, typename Comparer>
-inline void heap_sort(RandomAccessIter first, RandomAccessIter last,
-                      Comparer compare) {
-    typedef RandomAccessIter iterator;
-    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
-
-    diff_type length = last - first;
-    if (unlikely(size_t(length) <= kInsertSortThreshold)) {
-        jstd::insert_sort(first, last, compare);
-    } else {
-        //
-    }
-}
-
-template <typename RandomAccessIter, typename Comparer>
 inline void partial_sort(RandomAccessIter first, RandomAccessIter last, Comparer compare) {
     std::make_heap(first, last, compare);
     std::sort_heap(first, last, compare);
@@ -310,8 +296,7 @@ template <typename RandomAccessIter, typename Comparer>
 inline void intro_sort_loop(RandomAccessIter first, RandomAccessIter last,
                             Comparer compare, size_t depth) {
     typedef RandomAccessIter iterator;
-    typedef typename std::iterator_traits<iterator>::value_type      value_type;
-    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
+    typedef typename std::iterator_traits<iterator>::value_type value_type;
 
     while (likely(size_t(last - first) > kInsertSortThreshold)) {
         if (likely(depth > 1)) {
@@ -337,7 +322,6 @@ template <typename RandomAccessIter, typename Comparer>
 inline void intro_sort(RandomAccessIter first, RandomAccessIter last,
                        Comparer compare, std::random_access_iterator_tag) {
     typedef RandomAccessIter iterator;
-    typedef typename std::iterator_traits<iterator>::value_type      value_type;
     typedef typename std::iterator_traits<iterator>::difference_type diff_type;
 
     diff_type length = last - first;
