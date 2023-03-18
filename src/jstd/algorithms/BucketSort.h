@@ -434,9 +434,9 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
                     else if (likely(distance <= (length * 64)))
                         sparse_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal); 
                     else
-                        goto SmallHistogram16;
+                        goto SmallHistogramSort16;
                 } else {
-SmallHistogram16:
+SmallHistogramSort16:
                     small_histogram_bucket_sort<uint16_t>(first, last, compare, length, distance, minVal, maxVal);
                 }
             } else {
@@ -447,9 +447,9 @@ SmallHistogram16:
                     else if (likely(distance <= (length * 64)))
                         sparse_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
                     else
-                        goto SmallHistogram32;
+                        goto SmallHistogramSort32;
                 } else {
-SmallHistogram32:
+SmallHistogramSort32:
                     small_histogram_bucket_sort<uint32_t>(first, last, compare, length, distance, minVal, maxVal);
                 }
             }
