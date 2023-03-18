@@ -23,16 +23,6 @@ namespace intro_detail {
 // The threshold of built-in insertion sort
 static const size_t kInsertSortThreshold = 64;
 
-template <typename RandomAccessIter, typename Comparer>
-inline void heap_sort(RandomAccessIter first, RandomAccessIter last,
-                      Comparer compare) {
-    if (unlikely(size_t(length) <= kInsertSortThreshold)) {
-        jstd::insert_sort(first, last, compare);
-    } else {
-        //
-    }
-}
-
 template <typename RandomAccessIter>
 inline RandomAccessIter mean3_iter(RandomAccessIter first, RandomAccessIter last) {
     typedef RandomAccessIter iterator;
@@ -281,6 +271,17 @@ inline RandomAccessIter unguarded_partition(RandomAccessIter first, RandomAccess
         std::iter_swap(first, last);
         ++first;
     } while (true);
+}
+
+template <typename RandomAccessIter, typename Comparer>
+inline void heap_sort(RandomAccessIter first, RandomAccessIter last,
+                      Comparer compare) {
+    diff_type length = last - first;
+    if (unlikely(size_t(length) <= kInsertSortThreshold)) {
+        jstd::insert_sort(first, last, compare);
+    } else {
+        //
+    }
 }
 
 template <typename RandomAccessIter, typename Comparer>
