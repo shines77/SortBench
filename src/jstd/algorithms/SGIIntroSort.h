@@ -235,7 +235,7 @@ template <typename RandomAccessIter, typename Comparer>
 inline void unguarded_insertion_sort(RandomAccessIter first, RandomAccessIter last,
                                      Comparer compare) {
     typedef RandomAccessIter iterator;
-    for (iterator iter = first + 1; iter < last; ++iter) {
+    for (iterator iter = first; iter < last; ++iter) {
         unguarded_linear_insert(first, iter, compare);
     }
 }
