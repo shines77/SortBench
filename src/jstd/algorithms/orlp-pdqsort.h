@@ -501,10 +501,10 @@ namespace pdqsort_detail {
             leftmost = false;
         }
     }
-}
+} // namespace pdqsort_detail
 
 template <class Iter, class Compare>
-inline void pdqsort(Iter begin, Iter end, Compare comp) {
+void pdqsort(Iter begin, Iter end, Compare comp) {
     if (begin == end) return;
 
 #if PDQSORT_IS_CXX_11
@@ -519,20 +519,20 @@ inline void pdqsort(Iter begin, Iter end, Compare comp) {
 }
 
 template <class Iter>
-inline void pdqsort(Iter begin, Iter end) {
+void pdqsort(Iter begin, Iter end) {
     typedef typename std::iterator_traits<Iter>::value_type T;
     pdqsort(begin, end, std::less<T>());
 }
 
 template <class Iter, class Compare>
-inline void pdqsort_branchless(Iter begin, Iter end, Compare comp) {
+void pdqsort_branchless(Iter begin, Iter end, Compare comp) {
     if (begin == end) return;
     pdqsort_detail::pdqsort_loop<Iter, Compare, true>(
         begin, end, comp, pdqsort_detail::log2(end - begin));
 }
 
 template <class Iter>
-inline void pdqsort_branchless(Iter begin, Iter end) {
+void pdqsort_branchless(Iter begin, Iter end) {
     typedef typename std::iterator_traits<Iter>::value_type T;
     pdqsort_branchless(begin, end, std::less<T>());
 }
