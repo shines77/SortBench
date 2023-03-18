@@ -276,6 +276,9 @@ inline RandomAccessIter unguarded_partition(RandomAccessIter first, RandomAccess
 template <typename RandomAccessIter, typename Comparer>
 inline void heap_sort(RandomAccessIter first, RandomAccessIter last,
                       Comparer compare) {
+    typedef RandomAccessIter iterator;
+    typedef typename std::iterator_traits<iterator>::difference_type diff_type;
+
     diff_type length = last - first;
     if (unlikely(size_t(length) <= kInsertSortThreshold)) {
         jstd::insert_sort(first, last, compare);
@@ -300,7 +303,7 @@ inline void partial_sort(RandomAccessIter first, RandomAccessIter middle,
             std::pop_heap(first, middle, compare);
         }
     }
-    std:::sort_heap(first, middle, compare);
+    std::sort_heap(first, middle, compare);
 }
 
 template <typename RandomAccessIter, typename Comparer>
