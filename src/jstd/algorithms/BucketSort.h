@@ -431,7 +431,7 @@ inline void bucket_sort(RandomAccessIter first, RandomAccessIter last,
                 if (likely(distance < diff_type(65536 * 8))) {
                     if (likely(distance <= (length * 5 / 4)))
                         dense_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal);
-                    else if (likely(distance > (length * 64)))
+                    else if (likely(distance <= (length * 64)))
                         sparse_counting_bucket_sort<uint16_t>(first, last, compare, distance, minVal); 
                     else
                         goto SmallHistogram16;
@@ -444,7 +444,7 @@ SmallHistogram16:
                 if (likely(distance < diff_type(65536 * 8))) {
                     if (likely(distance <= (length * 5 / 4)))
                         dense_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);    
-                    else if (likely(distance > (length * 64)))
+                    else if (likely(distance <= (length * 64)))
                         sparse_counting_bucket_sort<uint32_t>(first, last, compare, distance, minVal);
                     else
                         goto SmallHistogram32;
