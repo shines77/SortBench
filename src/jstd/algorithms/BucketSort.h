@@ -478,13 +478,13 @@ inline void bucket_sort(ForwardIter first, ForwardIter last,
 } // namespace bucket_detail
 
 template <typename Iterator, typename Comparer>
-inline void bucket_sort(Iterator first, Iterator last, Comparer compare) {
+void bucket_sort(Iterator first, Iterator last, Comparer compare) {
     typedef typename std::iterator_traits<Iterator>::iterator_category iterator_category;
     bucket_detail::bucket_sort(first, last, compare, iterator_category());
 }
 
 template <typename Iterator>
-inline void bucket_sort(Iterator first, Iterator last) {
+void bucket_sort(Iterator first, Iterator last) {
     typedef typename std::iterator_traits<Iterator>::value_type T;
     bucket_sort(first, last, std::less<T>());
 }

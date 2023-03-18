@@ -67,6 +67,7 @@ struct Algorithm {
         stdHeapSort,
         stdStableSort,
         stdSort,
+        sgiIntroSort,
         orlp_pdqsort,
         ska_sort,
         ska_sort_copy,
@@ -105,6 +106,8 @@ const char * getSortAlgorithmName()
         return "std::stable_sort";
     else if (AlgorithmId == Algorithm::stdSort)
         return "std::sort";
+    else if (AlgorithmId == Algorithm::sgiIntroSort)
+        return "sgi::intro_sort";
     else if (AlgorithmId == Algorithm::orlp_pdqsort)
         return "orlp::pdqsort";
     else if (AlgorithmId == Algorithm::ska_sort)
@@ -327,6 +330,8 @@ void sort_algo_bench(const std::unique_ptr<std::vector<T>[]> & src_array_list,
             std::stable_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::stdSort) {
             std::sort(test_array.begin(), test_array.end());
+        } else if (AlgorithmId == Algorithm::sgiIntroSort) {
+            sgi::intro_sort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::orlp_pdqsort) {
             orlp::pdqsort(test_array.begin(), test_array.end());
         } else if (AlgorithmId == Algorithm::ska_sort ||
@@ -429,6 +434,7 @@ void sort_benchmark_impl()
     sort_algo_bench<Algorithm::stdHeapSort,    T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::stdStableSort,  T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::stdSort,        T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::sgiIntroSort,   T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::orlp_pdqsort,   T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::ska_sort,       T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::ska_sort_copy,  T>(TEST_PARAMS(test_array_list));
@@ -489,13 +495,17 @@ void sort_benchmark()
 
     // Randomize long array test
     sort_benchmark_impl<T, ArrayType, 900, 1000>();
+    sort_benchmark_impl<T, ArrayType, 1900, 2000>();
     sort_benchmark_impl<T, ArrayType, 4500, 5000>();
     sort_benchmark_impl<T, ArrayType, 9500, 10000>();
+    sort_benchmark_impl<T, ArrayType, 19600, 20000>();
     sort_benchmark_impl<T, ArrayType, 49000, 50000>();
     sort_benchmark_impl<T, ArrayType, 99000, 100000>();
 #ifndef _DEBUG
+    sort_benchmark_impl<T, ArrayType, 199000, 200000>();
     sort_benchmark_impl<T, ArrayType, 499000, 500000>();
     sort_benchmark_impl<T, ArrayType, 999000, 1000000>();
+    sort_benchmark_impl<T, ArrayType, 1999000, 2000000>();
 #endif
 }
 

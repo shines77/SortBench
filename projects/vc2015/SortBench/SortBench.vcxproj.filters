@@ -17,6 +17,9 @@
     <Filter Include="src\jstd\support">
       <UniqueIdentifier>{56790afa-58b1-4359-abe0-0280b9330c5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\jstd\utils">
+      <UniqueIdentifier>{a1c3ddb4-34bf-432f-b29a-6f2bf9f07f7d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\SortBench\SortBench.cpp">
@@ -76,6 +79,12 @@
       <Filter>src\jstd\algorithms</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\jstd\algorithms\ska_sort.hpp">
+      <Filter>src\jstd\algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\utils\algorithm.h">
+      <Filter>src\jstd\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\jstd\algorithms\SGIIntroSort.h">
       <Filter>src\jstd\algorithms</Filter>
     </ClInclude>
   </ItemGroup>

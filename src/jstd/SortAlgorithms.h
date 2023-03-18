@@ -13,6 +13,7 @@
 #include "jstd/algorithms/BinaryInsertSort.h"
 #include "jstd/algorithms/BucketSort.h"
 
+#include "jstd/algorithms/SGIIntroSort.h"
 #include "jstd/algorithms/orlp-pdqsort.h"
 #include "jstd/algorithms/ska_sort.hpp"
 
