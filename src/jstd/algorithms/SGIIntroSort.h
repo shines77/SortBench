@@ -17,6 +17,23 @@
 #include <algorithm>
 #include <utility>
 
+//
+// SGI Introspective sort
+//
+// See: https://blog.csdn.net/fu_GAGA/article/details/123621875
+// See: https://blog.51cto.com/csnd/5749442
+// See: https://blog.csdn.net/GrayOnDream/article/details/112059158
+//
+
+/**
+ *  Knowledge points: unguarded_xxxx() function
+ *
+ *  The word 'unguarded' means defenceless and unprotected.
+ *  (in Chinese: Wu Fang Bei de, Wu Bao Hu de)
+ *  This functional form is a function that can run correctly
+ *  without boundary checking under specific conditions.
+ *
+ */
 namespace sgi {
 namespace intro_detail {
 
@@ -358,7 +375,11 @@ inline void intro_sort(ForwardIter first, ForwardIter last,
 } // namespace intro_detail
 
 //
-// Introspective sort
+// SGI Introspective sort
+//
+// See: https://blog.csdn.net/fu_GAGA/article/details/123621875
+// See: https://blog.51cto.com/csnd/5749442
+// See: https://blog.csdn.net/GrayOnDream/article/details/112059158
 //
 template <typename Iterator, typename Comparer>
 void intro_sort(Iterator first, Iterator last, Comparer compare) {
