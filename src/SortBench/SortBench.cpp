@@ -425,14 +425,22 @@ void sort_benchmark_impl()
         sort_algo_bench<Algorithm::jstdSelectSort, T>(TEST_PARAMS(test_array_list));
     }
 #ifdef _MSC_VER
-    if (maxLen <= 2560) {
-#else
-    if (maxLen <= 10240) {
-#endif
+    if (maxLen <= 1280) {
         sort_algo_bench<Algorithm::jstdInsertSort,          T>(TEST_PARAMS(test_array_list));
+    }
+    if (maxLen <= 2560) {
         sort_algo_bench<Algorithm::jstdBinaryInsertSort_v1, T>(TEST_PARAMS(test_array_list));
         sort_algo_bench<Algorithm::jstdBinaryInsertSort_v2, T>(TEST_PARAMS(test_array_list));
     }
+#else
+    if (maxLen <= 2560) {
+        sort_algo_bench<Algorithm::jstdInsertSort,          T>(TEST_PARAMS(test_array_list));
+    }
+    if (maxLen <= 5120) {
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort_v1, T>(TEST_PARAMS(test_array_list));
+        sort_algo_bench<Algorithm::jstdBinaryInsertSort_v2, T>(TEST_PARAMS(test_array_list));
+    }
+#endif // _MSC_VER
 #endif // _DEBUG
 
     sort_algo_bench<Algorithm::stdHeapSort,       T>(TEST_PARAMS(test_array_list));
