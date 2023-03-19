@@ -407,7 +407,7 @@ void sort_benchmark_impl()
 #define TEST_PARAMS(test_array_list) \
     test_array_list, standard_answers, array_count, total_items
 
-#ifndef _DEBUG
+#ifdef _DEBUG
     if (maxLen <= 128) {
         sort_algo_bench<Algorithm::jstdBubbleSort, T>(TEST_PARAMS(test_array_list));
         sort_algo_bench<Algorithm::jstdSelectSort, T>(TEST_PARAMS(test_array_list));
@@ -425,7 +425,7 @@ void sort_benchmark_impl()
         sort_algo_bench<Algorithm::jstdSelectSort, T>(TEST_PARAMS(test_array_list));
     }
 #ifdef _MSC_VER
-    if (maxLen <= 5120) {
+    if (maxLen <= 2560) {
 #else
     if (maxLen <= 10240) {
 #endif
@@ -455,8 +455,8 @@ void sort_benchmark_impl()
     }
     generate_standard_answers<T>(standard_answers, test_array_list, array_count);
 
-    //sort_algo_bench<Algorithm::ska_sort_wide,      T>(TEST_PARAMS(test_array_list));
-    //sort_algo_bench<Algorithm::ska_sort_copy_wide, T>(TEST_PARAMS(test_array_list));
+    //sort_algo_bench<Algorithm::ska_sort_wide,         T>(TEST_PARAMS(test_array_list));
+    //sort_algo_bench<Algorithm::ska_sort_copy_wide,    T>(TEST_PARAMS(test_array_list));
     sort_algo_bench<Algorithm::jstdHistogramSortWide, T>(TEST_PARAMS(test_array_list));
 
     printf("\n");
