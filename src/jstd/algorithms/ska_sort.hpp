@@ -10,7 +10,7 @@
 #include <tuple>
 #include <utility>
 
-namespace detail
+namespace ska_detail
 {
 template<typename count_type, typename It, typename OutIt, typename ExtractKey>
 void counting_sort_impl(It begin, It end, OutIt out_begin, ExtractKey && extract_key)
@@ -1412,34 +1412,36 @@ struct IdentityFunctor
         return std::forward<T>(i);
     }
 };
-}
+
+} // namespace ska_detail
 
 template<typename It, typename ExtractKey>
 static void ska_sort(It begin, It end, ExtractKey && extract_key)
 {
-    detail::inplace_radix_sort<128, 1024>(begin, end, extract_key);
+    ska_detail::inplace_radix_sort<128, 1024>(begin, end, extract_key);
 }
 
 template<typename It>
 static void ska_sort(It begin, It end)
 {
-    ska_sort(begin, end, detail::IdentityFunctor());
+    ska_sort(begin, end, ska_detail::IdentityFunctor());
 }
 
 template<typename It, typename OutIt, typename ExtractKey>
 bool ska_sort_copy(It begin, It end, OutIt buffer_begin, ExtractKey && key)
 {
     std::ptrdiff_t num_elements = end - begin;
-    if (num_elements < 128 || detail::radix_sort_pass_count<typename std::result_of<ExtractKey(decltype(*begin))>::type> >= 8)
+    if (num_elements < 128 || ska_detail::radix_sort_pass_count<typename std::result_of<ExtractKey(decltype(*begin))>::type> >= 8)
     {
         ska_sort(begin, end, key);
         return false;
     }
     else
-        return detail::RadixSorter<typename std::result_of<ExtractKey(decltype(*begin))>::type>::sort(begin, end, buffer_begin, key);
+        return ska_detail::RadixSorter<typename std::result_of<ExtractKey(decltype(*begin))>::type>::sort(begin, end, buffer_begin, key);
 }
+
 template<typename It, typename OutIt>
 bool ska_sort_copy(It begin, It end, OutIt buffer_begin)
 {
-    return ska_sort_copy(begin, end, buffer_begin, detail::IdentityFunctor());
+    return ska_sort_copy(begin, end, buffer_begin, ska_detail::IdentityFunctor());
 }

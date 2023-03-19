@@ -378,7 +378,7 @@ void sort_benchmark_impl()
     printf(" sort_benchmark<%u, %u, %u>, len_range = %u, array_count = %u\n\n",
            (uint32_t)ArrayType, (uint32_t)minLen, (uint32_t)maxLen,
            (uint32_t)lenRange, (uint32_t)array_count);
-    
+
     size_t total_items = 0;
     for (size_t i = 0; i < array_count; i++) {
         std::vector<T> & test_array = test_array_list[i];
@@ -424,27 +424,25 @@ void sort_benchmark_impl()
         sort_algo_bench<Algorithm::jstdBubbleSort, T>(TEST_PARAMS(test_array_list));
         sort_algo_bench<Algorithm::jstdSelectSort, T>(TEST_PARAMS(test_array_list));
     }
-    if (maxLen <= 5120) {
-        sort_algo_bench<Algorithm::jstdInsertSort, T>(TEST_PARAMS(test_array_list));
-    }
 #ifdef _MSC_VER
     if (maxLen <= 5120) {
 #else
     if (maxLen <= 10240) {
 #endif
+        sort_algo_bench<Algorithm::jstdInsertSort,          T>(TEST_PARAMS(test_array_list));
         sort_algo_bench<Algorithm::jstdBinaryInsertSort_v1, T>(TEST_PARAMS(test_array_list));
         sort_algo_bench<Algorithm::jstdBinaryInsertSort_v2, T>(TEST_PARAMS(test_array_list));
     }
 #endif // _DEBUG
 
-    sort_algo_bench<Algorithm::stdHeapSort,    T>(TEST_PARAMS(test_array_list));
-    sort_algo_bench<Algorithm::stdStableSort,  T>(TEST_PARAMS(test_array_list));
-    sort_algo_bench<Algorithm::stdSort,        T>(TEST_PARAMS(test_array_list));
-    sort_algo_bench<Algorithm::sgiIntroSort,   T>(TEST_PARAMS(test_array_list));
-    sort_algo_bench<Algorithm::orlp_pdqsort,   T>(TEST_PARAMS(test_array_list));
-    sort_algo_bench<Algorithm::ska_sort,       T>(TEST_PARAMS(test_array_list));
-    sort_algo_bench<Algorithm::ska_sort_copy,  T>(TEST_PARAMS(test_array_list));
-    sort_algo_bench<Algorithm::jstdBucketSort, T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::stdHeapSort,       T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::stdStableSort,     T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::stdSort,           T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::sgiIntroSort,      T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::orlp_pdqsort,      T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::ska_sort,          T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::ska_sort_copy,     T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::jstdHistogramSort, T>(TEST_PARAMS(test_array_list));
 
     // Test wide range random array
     for (size_t i = 0; i < array_count; i++) {
@@ -459,7 +457,7 @@ void sort_benchmark_impl()
 
     //sort_algo_bench<Algorithm::ska_sort_wide,      T>(TEST_PARAMS(test_array_list));
     //sort_algo_bench<Algorithm::ska_sort_copy_wide, T>(TEST_PARAMS(test_array_list));
-    sort_algo_bench<Algorithm::jstdBucketSortWide, T>(TEST_PARAMS(test_array_list));
+    sort_algo_bench<Algorithm::jstdHistogramSortWide, T>(TEST_PARAMS(test_array_list));
 
     printf("\n");
 #undef TEST_PARAMS
